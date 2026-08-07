@@ -8,3 +8,4 @@ from app.models.user import User  # noqa: F401
 from app.models.status_history import PropertyStatusHistory  # noqa: F401
 from app.models.property_document import PropertyDocument  # noqa: F401
 from app.models.message import Conversation, Message  # noqa: F401
+from app.models.appointment import TimeSlot, Appointment  # noqa: F401

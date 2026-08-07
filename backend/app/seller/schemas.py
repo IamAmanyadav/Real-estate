@@ -139,5 +139,8 @@ class SellerDashboardStats(BaseModel):
     totalListings: int
     pendingListings: int
     approvedListings: int
+    publishedListings: int
+    soldListings: int
+    archivedListings: int
     rejectedListings: int
     totalInquiriesReceived: int

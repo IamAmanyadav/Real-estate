@@ -24,6 +24,7 @@ def _to_response(prop: Property) -> PropertyResponse:
     """Convert a SQLAlchemy Property model to the camelCase API response."""
     return PropertyResponse(
         id=str(prop.id),
+        propertyCode=prop.property_code,
         title=prop.title,
         description=prop.description,
         price=float(prop.price),

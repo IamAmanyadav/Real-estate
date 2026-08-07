@@ -37,6 +37,7 @@ def _to_response(prop: Property) -> AdminPropertyResponse:
 
     return AdminPropertyResponse(
         id=str(prop.id),
+        propertyCode=prop.property_code,
         title=prop.title,
         description=prop.description,
         price=float(prop.price),

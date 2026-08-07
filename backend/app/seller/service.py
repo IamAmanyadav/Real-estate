@@ -19,11 +19,6 @@ from app.seller.schemas import (
 )
 
 
-def _generate_property_id(uuid_val: uuid.UUID) -> str:
-    """Generate a human-readable property ID from UUID."""
-    short = str(uuid_val).split("-")[0].upper()
-    return f"LXE-{short}"
-
 
 def _doc_to_response(doc) -> DocumentResponse:
     return DocumentResponse(
@@ -40,7 +35,7 @@ def _to_response(prop: Property) -> SellerPropertyResponse:
     """Convert a SQLAlchemy Property model to the seller API response."""
     return SellerPropertyResponse(
         id=str(prop.id),
-        propertyId=_generate_property_id(prop.id),
+        propertyId=prop.property_code or f"LXE-{str(prop.id).split('-')[0].upper()}",
         title=prop.title,
         description=prop.description,
         price=float(prop.price),

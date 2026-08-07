@@ -94,6 +94,7 @@ class PropertyResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: str
+    propertyCode: str | None = None
     title: str
     description: str
     price: float

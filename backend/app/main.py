@@ -23,6 +23,12 @@ from app.buyer.router import router as buyer_router
 from app.uploads.router import router as uploads_router
 from app.sse.router import router as sse_router
 from app.messaging.router import router as messaging_router
+from app.appointments.router import (
+    seller_appointments_router,
+    buyer_appointments_router,
+    admin_appointments_router,
+    public_availability_router,
+)
 
 
 # Ensure uploads directory exists
@@ -68,6 +74,7 @@ app.include_router(admin_users_router, prefix="/api/v1/admin/users", tags=["Admi
 app.include_router(admin_properties_router, prefix="/api/v1/admin/properties", tags=["Admin Properties"])
 app.include_router(admin_inquiries_router, prefix="/api/v1/admin/inquiries", tags=["Admin Inquiries"])
 app.include_router(admin_analytics_router, prefix="/api/v1/admin/analytics", tags=["Admin Analytics"])
+app.include_router(admin_appointments_router, prefix="/api/v1/admin/appointments", tags=["Admin Appointments"])
 
 # ── SSE ──────────────────────────────────────────────────────────────────────
 app.include_router(sse_router, prefix="/api/v1/sse", tags=["SSE"])
@@ -77,9 +84,14 @@ app.include_router(messaging_router, prefix="/api/v1/messages", tags=["Messages"
 
 # ── Seller Routers ───────────────────────────────────────────────────────────
 app.include_router(seller_router, prefix="/api/v1/seller", tags=["Seller"])
+app.include_router(seller_appointments_router, prefix="/api/v1/seller", tags=["Seller Appointments"])
 
 # ── Buyer Routers ────────────────────────────────────────────────────────────
 app.include_router(buyer_router, prefix="/api/v1/buyer", tags=["Buyer"])
+app.include_router(buyer_appointments_router, prefix="/api/v1/buyer", tags=["Buyer Appointments"])
+
+# ── Public Availability ──────────────────────────────────────────────────────
+app.include_router(public_availability_router, prefix="/api/v1/properties", tags=["Property Availability"])
 
 # ── Uploads ──────────────────────────────────────────────────────────────────
 app.include_router(uploads_router, prefix="/api/v1/uploads", tags=["Uploads"])

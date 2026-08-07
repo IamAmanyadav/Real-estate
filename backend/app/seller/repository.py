@@ -178,7 +178,10 @@ async def get_seller_stats(
     return {
         "total": total,
         "pending": status_counts.get("pending", 0) + status_counts.get("under_review", 0),
-        "approved": status_counts.get("approved", 0) + status_counts.get("published", 0),
+        "approved": status_counts.get("approved", 0),
+        "published": status_counts.get("published", 0),
+        "sold": status_counts.get("sold", 0),
+        "archived": status_counts.get("archived", 0),
         "rejected": status_counts.get("rejected", 0),
         "inquiries": inquiry_count,
     }

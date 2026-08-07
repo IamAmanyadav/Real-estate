@@ -14,6 +14,9 @@ from sqlalchemy import (
     Numeric,
     String,
     Text,
+    event,
+    func,
+    select,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -26,6 +29,9 @@ class Property(Base):
         CheckConstraint("price > 0", name="positive_price"),
     )
 
+    property_code: Mapped[str | None] = mapped_column(
+        String(20), unique=True, index=True, nullable=True,
+    )
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
     price: Mapped[float] = mapped_column(Numeric(12, 2), nullable=False, index=True)
@@ -105,6 +111,25 @@ class Property(Base):
         cascade="all, delete-orphan", lazy="selectin",
         order_by="PropertyDocument.sort_order",
     )
+
+
+@event.listens_for(Property, "before_insert")
+def _generate_property_code(mapper, connection, target):
+    """Auto-generate a sequential property code like LXE-0001 before insert."""
+    if target.property_code:
+        return  # Already set (e.g. seed data)
+    result = connection.execute(
+        select(func.max(Property.property_code))
+    )
+    max_code = result.scalar()
+    if max_code and max_code.startswith("LXE-"):
+        try:
+            next_num = int(max_code.split("-")[1]) + 1
+        except (IndexError, ValueError):
+            next_num = 1
+    else:
+        next_num = 1
+    target.property_code = f"LXE-{next_num:04d}"
 
 
 class PropertyImage(Base):

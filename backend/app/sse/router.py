@@ -30,3 +30,24 @@ async def property_status_stream(seller_id: str):
             sse_manager.disconnect(seller_id, queue)
 
     return EventSourceResponse(event_generator())
+
+
+@router.get("/appointments/{user_id}")
+async def appointment_status_stream(user_id: str):
+    """SSE endpoint — users connect to receive live appointment updates."""
+
+    async def event_generator():
+        queue = sse_manager.connect(f"appointments:{user_id}")
+        try:
+            while True:
+                try:
+                    data = await asyncio.wait_for(queue.get(), timeout=30.0)
+                    yield {"event": "appointment_update", "data": data}
+                except asyncio.TimeoutError:
+                    yield {"event": "heartbeat", "data": "ping"}
+        except asyncio.CancelledError:
+            pass
+        finally:
+            sse_manager.disconnect(f"appointments:{user_id}", queue)
+
+    return EventSourceResponse(event_generator())
