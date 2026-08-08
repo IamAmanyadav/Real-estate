@@ -34,14 +34,14 @@ Luxe-Real-estates/
 
  🚀 Getting Started
 
- 1. Clone
+ 1. Clone:
 
 
 git clone https://github.com/YOUR-USERNAME/Luxe-Real-estates.git
 cd Luxe-Real-estates
 
 
- 2. Frontend
+ 2. Frontend:
 
 
 cd frontend
@@ -52,8 +52,8 @@ npm run dev
 Runs at: `http://localhost:3000`
 
 
- 3. Backend
- 4. 
+ 3. Backend:
+
 
 Open a new terminal:
 
@@ -62,7 +62,7 @@ cd backend
 python -m venv venv
 venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn main:app --reload
+python -m uvicorn app.main:app --reload
 
 
 Runs at: `http://localhost:8000`
@@ -76,7 +76,7 @@ API documentation: `http://localhost:8000/docs`
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-uvicorn main:app --reload
+python -m uvicorn app.main:app --reload
 
 
 🔧 If Dependencies Fail
@@ -123,13 +123,13 @@ Terminal 2:
 
 cd backend
 venv\Scripts\activate
-uvicorn main:app --reload
+python -m uvicorn app.main:app --reload
 
 
  📌 Project Status
 
 🚧 Active Development
 
-Work on progress...
+Work in progress...
 
 Luxe Real Estates — Find. Verify. Visit. Own.
