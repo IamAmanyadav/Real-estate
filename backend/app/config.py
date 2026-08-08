@@ -10,6 +10,7 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
+        extra="ignore",
     )
 
     # Application
@@ -29,6 +30,12 @@ class Settings(BaseSettings):
     # JWT / Auth
     secret_key: str = "luxe-estates-super-secret-key-change-in-production"
     access_token_expire_minutes: int = 480  # 8 hours
+
+    # Email (Resend)
+    resend_api_key: str = ""
+
+    # Frontend URL (for password reset links)
+    frontend_url: str = "http://localhost:3000"
 
 
 settings = Settings()

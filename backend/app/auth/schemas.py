@@ -1,4 +1,4 @@
-"""Authentication schemas for login, registration, and token management."""
+"""Authentication schemas for login, registration, password reset, and token management."""
 
 from enum import Enum
 
@@ -41,3 +41,21 @@ class TokenPayload(BaseModel):
     role: str
     exp: int
 
+
+# ── Password Reset Schemas ──────────────────────────────────────────────────
+
+class ForgotPasswordRequest(BaseModel):
+    email: str = Field(..., min_length=5, max_length=200)
+
+
+class ForgotPasswordResponse(BaseModel):
+    message: str
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(..., min_length=10)
+    new_password: str = Field(..., min_length=6, max_length=100)
+
+
+class ResetPasswordResponse(BaseModel):
+    message: str
