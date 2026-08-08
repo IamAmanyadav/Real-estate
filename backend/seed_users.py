@@ -1,5 +1,10 @@
-"""Quick script to seed admin users if they don't exist."""
+"""Quick script to seed users if they don't exist.
+
+Admin credentials are read from environment variables (ADMIN_EMAIL, ADMIN_PASSWORD).
+Set these in your .env file before running.
+"""
 import asyncio
+import os
 from sqlalchemy import select
 from app.db.session import AsyncSessionLocal
 from app.models.user import User
@@ -13,7 +18,7 @@ except ImportError:
         return pw
 
 USERS = [
-    {"email": "admin@luxeestates.com", "password": "Admin@123", "full_name": "Admin User", "phone": "+1 (555) 000-0001", "role": "admin", "status": "active", "is_verified": True, "bio": "Platform administrator"},
+    {"email": os.environ.get("ADMIN_EMAIL", "admin@luxeestates.com"), "password": os.environ.get("ADMIN_PASSWORD", "Admin@123"), "full_name": "Admin User", "phone": "+1 (555) 000-0001", "role": "admin", "status": "active", "is_verified": True, "bio": "Platform administrator"},
     {"email": "seller1@luxeestates.com", "password": "Seller@123", "full_name": "John Rivera", "phone": "+1 (555) 200-0001", "role": "seller", "status": "active", "is_verified": True, "bio": "Experienced property seller"},
     {"email": "seller2@luxeestates.com", "password": "Seller@123", "full_name": "Maria Santos", "phone": "+1 (555) 200-0002", "role": "seller", "status": "pending_verification", "is_verified": False, "bio": "New seller"},
     {"email": "buyer1@luxeestates.com", "password": "Buyer@123", "full_name": "Emily Johnson", "phone": "+1 (555) 300-0001", "role": "buyer", "status": "active", "is_verified": True, "bio": "Looking for a family home"},
@@ -35,7 +40,7 @@ async def seed_users():
             session.add(user)
         await session.flush()
         await session.commit()
-        print(f"Seeded {len(USERS)} users. Admin: admin@luxeestates.com / Admin@123")
+        print(f"Seeded {len(USERS)} users.")
 
 if __name__ == "__main__":
     asyncio.run(seed_users())

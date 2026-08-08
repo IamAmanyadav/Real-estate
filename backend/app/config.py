@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     debug: bool = True
 
     # Database
-    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/luxe_estates"
+    database_url: str = "postgresql+asyncpg://neondb_owner:npg_GEwy51WAmHDJ@ep-long-waterfall-azzs0qit.c-3.ap-southeast-1.aws.neon.tech/neondb?ssl=require"
 
     # CORS
     cors_origins: list[str] = [

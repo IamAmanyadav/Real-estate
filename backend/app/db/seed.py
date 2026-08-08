@@ -7,6 +7,7 @@ by verified sellers through the seller dashboard and approved by admins.
 """
 
 import asyncio
+import os
 
 from sqlalchemy import select
 
@@ -25,7 +26,7 @@ except ImportError:
 
 
 USERS = [
-    {"email": "adminreal@gmail.com", "password": "jaswant123", "full_name": "Admin", "phone": "+1 (555) 000-0001", "role": "admin", "status": "active", "is_verified": True, "bio": "Platform administrator"},
+    {"email": os.environ.get("ADMIN_EMAIL", "admin@luxeestates.com"), "password": os.environ.get("ADMIN_PASSWORD", "Admin@123"), "full_name": "Admin", "phone": "+1 (555) 000-0001", "role": "admin", "status": "active", "is_verified": True, "bio": "Platform administrator"},
 ]
 
 
@@ -92,7 +93,7 @@ async def seed():
                 user.verified_at = dt2.now(tz2.utc)
             session.add(user)
         await session.flush()
-        print(f"Seeded {len(USERS)} users (admin: adminreal@gmail.com / jaswant123).")
+        print(f"Seeded {len(USERS)} users.")
 
         await session.commit()
         print("Seed complete!")
