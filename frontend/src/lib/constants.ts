@@ -10,7 +10,6 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost
 
 export const NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/" },
-  { label: "Properties", href: "/properties" },
   { label: "About", href: "/about" },
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
@@ -142,12 +141,7 @@ export const FOOTER_LINKS = {
     { label: "Careers", href: "/about#careers" },
     { label: "Contact", href: "/contact" },
   ],
-  properties: [
-    { label: "Buy Property", href: "/properties" },
-    { label: "Rent Property", href: "/properties?status=for_rent" },
-    { label: "New Listings", href: "/properties?sort=newest" },
-    { label: "Featured", href: "/properties?featured=true" },
-  ],
+
   resources: [
     { label: "Blog", href: "/blog" },
     { label: "FAQ", href: "/faq" },

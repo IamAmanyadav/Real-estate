@@ -15,7 +15,7 @@ export default function Footer() {
     <footer className="bg-card border-t border-border">
       {/* Main Footer */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
@@ -63,22 +63,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Properties Links */}
-          <div>
-            <h3 className="font-semibold text-foreground mb-4">Properties</h3>
-            <ul className="space-y-3">
-              {FOOTER_LINKS.properties.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+
 
           {/* Resources Links */}
           <div>

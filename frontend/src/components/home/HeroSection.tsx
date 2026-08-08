@@ -100,17 +100,6 @@ export default function HeroSection() {
               className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-xl shadow-emerald-500/25 rounded-full px-8 text-base"
               asChild
             >
-              <Link href="/properties">
-                Browse Properties
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="rounded-full px-8 text-base border-emerald-200 dark:border-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
-              asChild
-            >
               <Link href="/about">Learn More</Link>
             </Button>
           </motion.div>

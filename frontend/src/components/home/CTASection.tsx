@@ -35,17 +35,6 @@ export default function CTASection() {
                 className="bg-white text-emerald-700 hover:bg-emerald-50 rounded-full px-8 text-base shadow-xl"
                 asChild
               >
-                <Link href="/properties">
-                  Browse Properties
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="rounded-full px-8 text-base border-white/30 text-white hover:bg-white/10 hover:text-white"
-                asChild
-              >
                 <Link href="/contact">
                   <Phone className="w-4 h-4 mr-2" />
                   Contact Us

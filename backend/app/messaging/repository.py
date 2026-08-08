@@ -66,7 +66,6 @@ async def get_conversations_for_admin(
             select(func.count(Message.id)).where(
                 and_(
                     Message.conversation_id == conv.id,
-                    Message.sender_id != conv.user_id.__class__,  # placeholder
                     Message.is_read == False,
                     Message.sender_id == conv.user_id,  # messages FROM user
                 )
