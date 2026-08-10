@@ -43,9 +43,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
         userRole={user?.role || "buyer"}
       />
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? "ml-[72px]" : "ml-[260px]"}`}>
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${sidebarCollapsed ? "md:ml-[72px]" : "md:ml-[260px]"} ml-0 min-w-0`}>
         <UserHeader user={user} onLogout={logout} />
-        <main className="flex-1 p-6 overflow-auto">
+        <main className="flex-1 p-4 sm:p-6 overflow-x-auto">
           {children}
         </main>
       </div>
