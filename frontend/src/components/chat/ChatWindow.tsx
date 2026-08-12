@@ -10,7 +10,7 @@ import {
   markAsRead,
   type MessageItem,
 } from "@/lib/messages-api";
-import { getStoredUser } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ChatWindowProps {
   conversationId: string;
@@ -31,7 +31,7 @@ export default function ChatWindow({
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const currentUser = getStoredUser();
+  const { user: currentUser } = useAuth();
   const pollRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {

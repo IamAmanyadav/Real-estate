@@ -1,95 +1,43 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useUser, useAuth as useClerkAuth, useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-
-interface AuthUser {
-  id: string;
-  email: string;
-  full_name: string;
-  role: "admin" | "seller" | "buyer";
-  avatar: string | null;
-}
-
-interface LoginResponse {
-  access_token: string;
-  token_type: string;
-  user: AuthUser;
-}
-
-const TOKEN_KEY = "luxe_token";
-const USER_KEY = "luxe_user";
+import { useCallback, useEffect, useMemo } from "react";
 
 export function getStoredToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(TOKEN_KEY);
-}
-
-export function getStoredUser(): AuthUser | null {
-  if (typeof window === "undefined") return null;
-  const raw = localStorage.getItem(USER_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
-
-function storeAuth(token: string, user: AuthUser) {
-  localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-}
-
-function clearAuth() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
+  // Deprecated: APIs should use Clerk's getToken() instead
+  return null;
 }
 
 export function useAuth() {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user: clerkUser, isLoaded: isUserLoaded } = useUser();
+  const { getToken, isLoaded: isAuthLoaded } = useClerkAuth();
+  const { signOut } = useClerk();
   const router = useRouter();
 
-  useEffect(() => {
-    const stored = getStoredUser();
-    const token = getStoredToken();
-    if (stored && token) {
-      setUser(stored);
-    }
-    setLoading(false);
+  const user = useMemo(() => {
+    if (!clerkUser) return null;
+    return {
+      id: clerkUser.id,
+      email: clerkUser.primaryEmailAddress?.emailAddress || "",
+      full_name: (clerkUser.publicMetadata.fullName as string) || (clerkUser.unsafeMetadata.fullName as string) || clerkUser.fullName || "",
+      role: (clerkUser.publicMetadata.role as "admin" | "seller" | "buyer") || (clerkUser.unsafeMetadata.role as "admin" | "seller" | "buyer") || "buyer",
+      avatar: clerkUser.imageUrl,
+    };
+  }, [clerkUser]);
+
+  // We can't really do login here anymore since it's handled by Clerk's custom pages
+  const login = useCallback(async () => {
+    throw new Error("Login is now handled by Clerk pages directly.");
   }, []);
 
-  const login = useCallback(
-    async (email: string, password: string): Promise<AuthUser> => {
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
-      const res = await fetch(`${API_BASE}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: "Login failed" }));
-        throw new Error(err.detail || "Login failed");
-      }
-
-      const data: LoginResponse = await res.json();
-      storeAuth(data.access_token, data.user);
-      setUser(data.user);
-      return data.user;
-    },
-    []
-  );
-
-  const logout = useCallback(() => {
-    clearAuth();
-    setUser(null);
+  const logout = useCallback(async () => {
+    await signOut();
     router.push("/login");
-  }, [router]);
+  }, [signOut, router]);
 
   const redirectByRole = useCallback(
-    (userObj: AuthUser) => {
+    (userObj: NonNullable<typeof user>) => {
       if (userObj.role === "admin") {
         router.push("/admin");
       } else {
@@ -101,7 +49,7 @@ export function useAuth() {
 
   return {
     user,
-    loading,
+    loading: !isUserLoaded || !isAuthLoaded,
     login,
     logout,
     redirectByRole,
@@ -109,5 +57,6 @@ export function useAuth() {
     isAdmin: user?.role === "admin",
     isSeller: user?.role === "seller",
     isBuyer: user?.role === "buyer",
+    getToken,
   };
 }

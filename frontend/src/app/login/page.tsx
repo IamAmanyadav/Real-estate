@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useAuth } from "@/hooks/useAuth";
+import { useClerk } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,18 +16,32 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login, redirectByRole } = useAuth();
+  
+  const { client, setActive } = useClerk();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!client || !client.signIn) return;
     setError("");
     setIsLoading(true);
 
     try {
-      const user = await login(email, password);
-      redirectByRole(user);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed. Please try again.");
+      const result = await client.signIn.create({
+        identifier: email,
+        password,
+      });
+
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        router.push("/dashboard");
+      } else {
+        console.log(result);
+        setError("Requires additional verification. Check console.");
+      }
+    } catch (err: any) {
+      console.error("Login error:", err);
+      setError(err.errors?.[0]?.longMessage || err.message || "Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -184,6 +199,8 @@ export default function LoginPage() {
                 Forgot Password?
               </Link>
             </div>
+
+            <div id="clerk-captcha"></div>
 
             <Button
               type="submit"

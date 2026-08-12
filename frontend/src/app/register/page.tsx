@@ -10,9 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
 type Role = "buyer" | "seller";
 
@@ -26,57 +25,94 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [code, setCode] = useState("");
+
+  const { client, setActive } = useClerk();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!client || !client.signUp) {
+      setError("Clerk is still loading. Please wait or refresh the page.");
+      return;
+    }
     setError("");
 
-    // Client-side validation
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (password.length < 12) {
+      setError("Password must be at least 12 characters");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          full_name: fullName,
+      const createdSignUp = await client.signUp.create({
+        emailAddress: email,
+        password,
+        unsafeMetadata: { 
           role,
-        }),
+          fullName 
+        },
       });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: "Registration failed" }));
-        throw new Error(err.detail || "Registration failed");
+      if (createdSignUp.status === "complete") {
+         // No verification needed, log them in
+         await setActive({ session: createdSignUp.createdSessionId });
+         router.push("/dashboard");
+         return;
       }
 
-      const data = await res.json();
-
-      // Store auth data (same keys as useAuth hook)
-      localStorage.setItem("luxe_token", data.access_token);
-      localStorage.setItem(
-        "luxe_user",
-        JSON.stringify(data.user)
-      );
-
-      // Redirect by role
-      if (data.user.role === "admin") {
-        router.push("/admin");
+      if (typeof client.signUp.prepareVerification === "function") {
+        await client.signUp.prepareVerification({ strategy: "email_code" });
+      } else if (typeof (client.signUp as any).prepareEmailAddressVerification === "function") {
+        await (client.signUp as any).prepareEmailAddressVerification({ strategy: "email_code" });
       } else {
-        router.push("/dashboard");
+        throw new Error("Could not find Clerk verification method on client.signUp.");
       }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Registration failed. Please try again.");
+      
+      setPendingVerification(true);
+    } catch (err: any) {
+      console.error("Signup error:", err);
+      setError(err.errors?.[0]?.longMessage || err.message || "Registration failed. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!client || !client.signUp) return;
+    setError("");
+    setIsLoading(true);
+    try {
+      let completeSignUp;
+      if (typeof client.signUp.attemptVerification === "function") {
+        completeSignUp = await client.signUp.attemptVerification({
+          strategy: "email_code",
+          code,
+        });
+      } else if (typeof (client.signUp as any).attemptEmailAddressVerification === "function") {
+        completeSignUp = await (client.signUp as any).attemptEmailAddressVerification({
+          code,
+        });
+      } else {
+        throw new Error("Verification method missing on client.signUp.");
+      }
+
+      if (completeSignUp.status === 'complete') {
+        await setActive({ session: completeSignUp.createdSessionId });
+        router.push("/dashboard");
+      } else {
+        console.log(completeSignUp);
+        setError("Verification incomplete. Check console.");
+      }
+    } catch (err: any) {
+      setError(err.errors?.[0]?.longMessage || err.message || "Invalid verification code.");
     } finally {
       setIsLoading(false);
     }
@@ -185,7 +221,43 @@ export default function RegisterPage() {
             </motion.div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {pendingVerification ? (
+            <form onSubmit={handleVerify} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="code" className="text-sm font-medium">Verification Code</Label>
+                <div className="relative">
+                  <Input
+                    id="code"
+                    type="text"
+                    placeholder="Enter verification code"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    className="h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
+                    required
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 text-base font-medium"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  <>
+                    Verify Email
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </>
+                )}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-5">
             {/* Role Selection */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">I want to</Label>
@@ -281,12 +353,12 @@ export default function RegisterPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Min. 6 characters"
+                  placeholder="Min. 12 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
                   required
-                  minLength={6}
+                  minLength={12}
                   autoComplete="new-password"
                 />
                 <button
@@ -312,11 +384,13 @@ export default function RegisterPage() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="pl-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
                   required
-                  minLength={6}
+                  minLength={12}
                   autoComplete="new-password"
                 />
               </div>
             </div>
+
+            <div id="clerk-captcha"></div>
 
             <Button
               type="submit"
@@ -336,6 +410,7 @@ export default function RegisterPage() {
               )}
             </Button>
           </form>
+          )}
 
           {/* Sign In Link */}
           <p className="mt-6 text-center text-sm text-muted-foreground">

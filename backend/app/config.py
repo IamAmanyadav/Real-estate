@@ -30,8 +30,9 @@ class Settings(BaseSettings):
     secret_key: str = "luxe-estates-super-secret-key-change-in-production"
     access_token_expire_minutes: int = 480  # 8 hours
 
-    # Email (Resend)
-    resend_api_key: str = ""
+    # Clerk
+    clerk_webhook_secret: str = ""
+    clerk_secret_key: str = ""
 
     # Frontend URL (for password reset links)
     frontend_url: str = "http://localhost:3000"
