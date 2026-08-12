@@ -16,16 +16,10 @@ const sellerApi = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+import { attachAuthToken } from "./utils";
+
 // Attach JWT token
-sellerApi.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("luxe_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+sellerApi.interceptors.request.use(attachAuthToken);
 
 // Auto-logout on 401
 sellerApi.interceptors.response.use(

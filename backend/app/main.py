@@ -29,6 +29,7 @@ from app.appointments.router import (
     admin_appointments_router,
     public_availability_router,
 )
+from app.api.webhooks import router as webhooks_router
 
 
 # Ensure uploads directory exists
@@ -69,6 +70,9 @@ app.include_router(blog_router, prefix="/api/v1/blog", tags=["Blog"])
 # ── Auth ─────────────────────────────────────────────────────────────────────
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth"])
 app.include_router(profile_router, prefix="/api/v1/auth", tags=["Auth Profile"])
+
+# ── Webhooks ─────────────────────────────────────────────────────────────────
+app.include_router(webhooks_router, prefix="/api/v1/webhooks", tags=["Webhooks"])
 
 # ── Admin Routers ────────────────────────────────────────────────────────────
 app.include_router(admin_users_router, prefix="/api/v1/admin/users", tags=["Admin Users"])
