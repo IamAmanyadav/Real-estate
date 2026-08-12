@@ -67,7 +67,7 @@ export default function UserSidebar({ collapsed, onToggle, userRole }: UserSideb
       initial={false}
       animate={{ width: collapsed ? 72 : 260 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed top-0 left-0 h-screen z-40 flex flex-col border-r border-border bg-card/80 backdrop-blur-xl"
+      className="hidden md:flex fixed top-0 left-0 h-screen z-40 flex-col border-r border-border bg-card/80 backdrop-blur-xl"
     >
       {/* Logo */}
       <div className="h-16 flex items-center gap-3 px-4 border-b border-border">

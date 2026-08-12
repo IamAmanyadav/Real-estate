@@ -14,6 +14,9 @@
 * **Lucide React**
 * **Axios**
 
+###Auth
+* **Clerk**
+
 ### Backend
 
 * **Python**
@@ -65,6 +68,12 @@ python -m uvicorn app.main:app --reload
 
 * Backend: `http://localhost:8000`
 * API Documentation: `http://localhost:8000/docs`
+
+### 4. Clerk credentials 
+* ** Create and add clerk api to this project **
+
+### 5. Neon db
+* ** Create and add Neon db **
 
 ### macOS / Linux
 
