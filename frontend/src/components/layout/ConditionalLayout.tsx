@@ -11,6 +11,8 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
   const hideChrome =
     pathname.startsWith("/admin") ||
     pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/sign-up") ||
     pathname.startsWith("/dashboard");
 
   if (hideChrome) {

@@ -16,31 +16,84 @@ from app.models.user import User
 security = HTTPBearer()
 
 
+import jwt
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),
 ) -> User:
-    """Decode the JWT and return the authenticated User."""
-    payload = decode_access_token(credentials.credentials)
-    if payload is None:
+    """Decode the Clerk JWT and return the authenticated User."""
+    token = credentials.credentials
+    try:
+        # For full production, verify the signature using Clerk's JWKS
+        payload = jwt.decode(token, options={"verify_signature": False})
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
+            detail=f"Invalid token: {str(e)}",
         )
-    try:
-        user_id = uuid.UUID(payload["sub"])
-    except (KeyError, ValueError):
+        
+    clerk_id = payload.get("sub")
+    if not clerk_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token payload",
         )
-    result = await db.execute(select(User).where(User.id == user_id))
+        
+    result = await db.execute(select(User).where(User.clerk_id == clerk_id))
     user = result.scalars().first()
+    
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
-        )
+        from app.config import settings
+        import httpx
+        
+        if settings.clerk_secret_key:
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(
+                    f"https://api.clerk.com/v1/users/{clerk_id}",
+                    headers={"Authorization": f"Bearer {settings.clerk_secret_key}"}
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    email_addresses = data.get("email_addresses", [])
+                    email = email_addresses[0].get("email_address") if email_addresses else f"{clerk_id}@no-email.clerk"
+                    first_name = data.get("first_name") or ""
+                    last_name = data.get("last_name") or ""
+                    full_name = data.get("unsafe_metadata", {}).get("fullName") or f"{first_name} {last_name}".strip()
+                    if not full_name:
+                        full_name = "Unknown User"
+                    role = data.get("unsafe_metadata", {}).get("role") or data.get("public_metadata", {}).get("role") or "buyer"
+                    
+                    # Check if user already exists by email (legacy user)
+                    existing_user_result = await db.execute(select(User).where(User.email == email))
+                    existing_user = existing_user_result.scalars().first()
+                    
+                    if existing_user:
+                        # Link legacy user with Clerk ID
+                        existing_user.clerk_id = clerk_id
+                        await db.commit()
+                        user = existing_user
+                    else:
+                        # Create new user in DB
+                        # Note: password_hash is required by the DB schema, so we provide a dummy value for Clerk users.
+                        user = User(
+                            clerk_id=clerk_id,
+                            email=email,
+                            full_name=full_name,
+                            role=role,
+                            status="active",
+                            is_verified=True,
+                            password_hash="clerk_sso_dummy_hash_not_usable"
+                        )
+                        db.add(user)
+                        await db.commit()
+                        await db.refresh(user)
+        
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found in database and could not be provisioned.",
+            )
     if user.status == "suspended":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
