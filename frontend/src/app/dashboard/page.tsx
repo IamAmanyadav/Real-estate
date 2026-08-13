@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -25,7 +26,8 @@ import { getBuyerDashboardStats } from "@/lib/buyer-api";
 import type { SellerDashboardStats, BuyerDashboardStats } from "@/types";
 
 export default function UserDashboard() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const router = useRouter();
   const isSeller = user?.role === "seller";
   const isBuyer = user?.role === "buyer";
 
@@ -52,6 +54,12 @@ export default function UserDashboard() {
     };
     if (user) fetchStats();
   }, [user, isSeller, isBuyer]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      router.push("/admin");
+    }
+  }, [isAdmin, router]);
 
   const stats = isSeller
     ? [
