@@ -90,11 +90,10 @@ export default function PropertyCard({ property, index = 0, viewMode = "grid" }:
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`absolute top-2.5 right-2.5 h-7.5 w-7.5 rounded-full backdrop-blur-md border-0 transition-colors ${
-                    isFavorite
+                  className={`absolute top-2.5 right-2.5 h-7.5 w-7.5 rounded-full backdrop-blur-md border-0 transition-colors ${isFavorite
                       ? "bg-red-500 text-white"
                       : "bg-black/30 hover:bg-black/50 text-white"
-                  }`}
+                    }`}
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -213,11 +212,10 @@ export default function PropertyCard({ property, index = 0, viewMode = "grid" }:
             <Button
               variant="ghost"
               size="icon"
-              className={`absolute top-2.5 right-2.5 h-7.5 w-7.5 rounded-full backdrop-blur-md border-0 transition-colors ${
-                isFavorite
+              className={`absolute top-2.5 right-2.5 h-7.5 w-7.5 rounded-full backdrop-blur-md border-0 transition-colors ${isFavorite
                   ? "bg-red-500 text-white"
                   : "bg-black/30 hover:bg-black/50 text-white"
-              }`}
+                }`}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

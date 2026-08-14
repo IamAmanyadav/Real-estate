@@ -8,7 +8,7 @@ import { TESTIMONIALS } from "@/lib/constants";
 export default function Testimonials() {
   return (
     <section className="py-20 bg-muted/30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

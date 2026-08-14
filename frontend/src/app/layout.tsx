@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -38,6 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} h-full antialiased`}>
+      <ClerkProvider>
       <body className="min-h-full flex flex-col">
         <ClerkProvider>
           <ThemeProvider
@@ -50,6 +52,7 @@ export default function RootLayout({
           </ThemeProvider>
         </ClerkProvider>
       </body>
+      </ClerkProvider>
     </html>
   );
 }

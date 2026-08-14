@@ -137,11 +137,10 @@ export default function MyListingsPage() {
           <button
             key={f.value}
             onClick={() => { setFilter(f.value); setPage(1); }}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-              filter === f.value
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${filter === f.value
                 ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
                 : "bg-muted hover:bg-accent text-muted-foreground hover:text-foreground"
-            }`}
+              }`}
           >
             {f.label}
           </button>

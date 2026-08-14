@@ -122,9 +122,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden;
   }
+
   html {
     @apply font-sans scroll-smooth;
   }
@@ -135,13 +137,16 @@
   ::-webkit-scrollbar {
     width: 8px;
   }
+
   ::-webkit-scrollbar-track {
     background: transparent;
   }
+
   ::-webkit-scrollbar-thumb {
     background: oklch(0.7 0.05 160);
     border-radius: 9999px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background: oklch(0.55 0.1 160);
   }

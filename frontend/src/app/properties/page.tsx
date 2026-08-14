@@ -66,7 +66,7 @@ function PropertiesContent() {
   return (
     <div className="pt-20 sm:pt-24 pb-20">
       {/* Top Banner Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -100,7 +100,7 @@ function PropertiesContent() {
       />
 
       {/* Property Cards Grid Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
         <PropertyGrid
           properties={properties}
           loading={loading}
@@ -117,7 +117,7 @@ export default function PropertiesPage() {
     <Suspense
       fallback={
         <div className="pt-24 pb-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
             <div className="animate-pulse space-y-6">
               <div className="h-12 bg-muted rounded-2xl w-1/3" />
               <div className="h-14 bg-muted rounded-2xl w-full" />

@@ -44,8 +44,6 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       } catch {}
     };
     fetchUnread();
-    const interval = setInterval(fetchUnread, 10000);
-    return () => clearInterval(interval);
   }, []);
 
   return (

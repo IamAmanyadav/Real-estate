@@ -7,7 +7,7 @@ import {
   ArrowLeft,
   Building2,
   MapPin,
-  DollarSign,
+  IndianRupee,
   Bed,
   Bath,
   Maximize,
@@ -374,7 +374,7 @@ export default function NewPropertyPage() {
           <Card className="border-border/50">
             <CardContent className="p-6 space-y-4">
               <h2 className="text-lg font-semibold flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-green-500" /> Pricing & Specifications
+                <IndianRupee className="w-5 h-5 text-green-500" /> Pricing & Specifications
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="col-span-2">

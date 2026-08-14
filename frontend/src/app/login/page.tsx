@@ -16,12 +16,16 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const { client, setActive } = useClerk();
+  const router = useRouter();
   
   // Verification states
   const [step, setStep] = useState<"login" | "verify">("login");
   const [code, setCode] = useState("");
   const [factor, setFactor] = useState<any>(null);
   const [isSecondFactor, setIsSecondFactor] = useState(false);
+
 
   const { client, setActive } = useClerk();
   const router = useRouter();
@@ -41,6 +45,11 @@ export default function LoginPage() {
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
         router.push("/dashboard");
+
+      } else {
+        console.log(result);
+        setError("Requires additional verification. Check console.");
+
       } else if (result.status === "needs_first_factor" || result.status === "needs_second_factor" || result.status === "needs_client_trust") {
         const isSecond = result.status === "needs_second_factor" || result.status === "needs_client_trust";
         setIsSecondFactor(isSecond);
@@ -83,6 +92,7 @@ export default function LoginPage() {
       } else {
         console.log(result);
         setError(`Unexpected status: ${result.status}. Check console.`);
+
       }
     } catch (err: any) {
       console.error("Login error:", err);
@@ -214,8 +224,8 @@ export default function LoginPage() {
             className="mt-12 grid grid-cols-3 gap-6"
           >
             {[
-              { value: "2,500+", label: "Properties" },
-              { value: "1,800+", label: "Happy Clients" },
+              { value: "10+", label: "Properties" },
+              { value: "50+", label: "Happy Clients" },
               { value: "98%", label: "Satisfaction" },
             ].map((stat) => (
               <div key={stat.label}>
@@ -385,6 +395,25 @@ export default function LoginPage() {
                 Back to Login
               </Button>
 
+
+            <div id="clerk-captcha"></div>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full h-12 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 text-base font-medium"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  Sign In
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </>
+
               <div className="mb-8">
                 <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
                   Verify your identity
@@ -410,6 +439,7 @@ export default function LoginPage() {
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   {error}
                 </motion.div>
+
               )}
 
               {/* Verification Form */}
