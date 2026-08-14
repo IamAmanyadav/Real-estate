@@ -4,13 +4,16 @@ import PropertyCard from "./PropertyCard";
 import type { Property } from "@/types";
 import { Home, Building2 } from "lucide-react";
 
+import type { ViewMode } from "./NavbarFilterBar";
+
 interface PropertyGridProps {
   properties: Property[];
   loading?: boolean;
   hasFilters?: boolean;
+  viewMode?: ViewMode;
 }
 
-export default function PropertyGrid({ properties, loading, hasFilters }: PropertyGridProps) {
+export default function PropertyGrid({ properties, loading, hasFilters, viewMode = "grid" }: PropertyGridProps) {
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -55,9 +58,20 @@ export default function PropertyGrid({ properties, loading, hasFilters }: Proper
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div
+      className={
+        viewMode === "grid"
+          ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+          : "flex flex-col gap-6"
+      }
+    >
       {properties.map((property, index) => (
-        <PropertyCard key={property.id} property={property} index={index} />
+        <PropertyCard
+          key={property.id}
+          property={property}
+          index={index}
+          viewMode={viewMode}
+        />
       ))}
     </div>
   );
