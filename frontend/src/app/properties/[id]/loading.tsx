@@ -1,7 +1,7 @@
 export default function PropertyDetailLoading() {
   return (
     <div className="pt-24 pb-16">
-      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="animate-pulse space-y-6">
           {/* Back button */}
           <div className="h-6 bg-muted rounded w-32" />

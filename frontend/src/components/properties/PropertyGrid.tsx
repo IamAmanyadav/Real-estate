@@ -6,8 +6,6 @@ import type { Property } from "@/types";
 import type { ViewMode } from "./NavbarFilterBar";
 import { Home, Building2, SearchX } from "lucide-react";
 
-import type { ViewMode } from "./NavbarFilterBar";
-
 interface PropertyGridProps {
   properties: Property[];
   loading?: boolean;
@@ -15,7 +13,12 @@ interface PropertyGridProps {
   viewMode?: ViewMode;
 }
 
-export default function PropertyGrid({ properties, loading, hasFilters, viewMode = "grid" }: PropertyGridProps) {
+export default function PropertyGrid({
+  properties,
+  loading,
+  hasFilters,
+  viewMode = "grid",
+}: PropertyGridProps) {
   if (loading) {
     if (viewMode === "list") {
       return (
@@ -86,21 +89,24 @@ export default function PropertyGrid({ properties, loading, hasFilters, viewMode
   }
 
   return (
-    <div
-      className={
-        viewMode === "grid"
-          ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
-          : "flex flex-col gap-6"
-      }
-    >
-      {properties.map((property, index) => (
-        <PropertyCard
-          key={property.id}
-          property={property}
-          index={index}
-          viewMode={viewMode}
-        />
-      ))}
-    </div>
+    <AnimatePresence mode="popLayout">
+      <motion.div
+        layout
+        className={
+          viewMode === "list"
+            ? "space-y-3.5"
+            : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5"
+        }
+      >
+        {properties.map((property, index) => (
+          <PropertyCard
+            key={property.id}
+            property={property}
+            index={index}
+            viewMode={viewMode}
+          />
+        ))}
+      </motion.div>
+    </AnimatePresence>
   );
 }

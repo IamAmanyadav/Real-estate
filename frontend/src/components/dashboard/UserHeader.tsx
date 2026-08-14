@@ -28,6 +28,8 @@ export default function UserHeader({ user, onLogout }: UserHeaderProps) {
       } catch {}
     };
     fetchUnread();
+    const interval = setInterval(fetchUnread, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const roleLabel = user?.role === "seller" ? "Seller" : "Buyer";

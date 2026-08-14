@@ -6,18 +6,26 @@ import { Card, CardContent } from "@/components/ui/card";
 import ContactForm from "@/components/contact/ContactForm";
 
 const contactInfo = [
-
+  {
+    icon: MapPin,
+    title: "Visit Us",
+    details: ["123 Luxury Ave", "New York, NY 10001"],
+  },
   {
     icon: Phone,
     title: "Call Us",
-    details: ["+91 9336694250", "+91 9511073317", "+91 8127856164", "+91 9026652103"],
+    details: ["+1 (555) 123-4567", "+1 (555) 987-6543"],
   },
   {
     icon: Mail,
     title: "Email Us",
-    details: ["ay279754@gmail.com", "sinrsgkp@gmai.com"],
+    details: ["hello@luxeestates.com", "support@luxeestates.com"],
   },
-
+  {
+    icon: Clock,
+    title: "Working Hours",
+    details: ["Mon - Fri: 9AM - 6PM", "Sat - Sun: 10AM - 4PM"],
+  },
 ];
 
 export default function ContactPageClient() {
@@ -26,7 +34,7 @@ export default function ContactPageClient() {
       {/* Hero */}
       <section className="relative py-16 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50/50 to-background dark:from-emerald-950/20 dark:via-background dark:to-background" />
-        <div className="relative w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24 text-center">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -48,7 +56,7 @@ export default function ContactPageClient() {
         </div>
       </section>
 
-      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Contact Info Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
           {contactInfo.map((info, i) => (
@@ -105,9 +113,11 @@ export default function ContactPageClient() {
               <MapPin className="w-16 h-16 text-emerald-500/30 mx-auto mb-4" />
               <h3 className="font-semibold text-lg mb-2">Our Location</h3>
               <p className="text-muted-foreground text-sm">
-                Gorakhpur, Uttar Pradesh, India
+                123 Luxury Ave, New York, NY 10001
               </p>
-
+              <p className="text-muted-foreground text-xs mt-2">
+                Interactive map coming soon
+              </p>
             </div>
           </motion.div>
         </div>

@@ -18,7 +18,7 @@ export default function StatsSection() {
         }}
       />
 
-      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {COMPANY_STATS.map((stat, index) => {
             const Icon = icons[index];

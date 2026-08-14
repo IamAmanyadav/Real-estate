@@ -55,7 +55,7 @@ export default function Navbar() {
           : "bg-transparent"
       )}
     >
-      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
@@ -149,12 +149,12 @@ export default function Navbar() {
             )}
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger
-                render={
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                }
-              />
+                  render={
+                    <Button variant="ghost" size="icon" className="rounded-full">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  }
+                />
               <SheetContent side="right" className="w-[300px] sm:w-[350px]">
                 <SheetTitle className="flex items-center gap-2 mb-8">
                   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">

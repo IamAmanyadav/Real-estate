@@ -6,15 +6,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(price: number): string {
-  if (price >= 10000000) {
-    return `₹${(price / 10000000).toFixed(2).replace(/\.00$/, "")} Cr`;
-  }
-  if (price >= 100000) {
-    return `₹${(price / 100000).toFixed(2).replace(/\.00$/, "")} Lakh`;
-  }
-  return new Intl.NumberFormat("en-IN", {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "INR",
+    currency: "USD",
     maximumFractionDigits: 0,
   }).format(price);
 }
