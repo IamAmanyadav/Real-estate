@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Building2 } from "lucide-react";
-import Filters from "@/components/properties/Filters";
+import { Building2, Sparkles } from "lucide-react";
+import NavbarFilterBar, { type ViewMode } from "@/components/properties/NavbarFilterBar";
 import PropertyGrid from "@/components/properties/PropertyGrid";
 import { getProperties } from "@/lib/api";
 import type { Property, PropertyFilters } from "@/types";
@@ -14,6 +14,7 @@ function PropertiesContent() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   const [filters, setFilters] = useState<PropertyFilters>(() => {
     const f: PropertyFilters = {};
@@ -52,49 +53,60 @@ function PropertiesContent() {
     setFilters({});
   };
 
+  const hasFilters = !!(
+    filters.location ||
+    filters.minPrice !== undefined ||
+    filters.maxPrice !== undefined ||
+    filters.bedrooms ||
+    filters.bathrooms ||
+    filters.propertyType ||
+    (filters.sortBy && filters.sortBy !== "newest")
+  );
+
   return (
-    <div className="pt-24 pb-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+    <div className="pt-20 sm:pt-24 pb-20">
+      {/* Top Banner Header */}
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-10"
+          className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-3"
         >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-white" />
+          <div>
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-1.5">
+              <Sparkles className="w-3 h-3" />
+              Explore Collections
             </div>
-            <h1 className="text-3xl sm:text-4xl font-bold">Property Listings</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
+              Browse Properties
+            </h1>
           </div>
-          <p className="text-muted-foreground mt-2">
-            Browse {total > 0 ? `${total} ` : ""}available properties matching
-            your criteria.
-          </p>
+
+          <div className="hidden sm:flex items-center gap-2 bg-card/60 backdrop-blur-md px-3.5 py-2 rounded-xl border border-border/60 text-xs font-medium text-muted-foreground">
+            <Building2 className="w-4 h-4 text-emerald-500" />
+            <span>Verified Real Estate</span>
+          </div>
         </motion.div>
+      </div>
 
-        {/* Content */}
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters */}
-          <aside className="w-full lg:w-80 shrink-0">
-            <div className="lg:sticky lg:top-24">
-              <Filters
-                filters={filters}
-                onFiltersChange={setFilters}
-                onReset={handleReset}
-              />
-            </div>
-          </aside>
+      {/* Sticky Top Navbar Filter Bar */}
+      <NavbarFilterBar
+        filters={filters}
+        onFiltersChange={setFilters}
+        onReset={handleReset}
+        totalResults={total}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
 
-          {/* Property Grid */}
-          <div className="flex-1 min-w-0">
-            <PropertyGrid
-              properties={properties}
-              loading={loading}
-              hasFilters={!!(filters.location || filters.minPrice || filters.maxPrice || filters.bedrooms || filters.bathrooms || filters.propertyType || filters.sortBy)}
-            />
-          </div>
-        </div>
+      {/* Property Cards Grid Container */}
+      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
+        <PropertyGrid
+          properties={properties}
+          loading={loading}
+          hasFilters={hasFilters}
+          viewMode={viewMode}
+        />
       </div>
     </div>
   );
@@ -105,10 +117,15 @@ export default function PropertiesPage() {
     <Suspense
       fallback={
         <div className="pt-24 pb-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
             <div className="animate-pulse space-y-6">
-              <div className="h-10 bg-muted rounded w-1/3" />
-              <div className="h-6 bg-muted rounded w-1/2" />
+              <div className="h-12 bg-muted rounded-2xl w-1/3" />
+              <div className="h-14 bg-muted rounded-2xl w-full" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="h-72 bg-muted rounded-2xl" />
+                ))}
+              </div>
             </div>
           </div>
         </div>

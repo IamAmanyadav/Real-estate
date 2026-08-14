@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import HeroSection from "@/components/home/HeroSection";
 import WhyChooseUs from "@/components/home/WhyChooseUs";
-import StatsSection from "@/components/home/StatsSection";
-import Testimonials from "@/components/home/Testimonials";
 import CTASection from "@/components/home/CTASection";
 
 export const metadata: Metadata = {
@@ -16,8 +14,6 @@ export default function HomePage() {
     <>
       <HeroSection />
       <WhyChooseUs />
-      <StatsSection />
-      <Testimonials />
       <CTASection />
     </>
   );

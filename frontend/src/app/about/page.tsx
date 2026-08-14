@@ -27,12 +27,7 @@ const values = [
     description:
       "Your goals are our goals. We listen, understand, and deliver properties that perfectly match your lifestyle and budget.",
   },
-  {
-    icon: Award,
-    title: "Excellence in Service",
-    description:
-      "With 15+ years of experience, our agents bring unmatched expertise and professionalism to every interaction.",
-  },
+
   {
     icon: Heart,
     title: "Community Impact",
@@ -43,23 +38,28 @@ const values = [
 
 const team = [
   {
-    name: "Alexandra Wright",
+    name: "Jaswant Yadav",
     role: "CEO & Founder",
     avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&h=300&fit=crop&crop=face",
   },
   {
-    name: "Marcus Chen",
-    role: "Head of Sales",
+    name: "Aman Yadav",
+    role: "Co-Founder",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
   },
   {
-    name: "Sophie Anderson",
-    role: "Lead Agent",
+    name: "Pradeep Yadav",
+    role: "Co-Founder",
     avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face",
   },
   {
-    name: "David Okafor",
-    role: "Property Analyst",
+    name: "Rishabh",
+    role: "Co-Founder",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face",
+  },
+  {
+    name: "Ishu ",
+    role: "Co-Founder",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face",
   },
 ];
@@ -72,7 +72,7 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50/50 to-background dark:from-emerald-950/20 dark:via-background dark:to-background" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="relative w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -98,7 +98,7 @@ export default function AboutPage() {
 
       {/* Mission & Vision */}
       <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -140,7 +140,7 @@ export default function AboutPage() {
 
       {/* Stats */}
       <section className="py-16 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {COMPANY_STATS.map((stat, i) => {
               const Icon = icons[i];
@@ -167,7 +167,7 @@ export default function AboutPage() {
 
       {/* Values */}
       <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -210,7 +210,7 @@ export default function AboutPage() {
 
       {/* Team */}
       <section id="team" className="py-20 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
