@@ -11,16 +11,10 @@ const messagesApi = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Attach JWT token
-messagesApi.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("luxe_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+import { attachAuthToken } from "./utils";
+
+// Attach JWT token to every request
+messagesApi.interceptors.request.use(attachAuthToken);
 
 // Auto-logout on 401
 messagesApi.interceptors.response.use(

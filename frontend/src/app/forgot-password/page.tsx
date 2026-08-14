@@ -10,11 +10,14 @@ import {
   AlertCircle,
   Loader2,
   CheckCircle2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useClerk, useAuth } from "@clerk/nextjs";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -22,30 +25,70 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  const clerk = useClerk();
+  const isLoaded = clerk.loaded;
+  const signIn = clerk.client?.signIn;
+  const setActive = clerk.setActive;
+  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isLoaded || !signIn) {
+      alert("Clerk is still loading in the background. Please wait a second!");
+      return;
+    }
+    
     setError("");
     setIsLoading(true);
 
     try {
-      const API_BASE =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
-      const res = await fetch(`${API_BASE}/auth/forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      if (step === 1) {
+        const { supportedFirstFactors } = await signIn.create({
+          identifier: email,
+        });
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: "Request failed" }));
-        throw new Error(err.detail || "Request failed");
+        const passwordResetFactor = supportedFirstFactors?.find(
+          (factor) => factor.strategy === "reset_password_email_code"
+        );
+
+        if (!passwordResetFactor) {
+          throw new Error("Password reset is not supported for this account.");
+        }
+
+        await signIn.prepareFirstFactor({
+          strategy: "reset_password_email_code",
+          // @ts-ignore - The types are slightly tricky here but emailAddressId exists
+          emailAddressId: passwordResetFactor.emailAddressId,
+        });
+        setStep(2);
+      } else {
+        const result = await signIn.attemptFirstFactor({
+          strategy: "reset_password_email_code",
+          code,
+          password,
+        });
+
+        if (result.status === "complete") {
+          // Explicitly sign the user out so they are forced to log in with their new password
+          await clerk.signOut();
+          
+          setIsSuccess(true);
+          setTimeout(() => {
+            window.location.href = "/login";
+          }, 3000);
+        } else {
+          setError("Failed to reset password. Check console.");
+        }
       }
-
-      setIsSuccess(true);
-    } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Something went wrong. Please try again."
-      );
+    } catch (err: any) {
+      console.error("CLERK ERROR:", err);
+      // Force an alert so we can absolutely see what Clerk is complaining about!
+      alert("Error: " + (err.errors?.[0]?.longMessage || err.message || JSON.stringify(err)));
+      setError(err.errors?.[0]?.longMessage || err.message || "Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -162,24 +205,66 @@ export default function ForgotPasswordPage() {
 
               {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">
-                    Email Address
-                  </Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
-                      required
-                      autoComplete="email"
-                    />
+                {step === 1 ? (
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium">
+                      Email Address
+                    </Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="pl-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
+                        required
+                        autoComplete="email"
+                      />
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="code" className="text-sm font-medium">
+                        Verification Code
+                      </Label>
+                      <Input
+                        id="code"
+                        type="text"
+                        placeholder="Enter 6-digit code"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        className="h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password" className="text-sm font-medium">
+                        New Password
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter new password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pr-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
 
                 <Button
                   type="submit"
@@ -189,11 +274,11 @@ export default function ForgotPasswordPage() {
                   {isLoading ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Sending reset link...
+                      {step === 1 ? "Sending reset link..." : "Resetting password..."}
                     </>
                   ) : (
                     <>
-                      Send Reset Link
+                      {step === 1 ? "Send Reset Link" : "Reset Password"}
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </>
                   )}

@@ -171,7 +171,11 @@ export default function PropertyDetailsPage() {
 
   return (
     <div className="pt-20 sm:pt-24 pb-16">
+
       <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -243,7 +247,12 @@ export default function PropertyDetailsPage() {
                         setSelectedImage(i);
                         setIsLightboxOpen(true);
                       }}
+
                       className={`relative flex-1 rounded-2xl overflow-hidden border-2 transition-all group ${selectedImage === i
+
+                      className={`relative flex-1 rounded-2xl overflow-hidden border-2 transition-all group ${
+                        selectedImage === i
+
                           ? "border-emerald-500 ring-2 ring-emerald-500/30 shadow-lg"
                           : "border-transparent opacity-70 hover:opacity-100"
                         }`}
@@ -269,10 +278,18 @@ export default function PropertyDetailsPage() {
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
+
                     className={`relative w-24 h-18 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${selectedImage === i
                         ? "border-emerald-500 ring-2 ring-emerald-500/30"
                         : "border-transparent opacity-60"
                       }`}
+
+                    className={`relative w-24 h-18 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
+                      selectedImage === i
+                        ? "border-emerald-500 ring-2 ring-emerald-500/30"
+                        : "border-transparent opacity-60"
+                    }`}
+
                   >
                     <img
                       src={resolveImageUrl(img)}
@@ -354,10 +371,18 @@ export default function PropertyDetailsPage() {
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
+
                     className={`relative w-16 h-12 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${selectedImage === i
                         ? "border-emerald-500 scale-105 ring-2 ring-emerald-500/50"
                         : "border-transparent opacity-40 hover:opacity-100"
                       }`}
+
+                    className={`relative w-16 h-12 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
+                      selectedImage === i
+                        ? "border-emerald-500 scale-105 ring-2 ring-emerald-500/50"
+                        : "border-transparent opacity-40 hover:opacity-100"
+                    }`}
+
                   >
                     <img
                       src={resolveImageUrl(img)}

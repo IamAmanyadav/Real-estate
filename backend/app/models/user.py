@@ -16,7 +16,10 @@ class User(Base):
     email: Mapped[str] = mapped_column(
         String(200), unique=True, nullable=False, index=True,
     )
-    password_hash: Mapped[str] = mapped_column(String(200), nullable=False)
+    clerk_id: Mapped[str | None] = mapped_column(
+        String(200), unique=True, nullable=True, index=True,
+    )
+    password_hash: Mapped[str | None] = mapped_column(String(200), nullable=True)
     full_name: Mapped[str] = mapped_column(String(150), nullable=False)
     phone: Mapped[str | None] = mapped_column(String(30), nullable=True)
     avatar: Mapped[str | None] = mapped_column(String(500), nullable=True)

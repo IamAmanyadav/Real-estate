@@ -31,3 +31,20 @@ export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength).trimEnd() + "...";
 }
+
+export async function attachAuthToken(config: any) {
+  if (typeof window !== "undefined") {
+    try {
+      const clerk = (window as any).Clerk;
+      if (clerk && clerk.session) {
+        const token = await clerk.session.getToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to attach Clerk token", e);
+    }
+  }
+  return config;
+}

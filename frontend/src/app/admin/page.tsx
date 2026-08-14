@@ -32,9 +32,9 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-28 rounded-2xl bg-card border border-border animate-pulse" />
+            <div key={i} className="h-24 sm:h-28 rounded-2xl bg-card border border-border animate-pulse" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -106,8 +106,8 @@ export default function AdminDashboardPage() {
         <p className="text-muted-foreground text-sm">Real-time platform analytics and activity</p>
       </motion.div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stat Cards - Compact 2x2 Square Cards on Mobile */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {statCards.map((stat, i) => (
           <motion.div
             key={stat.title}
@@ -115,18 +115,18 @@ export default function AdminDashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
           >
-            <Card className="border-border/50 hover:shadow-lg transition-shadow duration-300">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground font-medium">{stat.title}</p>
-                    <p className="text-2xl font-bold mt-1">{stat.value}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{stat.subtitle}</p>
+            <Card className="border-border/50 hover:shadow-lg transition-all duration-300 h-full">
+              <CardContent className="p-3.5 sm:p-5 flex flex-col justify-between h-full min-h-[105px] sm:min-h-0">
+                <div className="flex items-start justify-between gap-1.5">
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">{stat.title}</p>
+                    <p className="text-xl sm:text-2xl font-bold mt-1">{stat.value}</p>
                   </div>
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
-                    <stat.icon className="w-5 h-5 text-white" />
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-md shrink-0`}>
+                    <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                 </div>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 line-clamp-1">{stat.subtitle}</p>
               </CardContent>
             </Card>
           </motion.div>

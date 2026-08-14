@@ -140,21 +140,21 @@ export default function WhyChooseUs() {
             variant="outline"
             size="icon"
             onClick={prev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 sm:-translate-x-14 z-20 rounded-full w-10 h-10 sm:w-12 sm:h-12 border-border/60 bg-background/80 backdrop-blur-sm shadow-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+            className="absolute left-1 top-1/2 -translate-y-1/2 sm:-translate-x-14 z-20 rounded-full w-9 h-9 sm:w-12 sm:h-12 border-border/60 bg-background/90 backdrop-blur-sm shadow-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
           <Button
             variant="outline"
             size="icon"
             onClick={next}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 sm:translate-x-14 z-20 rounded-full w-10 h-10 sm:w-12 sm:h-12 border-border/60 bg-background/80 backdrop-blur-sm shadow-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+            className="absolute right-1 top-1/2 -translate-y-1/2 sm:translate-x-14 z-20 rounded-full w-9 h-9 sm:w-12 sm:h-12 border-border/60 bg-background/90 backdrop-blur-sm shadow-lg hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
 
           {/* Slide Content */}
-          <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-card min-h-[320px] sm:min-h-[280px]">
+          <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-card min-h-[340px] sm:min-h-[280px]">
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={current}
@@ -164,7 +164,7 @@ export default function WhyChooseUs() {
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="p-8 sm:p-12 flex flex-col items-center text-center"
+                className="p-6 sm:p-12 flex flex-col items-center text-center px-10 sm:px-16"
               >
                 {/* Icon */}
                 <div

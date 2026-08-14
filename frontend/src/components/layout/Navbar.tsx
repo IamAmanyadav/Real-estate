@@ -18,7 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS, APP_NAME } from "@/lib/constants";
-import { getStoredUser } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
+import { SignInButton, SignUpButton, Show, UserButton } from '@clerk/nextjs';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -26,11 +27,10 @@ export default function Navbar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [authUser, setAuthUser] = useState<{ role: string; full_name: string } | null>(null);
+  const { user: authUser } = useAuth();
 
   useEffect(() => {
     setMounted(true);
-    setAuthUser(getStoredUser());
   }, []);
 
   useEffect(() => {
@@ -109,29 +109,28 @@ export default function Navbar() {
               </Button>
             )}
 
-            {authUser ? (
-              <Button
-                variant="default"
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 rounded-full px-6"
-                asChild
-              >
-                <Link href={dashboardHref}>
-                  <LayoutDashboard className="w-4 h-4 mr-2" />
-                  Dashboard
-                </Link>
+            <Show when="signed-out">
+              <Button variant="ghost" className="hidden sm:inline-flex rounded-full" asChild>
+                <Link href="/login">Sign In</Link>
               </Button>
-            ) : (
-              <Button
-                variant="default"
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 rounded-full px-6"
-                asChild
-              >
-                <Link href="/login">
-                  <LogIn className="w-4 h-4 mr-2" />
-                  Sign In
-                </Link>
+              <Button variant="default" className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 rounded-full px-6" asChild>
+                <Link href="/register">Sign Up</Link>
               </Button>
-            )}
+            </Show>
+            <Show when="signed-in">
+              {authUser && (
+                <Button
+                  variant="default"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 rounded-full px-6 mr-2"
+                  asChild
+                >
+                  <Link href={dashboardHref}>
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </Link>
+                </Button>
+              )}
+            </Show>
           </div>
 
           {/* Mobile Menu */}
@@ -180,27 +179,32 @@ export default function Navbar() {
                     </Link>
                   ))}
                   <div className="mt-4 pt-4 border-t">
-                    {authUser ? (
-                      <Button
-                        className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-full"
-                        asChild
-                      >
-                        <Link href={dashboardHref} onClick={() => setOpen(false)}>
-                          <LayoutDashboard className="w-4 h-4 mr-2" />
-                          Dashboard
-                        </Link>
-                      </Button>
-                    ) : (
-                      <Button
-                        className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-full"
-                        asChild
-                      >
+                    <Show when="signed-out">
+                      <Button className="w-full mb-2 bg-accent text-accent-foreground hover:bg-accent/80 rounded-full" asChild>
                         <Link href="/login" onClick={() => setOpen(false)}>
                           <LogIn className="w-4 h-4 mr-2" />
                           Sign In
                         </Link>
                       </Button>
-                    )}
+                      <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-full" asChild>
+                        <Link href="/register" onClick={() => setOpen(false)}>
+                          Sign Up
+                        </Link>
+                      </Button>
+                    </Show>
+                    <Show when="signed-in">
+                      {authUser && (
+                        <Button
+                          className="w-full mb-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-full"
+                          asChild
+                        >
+                          <Link href={dashboardHref} onClick={() => setOpen(false)}>
+                            <LayoutDashboard className="w-4 h-4 mr-2" />
+                            Dashboard
+                          </Link>
+                        </Button>
+                      )}
+                    </Show>
                   </div>
                 </nav>
               </SheetContent>

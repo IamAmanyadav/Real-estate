@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -25,7 +26,8 @@ import { getBuyerDashboardStats } from "@/lib/buyer-api";
 import type { SellerDashboardStats, BuyerDashboardStats } from "@/types";
 
 export default function UserDashboard() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+  const router = useRouter();
   const isSeller = user?.role === "seller";
   const isBuyer = user?.role === "buyer";
 
@@ -52,6 +54,12 @@ export default function UserDashboard() {
     };
     if (user) fetchStats();
   }, [user, isSeller, isBuyer]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      router.push("/admin");
+    }
+  }, [isAdmin, router]);
 
   const stats = isSeller
     ? [
@@ -145,8 +153,8 @@ export default function UserDashboard() {
         </div>
       </motion.div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stats Grid - Compact 2x2 Square Cards on Mobile */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {stats.map((stat, i) => (
           <motion.div
             key={stat.title}
@@ -154,24 +162,24 @@ export default function UserDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
           >
-            <Card className="border-border/50 hover:shadow-lg transition-shadow duration-300">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground font-medium">{stat.title}</p>
-                    <p className="text-2xl font-bold mt-1">
+            <Card className="border-border/50 hover:shadow-lg transition-all duration-300 h-full">
+              <CardContent className="p-3.5 sm:p-5 flex flex-col justify-between h-full min-h-[105px] sm:min-h-0">
+                <div className="flex items-start justify-between gap-1.5">
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">{stat.title}</p>
+                    <p className="text-xl sm:text-2xl font-bold mt-1">
                       {loading ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin text-muted-foreground" />
                       ) : (
                         stat.value
                       )}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">{stat.change}</p>
                   </div>
-                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-lg`}>
-                    <stat.icon className="w-5 h-5 text-white" />
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center shadow-md shrink-0`}>
+                    <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                 </div>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 line-clamp-1">{stat.change}</p>
               </CardContent>
             </Card>
           </motion.div>
