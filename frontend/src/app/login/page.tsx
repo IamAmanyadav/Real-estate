@@ -64,16 +64,17 @@ export default function LoginPage() {
 
         // Prepare the factor if it requires preparation (like sending an email/SMS code)
         if (selectedFactor.strategy === "email_code" || selectedFactor.strategy === "phone_code") {
+          const factorAsAny = selectedFactor as any;
           if (isSecond) {
             await client.signIn.prepareSecondFactor({
-              strategy: selectedFactor.strategy,
-              phoneNumberId: selectedFactor.phoneNumberId,
+              strategy: factorAsAny.strategy,
+              phoneNumberId: factorAsAny.phoneNumberId,
             } as any);
           } else {
             await client.signIn.prepareFirstFactor({
-              strategy: selectedFactor.strategy,
-              emailAddressId: selectedFactor.emailAddressId,
-              phoneNumberId: selectedFactor.phoneNumberId,
+              strategy: factorAsAny.strategy,
+              emailAddressId: factorAsAny.emailAddressId,
+              phoneNumberId: factorAsAny.phoneNumberId,
             } as any);
           }
         }
@@ -133,16 +134,17 @@ export default function LoginPage() {
 
     try {
       if (factor.strategy === "email_code" || factor.strategy === "phone_code") {
+        const factorAsAny = factor as any;
         if (isSecondFactor) {
           await client.signIn.prepareSecondFactor({
-            strategy: factor.strategy,
-            phoneNumberId: factor.phoneNumberId,
+            strategy: factorAsAny.strategy,
+            phoneNumberId: factorAsAny.phoneNumberId,
           } as any);
         } else {
           await client.signIn.prepareFirstFactor({
-            strategy: factor.strategy,
-            emailAddressId: factor.emailAddressId,
-            phoneNumberId: factor.phoneNumberId,
+            strategy: factorAsAny.strategy,
+            emailAddressId: factorAsAny.emailAddressId,
+            phoneNumberId: factorAsAny.phoneNumberId,
           } as any);
         }
         alert("Verification code resent successfully.");
