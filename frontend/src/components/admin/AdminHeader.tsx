@@ -26,6 +26,8 @@ export default function AdminHeader({ user, onLogout }: AdminHeaderProps) {
       } catch {}
     };
     fetchUnread();
+    const interval = setInterval(fetchUnread, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   return (

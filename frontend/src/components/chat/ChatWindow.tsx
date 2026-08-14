@@ -60,7 +60,13 @@ export default function ChatWindow({
     fetchMessages().then(() => scrollToBottom("instant"));
   }, [fetchMessages, scrollToBottom]);
 
-
+  // Polling every 5s
+  useEffect(() => {
+    pollRef.current = setInterval(fetchMessages, 5000);
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, [fetchMessages]);
 
   const handleSend = async () => {
     if (!newMessage.trim() || sending) return;

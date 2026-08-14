@@ -14,7 +14,7 @@ export default function Footer() {
   return (
     <footer className="bg-card border-t border-border">
       {/* Main Footer */}
-      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24 py-12 lg:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 lg:gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-1">
@@ -33,15 +33,15 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Gorakhpur, Uttar Pradesh, India</span>
+                <span>123 Luxury Ave, New York, NY 10001</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <Phone className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>+91 9336694250, +91 9511073317, +91 8127856164, +91 9026652103</span>
+                <span>+1 (555) 123-4567</span>
               </div>
               <div className="flex items-center gap-3 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>ay279754@gmail.com, sinrsgkp@gmai.com</span>
+                <span>hello@luxeestates.com</span>
               </div>
             </div>
           </div>
@@ -87,7 +87,7 @@ export default function Footer() {
       <Separator />
 
       {/* Bottom Bar */}
-      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} {APP_NAME}. All rights reserved.

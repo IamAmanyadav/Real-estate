@@ -39,6 +39,8 @@ export default function UserSidebar({ collapsed, onToggle, userRole }: UserSideb
       } catch {}
     };
     fetchUnread();
+    const interval = setInterval(fetchUnread, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const navItems = [

@@ -125,7 +125,7 @@ export default function PropertyDetailsPage() {
   if (loading) {
     return (
       <div className="pt-24 pb-16">
-        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="animate-pulse space-y-6">
             <div className="h-6 bg-muted rounded w-32" />
             <div className="h-[400px] sm:h-[500px] bg-muted rounded-3xl" />
@@ -146,7 +146,7 @@ export default function PropertyDetailsPage() {
   if (!property) {
     return (
       <div className="pt-24 pb-16">
-        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24 text-center py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20">
           <h1 className="text-2xl font-bold mb-4">Property Not Found</h1>
           <p className="text-muted-foreground mb-6">
             The property you&apos;re looking for doesn&apos;t exist or has been removed.
@@ -171,11 +171,7 @@ export default function PropertyDetailsPage() {
 
   return (
     <div className="pt-20 sm:pt-24 pb-16">
-
-      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -247,15 +243,11 @@ export default function PropertyDetailsPage() {
                         setSelectedImage(i);
                         setIsLightboxOpen(true);
                       }}
-
-                      className={`relative flex-1 rounded-2xl overflow-hidden border-2 transition-all group ${selectedImage === i
-
                       className={`relative flex-1 rounded-2xl overflow-hidden border-2 transition-all group ${
                         selectedImage === i
-
                           ? "border-emerald-500 ring-2 ring-emerald-500/30 shadow-lg"
                           : "border-transparent opacity-70 hover:opacity-100"
-                        }`}
+                      }`}
                     >
                       <img
                         src={resolveImageUrl(img)}
@@ -278,18 +270,11 @@ export default function PropertyDetailsPage() {
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-
-                    className={`relative w-24 h-18 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${selectedImage === i
-                        ? "border-emerald-500 ring-2 ring-emerald-500/30"
-                        : "border-transparent opacity-60"
-                      }`}
-
                     className={`relative w-24 h-18 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
                       selectedImage === i
                         ? "border-emerald-500 ring-2 ring-emerald-500/30"
                         : "border-transparent opacity-60"
                     }`}
-
                   >
                     <img
                       src={resolveImageUrl(img)}
@@ -371,18 +356,11 @@ export default function PropertyDetailsPage() {
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-
-                    className={`relative w-16 h-12 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${selectedImage === i
-                        ? "border-emerald-500 scale-105 ring-2 ring-emerald-500/50"
-                        : "border-transparent opacity-40 hover:opacity-100"
-                      }`}
-
                     className={`relative w-16 h-12 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
                       selectedImage === i
                         ? "border-emerald-500 scale-105 ring-2 ring-emerald-500/50"
                         : "border-transparent opacity-40 hover:opacity-100"
                     }`}
-
                   >
                     <img
                       src={resolveImageUrl(img)}
@@ -595,10 +573,11 @@ export default function PropertyDetailsPage() {
                             <button
                               key={slot.id}
                               onClick={() => setSelectedSlot(selectedSlot === slot.id ? null : slot.id)}
-                              className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all ${selectedSlot === slot.id
+                              className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all ${
+                                selectedSlot === slot.id
                                   ? "bg-emerald-500 text-white border-emerald-500 shadow-sm shadow-emerald-500/30"
                                   : "border-border hover:border-emerald-500/50 hover:bg-emerald-500/5 text-foreground"
-                                }`}
+                              }`}
                             >
                               <Clock className="w-3 h-3 inline mr-1" />
                               {slot.startTime} – {slot.endTime}

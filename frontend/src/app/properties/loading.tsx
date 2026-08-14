@@ -1,7 +1,7 @@
 export default function PropertiesLoading() {
   return (
     <div className="pt-24 pb-16">
-      <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 xl:px-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="animate-pulse space-y-6">
           <div className="h-10 bg-muted rounded w-1/3" />
           <div className="h-6 bg-muted rounded w-1/2" />
