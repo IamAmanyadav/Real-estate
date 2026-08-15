@@ -7,24 +7,20 @@ import ContactForm from "@/components/contact/ContactForm";
 
 const contactInfo = [
   {
-    icon: MapPin,
-    title: "Visit Us",
-    details: ["123 Luxury Ave", "New York, NY 10001"],
-  },
   {
     icon: Phone,
     title: "Call Us",
-    details: ["+1 (555) 123-4567", "+1 (555) 987-6543"],
+    details: ["+91 93366 94250", "+91 82995 14092", "+91 90266 52103", "+91 95110 73317"],
   },
   {
     icon: Mail,
     title: "Email Us",
-    details: ["hello@luxeestates.com", "support@luxeestates.com"],
+    details: ["ay279754@gmail.com", "ishuthapa877@gmail.com", "pradeepydv014@gmail.com"],
   },
   {
     icon: Clock,
     title: "Working Hours",
-    details: ["Mon - Fri: 9AM - 6PM", "Sat - Sun: 10AM - 4PM"],
+    details: ["Mon - Fri: 9AM - 6PM", "Sat - Sun: 10AM - 12PM"],
   },
 ];
 
