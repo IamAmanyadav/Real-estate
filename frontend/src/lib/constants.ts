@@ -19,18 +19,17 @@ export const PROPERTY_TYPES = [
   { label: "All Types", value: "all" },
   { label: "House", value: "house" },
   { label: "Apartment", value: "apartment" },
-  { label: "Condo", value: "condo" },
   { label: "Townhouse", value: "townhouse" },
   { label: "Villa", value: "villa" },
 ];
 
 export const PRICE_RANGES = [
   { label: "Any Price", value: "any" },
-  { label: "Under $200K", value: "0-200000" },
-  { label: "$200K - $500K", value: "200000-500000" },
-  { label: "$500K - $1M", value: "500000-1000000" },
-  { label: "$1M - $2M", value: "1000000-2000000" },
-  { label: "$2M+", value: "2000000-999999999" },
+  { label: "Under 5 Lakh", value: "0-200000" },
+  { label: "5 - 10 Lakh", value: "200000-500000" },
+  { label: "10 - 20 Lakh", value: "500000-1000000" },
+  { label: "20 - 30 Lakh", value: "1000000-2000000" },
+  { label: "30+ Lakh", value: "2000000-999999999" },
 ];
 
 export const BEDROOM_OPTIONS = [
@@ -60,36 +59,15 @@ export const SORT_OPTIONS = [
 export const TESTIMONIALS: Testimonial[] = [
   {
     id: "1",
-    name: "Sarah Mitchell",
+    name: "Anil Rai",
     role: "Homeowner",
     avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
     content: "Luxe Estates made finding our dream home an absolute pleasure. Their attention to detail and understanding of our needs was exceptional. We couldn't be happier with our new home!",
     rating: 5,
   },
-  {
-    id: "2",
-    name: "James Rodriguez",
-    role: "Property Investor",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-    content: "As an investor, I need a real estate partner who understands market trends. Luxe Estates consistently delivers properties with excellent ROI potential. Highly recommended!",
-    rating: 5,
-  },
-  {
-    id: "3",
-    name: "Emily Chen",
-    role: "First-time Buyer",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-    content: "Being a first-time buyer was daunting, but the team at Luxe Estates guided us through every step. Their patience and expertise made the process seamless and stress-free.",
-    rating: 5,
-  },
-  {
-    id: "4",
-    name: "Michael Thompson",
-    role: "Relocated Professional",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-    content: "Relocating across the country was stressful, but Luxe Estates found us the perfect home within our budget and timeline. Their virtual tour feature was a game-changer!",
-    rating: 4,
-  },
+  
+  
+  
 ];
 
 export const FAQS: FAQ[] = [
@@ -128,10 +106,10 @@ export const FAQS: FAQ[] = [
 ];
 
 export const COMPANY_STATS = [
-  { value: "2,500+", label: "Properties Sold" },
-  { value: "15+", label: "Years Experience" },
+  { value: "5+", label: "Properties Sold" },
+  { value: "1", label: "Years Experience" },
   { value: "98%", label: "Client Satisfaction" },
-  { value: "50+", label: "Expert Agents" },
+  { value: "10+", label: "Expert Agents" },
 ];
 
 export const FOOTER_LINKS = {
