@@ -53,7 +53,7 @@ export default function HeroSection() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-sm font-medium mb-8 border border-emerald-200 dark:border-emerald-800"
           >
             <Sparkles className="w-4 h-4" />
-            #1 Premium Real Estate Platform
+            #India's Premium Real Estate Platform
           </motion.div>
 
           {/* Heading */}
@@ -182,9 +182,9 @@ export default function HeroSection() {
             className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-3xl mx-auto"
           >
             {[
-              { value: "2,500+", label: "Properties" },
-              { value: "1,800+", label: "Happy Clients" },
-              { value: "15+", label: "Years" },
+              { value: "10+", label: "Properties" },
+              { value: "5+", label: "Happy Clients" },
+              { value: "1+", label: "Years" },
               { value: "98%", label: "Satisfaction" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
