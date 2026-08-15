@@ -109,7 +109,7 @@ export default function ContactPageClient() {
               <MapPin className="w-16 h-16 text-emerald-500/30 mx-auto mb-4" />
               <h3 className="font-semibold text-lg mb-2">Our Location</h3>
               <p className="text-muted-foreground text-sm">
-                123 Luxury Ave, New York, NY 10001
+                Gorakhpur, Uttar Pradesh
               </p>
               <p className="text-muted-foreground text-xs mt-2">
                 Interactive map coming soon
