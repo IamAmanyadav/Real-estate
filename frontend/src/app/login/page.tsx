@@ -214,8 +214,8 @@ export default function LoginPage() {
             className="mt-12 grid grid-cols-3 gap-6"
           >
             {[
-              { value: "2,500+", label: "Properties" },
-              { value: "1,800+", label: "Happy Clients" },
+              { value: "10+", label: "Properties" },
+              { value: "5+", label: "Happy Clients" },
               { value: "98%", label: "Satisfaction" },
             ].map((stat) => (
               <div key={stat.label}>
