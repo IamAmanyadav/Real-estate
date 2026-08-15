@@ -1,50 +1,67 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Building, Users, Award, TrendingUp } from "lucide-react";
-import { COMPANY_STATS } from "@/lib/constants";
+import { Building2, Award, ThumbsUp, Users2 } from "lucide-react";
 
-const icons = [Building, Users, Award, TrendingUp];
+const STATS_DATA = [
+  { value: "5+", label: "Properties Sold", icon: Building2 },
+  { value: "1", label: "Years Experience", icon: Award },
+  { value: "98%", label: "Client Satisfaction", icon: ThumbsUp },
+  { value: "10+", label: "Verified Listings", icon: Users2 },
+];
 
 export default function StatsSection() {
   return (
-    <section className="py-20 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 relative overflow-hidden">
-      {/* Background pattern */}
-      <div
-        className="absolute inset-0 opacity-10"
-        style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-          backgroundSize: "32px 32px",
-        }}
-      />
+    <section className="relative h-[220px] sm:h-[260px] flex items-center justify-center overflow-hidden my-4 sm:my-8">
+      {/* High-Clarity Panoramic Living Room Background Cropped from Top */}
+      <div className="absolute inset-0 z-0">
+        <div
+          className="w-full h-full bg-cover bg-[center_30%] bg-no-repeat"
+          style={{
+            backgroundImage: `url('/images/stats-bg.jpg')`,
+          }}
+        />
+        {/* Subtle Overlay */}
+        <div className="absolute inset-0 bg-black/25" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/60" />
+      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {COMPANY_STATS.map((stat, index) => {
-            const Icon = icons[index];
-            return (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="text-center"
-              >
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 backdrop-blur-sm mb-4">
-                  <Icon className="w-7 h-7 text-white" />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 w-full relative z-10">
+        {/* Compact, Sleek Glassmorphic Stats Floating Pill */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="bg-black/40 backdrop-blur-xl rounded-2xl sm:rounded-full border border-white/25 shadow-[0_15px_35px_rgba(0,0,0,0.5)] px-6 py-3.5 sm:px-10 sm:py-4.5"
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+            {STATS_DATA.map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <div
+                  key={stat.label}
+                  className={`flex flex-col items-center text-center ${
+                    index !== 0 ? "sm:border-l sm:border-white/20" : ""
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <Icon className="w-4 h-4 text-emerald-400" />
+                    <span className="text-xl sm:text-2xl font-bold text-white tracking-tight drop-shadow-md font-serif">
+                      {stat.value}
+                    </span>
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] font-medium tracking-wider text-white/90 uppercase drop-shadow">
+                    {stat.label}
+                  </div>
                 </div>
-                <div className="text-3xl sm:text-4xl font-bold text-white mb-1">
-                  {stat.value}
-                </div>
-                <div className="text-emerald-100 text-sm font-medium">
-                  {stat.label}
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </motion.div>
       </div>
     </section>
   );
 }
+
+

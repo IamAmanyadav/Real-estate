@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Shield,
   CalendarCog,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getUnreadCount } from "@/lib/messages-api";
@@ -26,6 +27,7 @@ interface SidebarProps {
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "Properties", href: "/admin/properties", icon: Building2 },
+  { label: "Browse Properties", href: "/properties", icon: Search },
   { label: "Users", href: "/admin/users", icon: Users },
   { label: "Inquiries", href: "/admin/inquiries", icon: MessageSquare },
   { label: "Appointments", href: "/admin/appointments", icon: CalendarCog },

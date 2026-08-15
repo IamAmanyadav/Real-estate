@@ -45,27 +45,27 @@ const team = [
   {
     name: "Jaswant Yadav",
     role: "CEO & Founder",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&h=300&fit=crop&crop=face",
+    avatar: "/images/avatar-1.jpg",
   },
   {
     name: "Aman Yadav",
     role: "Co- Founder",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
+    avatar: "/images/avatar-2.jpg",
   },
   {
     name: "Ishu Thapa",
     role: "Co- Founder ",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face",
+    avatar: "/images/avatar-3.jpg",
   },
   {
     name: "Rishabh",
     role: "Co- Founder",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face",
+    avatar: "/images/avatar-4.jpg",
   },
   {
     name: "Pradeep Yadav",
     role: "Co- Founder",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face",
+    avatar: "/images/avatar-2.jpg",
   },
 ];
 

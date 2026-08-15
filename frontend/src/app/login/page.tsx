@@ -167,60 +167,65 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Panel — Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700">
-        {/* Decorative elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-          <div
-            className="absolute inset-0 opacity-5"
-            style={{
-              backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
-              backgroundSize: "40px 40px",
-            }}
-          />
-        </div>
+      {/* Left Panel — Waterfront Luxury Living Image & Branding */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
+        {/* Background Image: Waterfront Luxury Villa Dining overlooking Sea */}
+        <div
+          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-transform duration-1000 scale-105"
+          style={{
+            backgroundImage: `url('/images/auth-bg.jpg')`,
+          }}
+        />
 
-        <div className="relative z-10 flex flex-col justify-center px-12 lg:px-16">
-          <Link href="/" className="flex items-center gap-3 mb-12">
-            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+        {/* Elegant Subtle Dark Gradient Overlays for High Image Clarity & Sharp Contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/60 pointer-events-none" />
+        <div className="absolute inset-0 bg-black/15 pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col justify-between p-12 lg:p-16 h-full w-full">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-xl border border-white/30 flex items-center justify-center shadow-xl">
               <Building2 className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white">Luxe Estates</span>
+            <span className="text-2xl font-bold text-white tracking-wide drop-shadow">Luxe Estates</span>
           </Link>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
+            className="my-auto max-w-lg"
           >
-            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white/90 text-xs font-semibold tracking-widest uppercase mb-6 shadow-sm">
+              <span>Verified Luxury Properties</span>
+            </div>
+            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight drop-shadow-lg font-serif">
               Welcome Back to
               <br />
-              <span className="text-emerald-200">Your Property Hub</span>
+              <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">
+                Your Property Hub
+              </span>
             </h1>
-            <p className="text-emerald-100/80 text-lg max-w-md leading-relaxed">
+            <p className="text-white/90 text-lg leading-relaxed drop-shadow">
               Access your personalized dashboard. Whether you&apos;re buying, selling, or managing
               — everything you need is right here.
             </p>
           </motion.div>
 
-          {/* Stats */}
+          {/* Stats Glass Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mt-12 grid grid-cols-3 gap-6"
+            className="bg-black/35 backdrop-blur-xl rounded-2xl border border-white/20 p-6 grid grid-cols-3 gap-4 shadow-2xl"
           >
             {[
               { value: "10+", label: "Properties" },
               { value: "5+", label: "Happy Clients" },
               { value: "98%", label: "Satisfaction" },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <div className="text-sm text-emerald-200/70">{stat.label}</div>
+            ].map((stat, idx) => (
+              <div key={stat.label} className={idx !== 0 ? "border-l border-white/15 pl-4" : ""}>
+                <div className="text-2xl font-bold text-white font-serif drop-shadow">{stat.value}</div>
+                <div className="text-xs text-white/75 font-medium tracking-wide">{stat.label}</div>
               </div>
             ))}
           </motion.div>

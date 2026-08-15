@@ -283,7 +283,7 @@ export default function AdminPropertiesPage() {
                         } catch (e) {}
                       }
                       const firstImg = Array.isArray(images) && images.length > 0 ? images[0] : null;
-                      const dummyImage = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+                      const dummyImage = "/images/property-fallback.jpg";
                       
                       return firstImg ? (
                         <img
