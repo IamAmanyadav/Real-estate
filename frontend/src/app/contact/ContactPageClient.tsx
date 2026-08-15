@@ -7,7 +7,7 @@ import ContactForm from "@/components/contact/ContactForm";
 
 const contactInfo = [
   {
-  {
+  
     icon: Phone,
     title: "Call Us",
     details: ["+91 93366 94250", "+91 82995 14092", "+91 90266 52103", "+91 95110 73317"],
