@@ -120,60 +120,65 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Panel — Branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-teal-600 via-emerald-600 to-green-700">
-        {/* Decorative elements */}
-        <div className="absolute inset-0">
-          <div className="absolute top-1/3 left-1/3 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/3 right-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
-          <div
-            className="absolute inset-0 opacity-5"
-            style={{
-              backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
-              backgroundSize: "40px 40px",
-            }}
-          />
-        </div>
+      {/* Left Panel — Waterfront Luxury Living Image & Branding */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
+        {/* Background Image: Waterfront Luxury Villa Dining overlooking Sea */}
+        <div
+          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat transition-transform duration-1000 scale-105"
+          style={{
+            backgroundImage: `url('/images/auth-bg.jpg')`,
+          }}
+        />
 
-        <div className="relative z-10 flex flex-col justify-center px-12 lg:px-16">
-          <Link href="/" className="flex items-center gap-3 mb-12">
-            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+        {/* Elegant Subtle Dark Gradient Overlays for High Image Clarity & Sharp Contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/60 pointer-events-none" />
+        <div className="absolute inset-0 bg-black/15 pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col justify-between p-12 lg:p-16 h-full w-full">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-xl border border-white/30 flex items-center justify-center shadow-xl">
               <Building2 className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white">Luxe Estates</span>
+            <span className="text-2xl font-bold text-white tracking-wide drop-shadow">Luxe Estates</span>
           </Link>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
+            className="my-auto max-w-lg"
           >
-            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white/90 text-xs font-semibold tracking-widest uppercase mb-6 shadow-sm">
+              <span>Premier Marketplace</span>
+            </div>
+            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight drop-shadow-lg font-serif">
               Join the Premier
               <br />
-              <span className="text-emerald-200">Real Estate Platform</span>
+              <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">
+                Real Estate Platform
+              </span>
             </h1>
-            <p className="text-emerald-100/80 text-lg max-w-md leading-relaxed">
+            <p className="text-white/90 text-lg leading-relaxed drop-shadow">
               Create your account to start buying or selling properties.
               Your dream home or next big sale is just a click away.
             </p>
           </motion.div>
 
-          {/* Features */}
+          {/* Features Glass Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mt-12 space-y-4"
+            className="bg-black/35 backdrop-blur-xl rounded-2xl border border-white/20 p-5 space-y-3 shadow-2xl"
           >
             {[
-              { icon: Home, text: "Browse verified property listings" },
-              { icon: Store, text: "List and manage your properties" },
-              { icon: Building2, text: "Admin-verified for trust & safety" },
+              { icon: Home, text: "Browse verified luxury property listings" },
+              { icon: Store, text: "List and manage your prime properties" },
+              { icon: Building2, text: "Admin-verified for maximum trust & safety" },
             ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-emerald-100/90">
-                <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
-                  <item.icon className="w-4 h-4 text-white" />
+              <div key={i} className="flex items-center gap-3 text-white/90">
+                <div className="w-8 h-8 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center shrink-0 border border-white/20">
+                  <item.icon className="w-4 h-4 text-emerald-400" />
                 </div>
                 <span className="text-sm font-medium">{item.text}</span>
               </div>

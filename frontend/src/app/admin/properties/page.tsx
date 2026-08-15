@@ -275,17 +275,33 @@ export default function AdminPropertiesPage() {
               <Card className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
-                    {prop.images?.[0] ? (
-                      <img
-                        src={prop.images[0].startsWith("/uploads") ? `http://localhost:8000${prop.images[0]}` : prop.images[0]}
-                        alt={prop.title}
-                        className="w-20 h-16 rounded-lg object-cover shrink-0"
-                      />
-                    ) : (
-                      <div className="w-20 h-16 rounded-lg bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center shrink-0">
-                        <Building2 className="w-6 h-6 text-muted-foreground/30" />
-                      </div>
-                    )}
+                    {(() => {
+                      let images = prop.images;
+                      if (typeof images === "string") {
+                        try {
+                          images = JSON.parse(images);
+                        } catch (e) {}
+                      }
+                      const firstImg = Array.isArray(images) && images.length > 0 ? images[0] : null;
+                      const dummyImage = "/images/property-fallback.jpg";
+                      
+                      return firstImg ? (
+                        <img
+                          src={firstImg.startsWith("/uploads") ? `${process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api/v1', '') : 'http://localhost:8000'}${firstImg}` : firstImg}
+                          alt={prop.title}
+                          className="w-20 h-16 rounded-lg object-cover shrink-0"
+                          onError={(e) => {
+                            e.currentTarget.src = dummyImage;
+                          }}
+                        />
+                      ) : (
+                        <img
+                          src={dummyImage}
+                          alt="Dummy property"
+                          className="w-20 h-16 rounded-lg object-cover shrink-0"
+                        />
+                      );
+                    })()}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         {prop.propertyCode && (

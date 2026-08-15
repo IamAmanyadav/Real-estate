@@ -61,7 +61,7 @@ export const TESTIMONIALS: Testimonial[] = [
     id: "1",
     name: "Anil Rai",
     role: "Homeowner",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
+    avatar: "/images/avatar-3.jpg",
     content: "Luxe Estates made finding our dream home an absolute pleasure. Their attention to detail and understanding of our needs was exceptional. We couldn't be happier with our new home!",
     rating: 5,
   },
