@@ -89,12 +89,12 @@ export default function AboutPage() {
               Redefining Real Estate
               <br />
               <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
-                Since 2010
+                2025
               </span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Luxe Estates was founded with a simple vision: to make finding your dream
-              property an enjoyable, transparent, and rewarding experience. Today, we
+              property an enjoyable, transparent, and rewarding experience. Today, we are ready to 
               serve thousands of clients across the nation.
             </p>
           </motion.div>
