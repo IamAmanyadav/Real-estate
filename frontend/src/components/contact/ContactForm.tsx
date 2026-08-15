@@ -77,7 +77,7 @@ export default function ContactForm({ propertyId, compact }: ContactFormProps) {
         </Label>
         <Input
           id="name"
-          placeholder="John Doe"
+          placeholder="Aman Yadav"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           required
@@ -92,7 +92,7 @@ export default function ContactForm({ propertyId, compact }: ContactFormProps) {
         <Input
           id="email"
           type="email"
-          placeholder="john@example.com"
+          placeholder="abc@example.com"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
           required
@@ -109,7 +109,7 @@ export default function ContactForm({ propertyId, compact }: ContactFormProps) {
           <Input
             id="phone"
             type="tel"
-            placeholder="+1 (555) 000-0000"
+            placeholder="+91 00000-00000"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
             className="rounded-xl"
