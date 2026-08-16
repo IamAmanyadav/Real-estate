@@ -49,5 +49,5 @@ class User(Base):
         "Property",
         back_populates="seller",
         foreign_keys="Property.seller_id",
-        lazy="selectin",
+        lazy="noload",
     )

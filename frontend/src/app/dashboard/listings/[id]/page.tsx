@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, use } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   ArrowLeft,
   Building2,
@@ -188,8 +189,8 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {property.images.map((url, i) => (
-              <div key={i} className={`rounded-xl overflow-hidden ${i === 0 ? "col-span-2 row-span-2 aspect-[16/10]" : "aspect-video"}`}>
-              <img src={url.startsWith("/uploads") ? `http://localhost:8000${url}` : url} alt={`${property.title} ${i + 1}`} className="w-full h-full object-cover" />
+              <div key={i} className={`relative rounded-xl overflow-hidden ${i === 0 ? "col-span-2 row-span-2 aspect-[16/10]" : "aspect-video"}`}>
+              <Image src={url.startsWith("/uploads") ? `http://localhost:8000${url}` : url} alt={`${property.title} ${i + 1}`} fill className="object-cover" />
               </div>
             ))}
           </div>
