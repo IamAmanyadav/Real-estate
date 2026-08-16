@@ -16,6 +16,7 @@ from app.models.user import User
 security = HTTPBearer()
 
 
+# pyrefly: ignore [missing-import]
 import jwt
 
 async def get_user_from_token(token: str, db: AsyncSession) -> User:
