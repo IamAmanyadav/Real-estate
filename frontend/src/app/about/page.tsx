@@ -43,24 +43,29 @@ const values = [
 
 const team = [
   {
-    name: "Alexandra Wright",
+    name: "Jaswant Yadav",
     role: "CEO & Founder",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&h=300&fit=crop&crop=face",
+    avatar: "/images/avatar-1.jpg",
   },
   {
-    name: "Marcus Chen",
-    role: "Head of Sales",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face",
+    name: "Aman Yadav",
+    role: "Co- Founder",
+    avatar: "/images/avatar-2.jpg",
   },
   {
-    name: "Sophie Anderson",
-    role: "Lead Agent",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=300&fit=crop&crop=face",
+    name: "Ishu Thapa",
+    role: "Co- Founder ",
+    avatar: "/images/avatar-3.jpg",
   },
   {
-    name: "David Okafor",
-    role: "Property Analyst",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face",
+    name: "Rishabh",
+    role: "Co- Founder",
+    avatar: "/images/avatar-4.jpg",
+  },
+  {
+    name: "Pradeep Yadav",
+    role: "Co- Founder",
+    avatar: "/images/avatar-2.jpg",
   },
 ];
 
@@ -84,12 +89,12 @@ export default function AboutPage() {
               Redefining Real Estate
               <br />
               <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
-                Since 2010
+                2025
               </span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Luxe Estates was founded with a simple vision: to make finding your dream
-              property an enjoyable, transparent, and rewarding experience. Today, we
+              property an enjoyable, transparent, and rewarding experience. Today, we are ready to 
               serve thousands of clients across the nation.
             </p>
           </motion.div>
