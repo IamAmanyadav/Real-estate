@@ -18,12 +18,8 @@ security = HTTPBearer()
 
 import jwt
 
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: AsyncSession = Depends(get_db),
-) -> User:
+async def get_user_from_token(token: str, db: AsyncSession) -> User:
     """Decode the Clerk JWT and return the authenticated User."""
-    token = credentials.credentials
     try:
         # For full production, verify the signature using Clerk's JWKS
         payload = jwt.decode(token, options={"verify_signature": False})
@@ -102,6 +98,14 @@ async def get_current_user(
             detail="Account is suspended",
         )
     return user
+
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: AsyncSession = Depends(get_db),
+) -> User:
+    """Decode the Clerk JWT from HTTP Bearer and return the authenticated User."""
+    return await get_user_from_token(credentials.credentials, db)
 
 
 async def get_current_admin(

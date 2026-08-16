@@ -35,6 +35,7 @@ export interface MessageItem {
   id: string;
   conversationId: string;
   senderId: string;
+  senderClerkId?: string | null;
   senderName: string;
   senderRole: string;
   content: string;

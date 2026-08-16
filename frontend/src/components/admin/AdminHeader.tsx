@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { Sun, Moon, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { getUnreadCount } from "@/lib/messages-api";
+import { useUnreadCount } from "@/hooks/useUnreadCount";
 
 interface AdminHeaderProps {
   user: { full_name: string; email: string; avatar: string | null } | null;
@@ -14,21 +14,9 @@ interface AdminHeaderProps {
 export default function AdminHeader({ user, onLogout }: AdminHeaderProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { unreadCount } = useUnreadCount();
 
   useEffect(() => { setMounted(true); }, []);
-
-  useEffect(() => {
-    const fetchUnread = async () => {
-      try {
-        const count = await getUnreadCount();
-        setUnreadCount(count);
-      } catch {}
-    };
-    fetchUnread();
-    const interval = setInterval(fetchUnread, 10000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <header className="h-16 border-b border-border bg-card/60 backdrop-blur-xl flex items-center justify-between px-6 sticky top-0 z-30">

@@ -28,9 +28,15 @@ export default function AdminMessagesPage() {
 
   useEffect(() => {
     fetchConversations();
-    // Poll conversations list every 10s for new conversations
-    const interval = setInterval(fetchConversations, 10000);
-    return () => clearInterval(interval);
+
+    const handleFocus = () => {
+      fetchConversations();
+    };
+
+    window.addEventListener("focus", handleFocus);
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
   }, [fetchConversations]);
 
   const handleSelect = (conv: ConversationItem) => {

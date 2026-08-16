@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { Sun, Moon, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { getUnreadCount } from "@/lib/messages-api";
+import { useUnreadCount } from "@/hooks/useUnreadCount";
 
 interface UserHeaderProps {
   user: { full_name: string; email: string; role: string; avatar: string | null } | null;
@@ -14,22 +14,10 @@ interface UserHeaderProps {
 export default function UserHeader({ user, onLogout }: UserHeaderProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const { unreadCount } = useUnreadCount();
 
   useEffect(() => {
     setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const fetchUnread = async () => {
-      try {
-        const count = await getUnreadCount();
-        setUnreadCount(count);
-      } catch {}
-    };
-    fetchUnread();
-    const interval = setInterval(fetchUnread, 10000);
-    return () => clearInterval(interval);
   }, []);
 
   const roleLabel = user?.role === "seller" ? "Seller" : "Buyer";
