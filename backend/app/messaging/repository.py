@@ -44,35 +44,49 @@ async def get_conversations_for_admin(
     db: AsyncSession,
 ) -> list[dict]:
     """Get all conversations with last message preview and unread counts for admin."""
-    # Get all conversations
+    from sqlalchemy.orm import selectinload
+    
+    # 1. Get all conversations with their user data loaded (solves N+1 on conv.user)
     result = await db.execute(
-        select(Conversation).order_by(desc(Conversation.last_message_at))
+        select(Conversation)
+        .options(selectinload(Conversation.user))
+        .order_by(desc(Conversation.last_message_at))
     )
     conversations = result.scalars().all()
+    if not conversations:
+        return []
+
+    conv_ids = [c.id for c in conversations]
+
+    # 2. Get unread counts batched
+    unread_result = await db.execute(
+        select(Conversation.id, func.count(Message.id))
+        .join(Message, Message.conversation_id == Conversation.id)
+        .where(
+            Conversation.id.in_(conv_ids),
+            Message.is_read == False,
+            Message.sender_id == Conversation.user_id,
+        )
+        .group_by(Conversation.id)
+    )
+    unread_map = {row[0]: row[1] for row in unread_result.all()}
+
+    # 3. Get last messages batched
+    # For each conversation, we can just fetch the most recent message ID using a subquery
+    subq = select(
+        Message.conversation_id,
+        func.max(Message.created_at).label("max_created_at")
+    ).where(Message.conversation_id.in_(conv_ids)).group_by(Message.conversation_id).subquery()
+    
+    last_msgs_result = await db.execute(
+        select(Message)
+        .join(subq, and_(Message.conversation_id == subq.c.conversation_id, Message.created_at == subq.c.max_created_at))
+    )
+    # Map conversation_id to last message content
+    last_msg_map = {m.conversation_id: m.content[:100] for m in last_msgs_result.scalars().all()}
 
     items = []
     for conv in conversations:
-        # Get last message
-        last_msg_result = await db.execute(
-            select(Message)
-            .where(Message.conversation_id == conv.id)
-            .order_by(desc(Message.created_at))
-            .limit(1)
-        )
-        last_msg = last_msg_result.scalars().first()
-
-        # Get unread count (messages sent by user, not read by admin)
-        unread_result = await db.execute(
-            select(func.count(Message.id)).where(
-                and_(
-                    Message.conversation_id == conv.id,
-                    Message.is_read == False,
-                    Message.sender_id == conv.user_id,  # messages FROM user
-                )
-            )
-        )
-        unread_count = unread_result.scalar() or 0
-
         items.append({
             "id": str(conv.id),
             "userId": str(conv.user_id),
@@ -80,9 +94,9 @@ async def get_conversations_for_admin(
             "userEmail": conv.user.email if conv.user else "",
             "userRole": conv.user.role if conv.user else "",
             "userAvatar": conv.user.avatar if conv.user else None,
-            "lastMessage": last_msg.content[:100] if last_msg else None,
+            "lastMessage": last_msg_map.get(conv.id),
             "lastMessageAt": conv.last_message_at.isoformat(),
-            "unreadCount": unread_count,
+            "unreadCount": unread_map.get(conv.id, 0),
         })
 
     return items

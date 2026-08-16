@@ -26,12 +26,22 @@ export function truncateText(text: string, maxLength: number): string {
   return text.slice(0, maxLength).trimEnd() + "...";
 }
 
+let tokenPromise: Promise<string | null> | null = null;
+
 export async function attachAuthToken(config: any) {
   if (typeof window !== "undefined") {
     try {
       const clerk = (window as any).Clerk;
       if (clerk && clerk.session) {
-        const token = await clerk.session.getToken();
+        if (!tokenPromise) {
+          tokenPromise = clerk.session.getToken().catch((e: any) => {
+            console.error("Clerk token error", e);
+            return null;
+          }).finally(() => {
+            tokenPromise = null;
+          });
+        }
+        const token = await tokenPromise;
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }

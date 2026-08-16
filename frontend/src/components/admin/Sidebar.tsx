@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -16,7 +16,7 @@ import {
   CalendarCog,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getUnreadCount } from "@/lib/messages-api";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -32,21 +32,9 @@ const navItems = [
   { label: "Messages", href: "/admin/messages", icon: Mail, hasBadge: true },
 ];
 
-export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
+const Sidebar = memo(function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname();
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  useEffect(() => {
-    const fetchUnread = async () => {
-      try {
-        const count = await getUnreadCount();
-        setUnreadCount(count);
-      } catch {}
-    };
-    fetchUnread();
-    const interval = setInterval(fetchUnread, 10000);
-    return () => clearInterval(interval);
-  }, []);
+  const { data: unreadCount = 0 } = useUnreadMessages();
 
   return (
     <motion.aside
@@ -135,4 +123,6 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       </div>
     </motion.aside>
   );
-}
+});
+
+export default Sidebar;

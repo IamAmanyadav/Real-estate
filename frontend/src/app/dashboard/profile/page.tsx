@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,59 +16,54 @@ import type { UserProfile } from "@/lib/buyer-api";
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   // Editable fields
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
 
-  // Fetch profile on mount
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ["profile"],
+    queryFn: getProfile,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  // Sync state when profile loads
   useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const data = await getProfile();
-        setProfile(data);
-        setFullName(data.fullName);
-        setPhone(data.phone || "");
-        setBio(data.bio || "");
-      } catch {
-        // Fallback to auth user data if profile endpoint fails
-        if (user) {
-          setFullName(user.full_name || "");
-        }
-      } finally {
-        setIsLoading(false);
-      }
+    if (profile) {
+      setFullName(profile.fullName);
+      setPhone(profile.phone || "");
+      setBio(profile.bio || "");
+    } else if (user) {
+      setFullName(user.full_name || "");
     }
-    fetchProfile();
-  }, [user]);
+  }, [profile, user]);
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    setSaveError("");
-    setSaveSuccess(false);
-
-    try {
-      const updated = await updateProfile({
-        fullName: fullName.trim(),
-        phone: phone.trim() || undefined,
-        bio: bio.trim() || undefined,
-      });
-      setProfile(updated);
+  const updateMutation = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: (updated) => {
+      queryClient.setQueryData(["profile"], updated);
       setIsEditing(false);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
-    } catch {
+    },
+    onError: () => {
       setSaveError("Failed to update profile. Please try again.");
-    } finally {
-      setIsSaving(false);
     }
+  });
+
+  const handleSave = () => {
+    setSaveError("");
+    setSaveSuccess(false);
+    updateMutation.mutate({
+      fullName: fullName.trim(),
+      phone: phone.trim() || undefined,
+      bio: bio.trim() || undefined,
+    });
   };
 
   const handleCancel = () => {
@@ -164,7 +160,7 @@ export default function ProfilePage() {
                       size="sm"
                       onClick={handleCancel}
                       className="rounded-full"
-                      disabled={isSaving}
+                      disabled={updateMutation.isPending}
                     >
                       Cancel
                     </Button>
@@ -172,9 +168,9 @@ export default function ProfilePage() {
                       size="sm"
                       onClick={handleSave}
                       className="rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
-                      disabled={isSaving}
+                      disabled={updateMutation.isPending}
                     >
-                      {isSaving ? (
+                      {updateMutation.isPending ? (
                         <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Saving...</>
                       ) : (
                         "Save Changes"
