@@ -201,8 +201,11 @@ export default function AdminPropertiesPage() {
     try { await deleteAdminProperty(id); load(); }
     catch (e) { console.error(e); }
   };
-  const fmt = (n: number) =>
-    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+  const fmt = (n: number) => {
+    if (n >= 10000000) return `₹${+(n / 10000000).toFixed(2)} Cr`;
+    if (n >= 100000) return `₹${+(n / 100000).toFixed(2)} Lac`;
+    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+  };
 
   return (
     <div className="space-y-6">

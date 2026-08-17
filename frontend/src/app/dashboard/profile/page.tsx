@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { User, Mail, Phone, Shield, Calendar, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { getProfile, updateProfile } from "@/lib/buyer-api";
 import type { UserProfile } from "@/lib/buyer-api";
+import ProfileAvatarUpload from "@/components/dashboard/ProfileAvatarUpload";
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -25,6 +26,7 @@ export default function ProfilePage() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [bio, setBio] = useState("");
+  const [avatar, setAvatar] = useState<string | null>(null);
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile"],
@@ -38,6 +40,7 @@ export default function ProfilePage() {
       setFullName(profile.fullName);
       setPhone(profile.phone || "");
       setBio(profile.bio || "");
+      setAvatar(profile.avatar || null);
     } else if (user) {
       setFullName(user.full_name || "");
     }
@@ -63,6 +66,7 @@ export default function ProfilePage() {
       fullName: fullName.trim(),
       phone: phone.trim() || undefined,
       bio: bio.trim() || undefined,
+      avatar: avatar || undefined,
     });
   };
 
@@ -72,6 +76,7 @@ export default function ProfilePage() {
       setFullName(profile.fullName);
       setPhone(profile.phone || "");
       setBio(profile.bio || "");
+      setAvatar(profile.avatar || null);
     }
     setIsEditing(false);
     setSaveError("");
@@ -133,9 +138,14 @@ export default function ProfilePage() {
         <Card>
           <CardContent className="p-6">
             <div className="flex items-start gap-5">
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-emerald-500/25">
-                {displayName.charAt(0)}
-              </div>
+              <ProfileAvatarUpload 
+                currentAvatar={avatar} 
+                name={displayName} 
+                onUploadSuccess={(url) => {
+                  setAvatar(url);
+                  setIsEditing(true); // Switch to edit mode so they can save
+                }} 
+              />
               <div className="flex-1">
                 <div className="flex items-center gap-3 flex-wrap">
                   <h2 className="text-xl font-bold">{displayName}</h2>

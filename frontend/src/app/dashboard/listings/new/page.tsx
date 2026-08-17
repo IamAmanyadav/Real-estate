@@ -378,8 +378,8 @@ export default function NewPropertyPage() {
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="col-span-2">
-                  <Label htmlFor="price">Price (USD) *</Label>
-                  <Input id="price" type="number" value={form.price} onChange={(e) => updateField("price", e.target.value)} placeholder="500000" required min={1} className="mt-1.5 rounded-lg" />
+                  <Label htmlFor="price">Price (₹) *</Label>
+                  <Input id="price" type="number" value={form.price} onChange={(e) => updateField("price", e.target.value)} placeholder="5000000" required min={1} className="mt-1.5 rounded-lg" />
                 </div>
                 <div>
                   <Label htmlFor="bedrooms" className="flex items-center gap-1"><Bed className="w-3.5 h-3.5" /> Bedrooms *</Label>

@@ -183,6 +183,9 @@ export interface SellerDashboardStats {
   totalListings: number;
   pendingListings: number;
   approvedListings: number;
+  publishedListings: number;
+  soldListings: number;
+  archivedListings: number;
   rejectedListings: number;
   totalInquiriesReceived: number;
 }
