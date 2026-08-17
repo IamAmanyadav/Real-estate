@@ -87,7 +87,17 @@ const Sidebar = memo(function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   transition={{ type: "spring", stiffness: 350, damping: 30 }}
                 />
               )}
-              <item.icon className={cn("w-5 h-5 shrink-0", isActive && "text-emerald-500")} />
+              {/* Icon with notification green dot */}
+              <div className="relative flex items-center justify-center shrink-0">
+                <item.icon className={cn("w-5 h-5 shrink-0", isActive && "text-emerald-500")} />
+                {(item as any).hasBadge && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 border-2 border-card" />
+                  </span>
+                )}
+              </div>
+
               {!collapsed && (
                 <motion.span
                   initial={{ opacity: 0 }}
@@ -97,8 +107,9 @@ const Sidebar = memo(function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   {item.label}
                 </motion.span>
               )}
-              {(item as any).hasBadge && unreadCount > 0 && (
-                <span className="ml-auto w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] flex items-center justify-center font-bold shadow-sm">
+
+              {!collapsed && (item as any).hasBadge && unreadCount > 0 && (
+                <span className="ml-auto px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold border border-emerald-500/20 shadow-sm">
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
