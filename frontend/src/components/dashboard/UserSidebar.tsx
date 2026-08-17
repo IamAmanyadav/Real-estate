@@ -17,6 +17,7 @@ import {
   Mail,
   CalendarDays,
   CalendarCheck,
+  Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { memo } from "react";
@@ -34,6 +35,8 @@ const UserSidebar = memo(function UserSidebar({ collapsed, onToggle, userRole }:
 
   const navItems = [
     { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
+    { label: "Browse Properties", href: "/dashboard/properties", icon: Search },
+    { label: "Saved Properties", href: "/dashboard/saved", icon: Heart },
     { label: "My Profile", href: "/dashboard/profile", icon: User },
     ...(userRole === "buyer"
       ? [
