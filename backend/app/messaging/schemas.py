@@ -14,6 +14,7 @@ class MessageResponse(BaseModel):
     id: str
     conversationId: str
     senderId: str
+    senderClerkId: str | None = None
     senderName: str
     senderRole: str
     content: str
