@@ -93,7 +93,7 @@ export async function getBuyerAppointments(params?: {
 
 export async function createAppointment(appointmentData: {
   propertyId: string;
-  timeSlotId: string;
+  timeSlotId?: string;
 }): Promise<Appointment> {
   const { data } = await appointmentApi.post<Appointment>(
     "/buyer/appointments",

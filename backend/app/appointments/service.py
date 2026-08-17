@@ -174,44 +174,56 @@ async def get_property_availability(
 async def create_buyer_appointment(
     db: AsyncSession, data: AppointmentCreate, buyer_id: uuid.UUID,
 ) -> AppointmentResponse:
-    """Buyer books a visit for an available time slot."""
-    slot = await repo.get_time_slot_by_id(db, uuid.UUID(data.timeSlotId))
-    if not slot:
-        raise HTTPException(status_code=404, detail="Time slot not found.")
-    if slot.is_booked:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="This time slot is already booked.",
-        )
-    if str(slot.property_id) != data.propertyId:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Time slot does not belong to this property.",
-        )
-
-    # Mark slot as booked
-    await repo.mark_slot_booked(db, slot.id, True)
+    """Buyer requests a visit. Can be slot-less (pending admin) or with a specific slot."""
+    prop_id = uuid.UUID(data.propertyId)
+    
+    # Fetch property to get seller_id
+    result = await db.execute(select(Property).where(Property.id == prop_id))
+    prop = result.scalars().first()
+    if not prop:
+        raise HTTPException(status_code=404, detail="Property not found.")
+        
+    seller_id = prop.seller_id
+    slot_id = None
+    
+    if data.timeSlotId:
+        slot_id = uuid.UUID(data.timeSlotId)
+        slot = await repo.get_time_slot_by_id(db, slot_id)
+        if not slot:
+            raise HTTPException(status_code=404, detail="Time slot not found.")
+        if slot.is_booked:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This time slot is already booked.",
+            )
+        if str(slot.property_id) != data.propertyId:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Time slot does not belong to this property.",
+            )
+        # Mark slot as booked
+        await repo.mark_slot_booked(db, slot.id, True)
 
     appt = await repo.create_appointment(
         db,
-        property_id=slot.property_id,
+        property_id=prop_id,
         buyer_id=buyer_id,
-        seller_id=slot.seller_id,
-        time_slot_id=slot.id,
+        seller_id=seller_id,
+        time_slot_id=slot_id,
     )
     await db.refresh(appt)
     response = _appointment_to_response(appt)
 
     # SSE notification to seller
     await sse_manager.broadcast(
-        f"appointments:{slot.seller_id}",
+        f"appointments:{seller_id}",
         {
             "type": "new_appointment",
             "appointmentId": response.id,
             "propertyTitle": response.propertyTitle,
             "buyerName": response.buyerName,
-            "slotDate": response.slotDate,
-            "startTime": response.startTime,
+            "slotDate": response.slotDate if response.slotDate else "Pending Admin",
+            "startTime": response.startTime if response.startTime else "Pending Admin",
         },
     )
 
@@ -281,14 +293,15 @@ async def update_appointment(
     appt_id = uuid.UUID(appointment_id)
     new_status = data.status.value
 
-    # Handle rescheduling
-    if new_status == "rescheduled" and data.newTimeSlotId:
-        old_appt = await repo.get_appointment_by_id(db, appt_id)
-        if not old_appt:
-            raise HTTPException(status_code=404, detail="Appointment not found.")
+    old_appt = await repo.get_appointment_by_id(db, appt_id)
+    if not old_appt:
+        raise HTTPException(status_code=404, detail="Appointment not found.")
 
-        # Free the old slot
-        await repo.mark_slot_booked(db, old_appt.time_slot_id, False)
+    # Handle assigning/rescheduling a slot
+    if (new_status in ("approved", "rescheduled")) and data.newTimeSlotId:
+        # If there was an old slot, free it
+        if old_appt.time_slot_id:
+            await repo.mark_slot_booked(db, old_appt.time_slot_id, False)
 
         # Book new slot
         new_slot = await repo.get_time_slot_by_id(db, uuid.UUID(data.newTimeSlotId))
@@ -302,10 +315,8 @@ async def update_appointment(
         await db.flush()
 
     # If cancelling, free the slot
-    if new_status == "cancelled":
-        old_appt = await repo.get_appointment_by_id(db, appt_id)
-        if old_appt:
-            await repo.mark_slot_booked(db, old_appt.time_slot_id, False)
+    if new_status == "cancelled" and old_appt.time_slot_id:
+        await repo.mark_slot_booked(db, old_appt.time_slot_id, False)
 
     appt = await repo.update_appointment_status(
         db, appt_id,

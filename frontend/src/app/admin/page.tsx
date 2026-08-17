@@ -245,7 +245,7 @@ export default function AdminDashboardPage() {
                 Verification Pipeline
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
               {Object.entries(propertyAnalytics.byVerification).map(([status, count]) => {
                 const statusColors: Record<string, string> = {
                   pending: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
@@ -284,9 +284,9 @@ export default function AdminDashboardPage() {
                 Recent Activity
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
+            <CardContent className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
               {recentActivity.length > 0 ? (
-                recentActivity.slice(0, 6).map((item) => (
+                recentActivity.slice(0, 10).map((item) => (
                   <div key={item.id} className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-muted/50 transition-colors">
                     <div className="w-2 h-2 mt-1.5 rounded-full bg-emerald-500 shrink-0" />
                     <div className="flex-1 min-w-0">

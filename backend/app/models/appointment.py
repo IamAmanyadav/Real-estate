@@ -41,8 +41,8 @@ class Appointment(Base):
     seller_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True,
     )
-    time_slot_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("time_slots.id", ondelete="CASCADE"), nullable=False, index=True,
+    time_slot_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("time_slots.id", ondelete="SET NULL"), nullable=True, index=True,
     )
     status: Mapped[str] = mapped_column(
         SAEnum(

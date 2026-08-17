@@ -8,9 +8,21 @@ import {
   getMessages,
   sendMessage,
   markAsRead,
+  downloadConversation,
+  deleteConversation,
   type MessageItem,
 } from "@/lib/messages-api";
 import { useAuth } from "@/hooks/useAuth";
+import { Download, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface ChatWindowProps {
   conversationId: string;
@@ -32,6 +44,7 @@ export default function ChatWindow({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const { user: currentUser } = useAuth();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const pollRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
@@ -111,6 +124,33 @@ export default function ChatWindow({
     }
   };
 
+  const handleDownload = async () => {
+    try {
+      const text = await downloadConversation(conversationId);
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `chat-${recipientName.replace(/\s+/g, "_")}-${new Date().toISOString().split("T")[0]}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert("Failed to download chat.");
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteConversation(conversationId);
+      setShowDeleteConfirm(false);
+      onMessageSent?.(); // This triggers a refresh in parent, which will remove the conversation or show empty
+    } catch (err) {
+      alert("Failed to delete chat.");
+    }
+  };
+
   const formatTime = (iso: string) => {
     const d = new Date(iso);
     return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -148,20 +188,65 @@ export default function ChatWindow({
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       {/* Header */}
-      <div className="px-5 py-3.5 border-b border-border/50 bg-card/60 backdrop-blur-sm flex items-center gap-3 shrink-0">
-        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-emerald-500/20">
-          {recipientName?.charAt(0)?.toUpperCase() || "?"}
+      <div className="px-5 py-3.5 border-b border-border/50 bg-card/60 backdrop-blur-sm flex items-center justify-between gap-3 shrink-0 relative z-20">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-sm font-bold shadow-md shadow-emerald-500/20">
+            {recipientName?.charAt(0)?.toUpperCase() || "?"}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">{recipientName}</p>
+            <p className="text-xs text-muted-foreground">
+              {messages.length > 0
+                ? `${messages.length} messages`
+                : "Start a conversation"}
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-semibold text-foreground">{recipientName}</p>
-          <p className="text-xs text-muted-foreground">
-            {messages.length > 0
-              ? `${messages.length} messages`
-              : "Start a conversation"}
-          </p>
-        </div>
+        
+        {currentUser?.role === "admin" && (
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownload}
+              title="Download Chat"
+              className="h-8 px-2"
+            >
+              <Download className="w-4 h-4 text-emerald-600" />
+            </Button>
+            
+            <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  title="Delete Chat"
+                  className="h-8 px-2 border-red-200 hover:bg-red-50 hover:text-red-600"
+                >
+                  <Trash2 className="w-4 h-4 text-red-500" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[400px]">
+                <DialogHeader>
+                  <DialogTitle>Delete Conversation</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to delete this chat with {recipientName}? This action cannot be undone and will permanently remove all messages.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="mt-4">
+                  <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+                    Cancel
+                  </Button>
+                  <Button variant="destructive" onClick={handleDeleteConfirm}>
+                    Yes, delete conversation
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
       </div>
 
       {/* Messages */}

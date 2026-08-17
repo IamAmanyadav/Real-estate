@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { getAdminAppointments, updateAppointmentStatus } from "@/lib/appointment-api";
+import { getAdminAppointments, updateAppointmentStatus, getPropertyAvailability } from "@/lib/appointment-api";
 import { formatDate } from "@/lib/utils";
 import type { Appointment, AppointmentStatus } from "@/types";
 
@@ -44,6 +44,12 @@ export default function AdminAppointmentsPage() {
   const [actionId, setActionId] = useState<string | null>(null);
   const [actionNotes, setActionNotes] = useState("");
   const [processing, setProcessing] = useState(false);
+  
+  // For approval flow
+  const [approveActionId, setApproveActionId] = useState<string | null>(null);
+  const [availableSlots, setAvailableSlots] = useState<any[]>([]);
+  const [selectedSlotId, setSelectedSlotId] = useState<string>("");
+  const [slotsLoading, setSlotsLoading] = useState(false);
 
   const fetchAppointments = useCallback(async () => {
     setLoading(true);
@@ -63,14 +69,35 @@ export default function AdminAppointmentsPage() {
 
   useEffect(() => { fetchAppointments(); }, [fetchAppointments]);
 
-  const handleAction = async (appointmentId: string, status: string) => {
+  const handleStartApprove = async (appt: Appointment) => {
+    if (approveActionId === appt.id) {
+      setApproveActionId(null);
+      return;
+    }
+    setActionId(null);
+    setApproveActionId(appt.id);
+    setSelectedSlotId("");
+    setSlotsLoading(true);
+    try {
+      const slots = await getPropertyAvailability(appt.propertyId);
+      setAvailableSlots(slots);
+    } catch {
+      setAvailableSlots([]);
+    } finally {
+      setSlotsLoading(false);
+    }
+  };
+
+  const handleAction = async (appointmentId: string, status: string, newTimeSlotId?: string) => {
     setProcessing(true);
     try {
       await updateAppointmentStatus(appointmentId, {
         status,
         adminNotes: actionNotes || undefined,
+        newTimeSlotId: newTimeSlotId || undefined,
       });
       setActionId(null);
+      setApproveActionId(null);
       setActionNotes("");
       fetchAppointments();
     } catch (err: any) {
@@ -148,14 +175,21 @@ export default function AdminAppointmentsPage() {
                 }`}>
                   <CardContent className="p-5">
                     <div className="flex flex-col lg:flex-row gap-4">
-                      {/* Date badge */}
                       <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 flex flex-col items-center justify-center shrink-0">
-                        <span className="text-xs text-emerald-600 font-medium">
-                          {new Date(appt.slotDate + "T00:00:00").toLocaleDateString("en", { month: "short" })}
-                        </span>
-                        <span className="text-lg font-bold text-emerald-600">
-                          {new Date(appt.slotDate + "T00:00:00").getDate()}
-                        </span>
+                        {appt.slotDate ? (
+                          <>
+                            <span className="text-xs text-emerald-600 font-medium">
+                              {new Date(appt.slotDate + "T00:00:00").toLocaleDateString("en", { month: "short" })}
+                            </span>
+                            <span className="text-lg font-bold text-emerald-600">
+                              {new Date(appt.slotDate + "T00:00:00").getDate()}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-xs text-emerald-600 font-medium text-center leading-tight">
+                            TBD
+                          </span>
+                        )}
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -192,7 +226,7 @@ export default function AdminAppointmentsPage() {
                         <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1.5">
                             <Clock className="w-3.5 h-3.5 text-emerald-500" />
-                            {appt.startTime} – {appt.endTime}
+                            {appt.startTime ? `${appt.startTime} – ${appt.endTime}` : "Time Pending"}
                           </span>
                           <span>Requested {formatDate(appt.createdAt)}</span>
                         </div>
@@ -212,10 +246,10 @@ export default function AdminAppointmentsPage() {
                                 size="sm"
                                 className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8"
                                 disabled={processing}
-                                onClick={() => handleAction(appt.id, "approved")}
+                                onClick={() => handleStartApprove(appt)}
                               >
                                 <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-                                Approve
+                                Assign & Approve
                               </Button>
                               <Button
                                 size="sm"
@@ -228,6 +262,7 @@ export default function AdminAppointmentsPage() {
                                     setActionNotes("");
                                   } else {
                                     setActionId(appt.id);
+                                    setApproveActionId(null);
                                   }
                                 }}
                               >
@@ -282,6 +317,70 @@ export default function AdminAppointmentsPage() {
                                     variant="ghost"
                                     className="rounded-lg text-xs h-8"
                                     onClick={() => { setActionId(null); setActionNotes(""); }}
+                                  >
+                                    Dismiss
+                                  </Button>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+
+                        {/* Expanded approve form */}
+                        <AnimatePresence>
+                          {approveActionId === appt.id && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="mt-3 overflow-hidden"
+                            >
+                              <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 space-y-4">
+                                <div>
+                                  <label className="text-sm font-medium">Select a Time Slot from Seller's Schedule</label>
+                                  {slotsLoading ? (
+                                    <div className="py-4 text-emerald-500 flex items-center text-sm">
+                                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                      Loading slots...
+                                    </div>
+                                  ) : availableSlots.length === 0 ? (
+                                    <p className="text-sm text-muted-foreground mt-2">
+                                      No available slots found for this property. The seller needs to add availability first.
+                                    </p>
+                                  ) : (
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                      {availableSlots.map(slot => (
+                                        <button
+                                          key={slot.id}
+                                          onClick={() => setSelectedSlotId(slot.id)}
+                                          className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                                            selectedSlotId === slot.id
+                                              ? "bg-emerald-500 text-white border-emerald-500"
+                                              : "border-emerald-500/30 hover:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                                          }`}
+                                        >
+                                          {slot.slotDate} {slot.startTime}-{slot.endTime}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="flex gap-2 pt-2 border-t border-emerald-500/10">
+                                  <Button
+                                    size="sm"
+                                    className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-8"
+                                    disabled={processing || !selectedSlotId}
+                                    onClick={() => handleAction(appt.id, "approved", selectedSlotId)}
+                                  >
+                                    {processing && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
+                                    Confirm Assign & Approve
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="rounded-lg text-xs h-8 text-emerald-700 dark:text-emerald-400"
+                                    onClick={() => { setApproveActionId(null); setSelectedSlotId(""); }}
                                   >
                                     Dismiss
                                   </Button>

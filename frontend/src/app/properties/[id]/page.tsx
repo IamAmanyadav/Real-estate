@@ -91,15 +91,12 @@ export default function PropertyDetailsPage() {
   }, [params.id]);
 
   const handleBookVisit = async () => {
-    if (!selectedSlot || !property) return;
+    if (!property) return;
     setBooking(true);
     setBookingError("");
     try {
-      await createAppointment({ propertyId: property.id, timeSlotId: selectedSlot });
+      await createAppointment({ propertyId: property.id });
       setBookingSuccess(true);
-      setSelectedSlot(null);
-      const slots = await getPropertyAvailability(params.id as string);
-      setTimeSlots(slots);
     } catch (err: any) {
       const detail = err.response?.data?.detail;
       if (err.response?.status === 401) {
@@ -536,79 +533,35 @@ export default function PropertyDetailsPage() {
               <div className="bg-gradient-to-r from-teal-600 to-emerald-600 p-5">
                 <h3 className="font-semibold text-white text-lg flex items-center gap-2">
                   <CalendarCheck className="w-5 h-5" />
-                  Schedule a Visit
+                  Request Appointment
                 </h3>
                 <p className="text-teal-100 text-sm mt-1">
-                  Select an available time slot to visit this property in person.
+                  Send a request to our admin team. They will coordinate with the seller and assign a schedule for an offline meeting.
                 </p>
               </div>
               <CardContent className="p-5">
-                {slotsLoading ? (
-                  <div className="flex items-center justify-center py-6">
-                    <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
-                  </div>
-                ) : timeSlots.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No visit slots are currently available for this property.
-                  </p>
-                ) : (
-                  <div className="space-y-4">
-                    {/* Group slots by date */}
-                    {Object.entries(
-                      timeSlots.reduce<Record<string, TimeSlot[]>>((acc, slot) => {
-                        (acc[slot.slotDate] = acc[slot.slotDate] || []).push(slot);
-                        return acc;
-                      }, {})
-                    ).map(([date, slots]) => (
-                      <div key={date}>
-                        <p className="text-xs font-medium text-muted-foreground mb-2">
-                          {new Date(date + "T00:00:00").toLocaleDateString("en", {
-                            weekday: "long",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {slots.map((slot) => (
-                            <button
-                              key={slot.id}
-                              onClick={() => setSelectedSlot(selectedSlot === slot.id ? null : slot.id)}
-                              className={`px-3 py-2 rounded-lg text-xs font-medium border transition-all ${
-                                selectedSlot === slot.id
-                                  ? "bg-emerald-500 text-white border-emerald-500 shadow-sm shadow-emerald-500/30"
-                                  : "border-border hover:border-emerald-500/50 hover:bg-emerald-500/5 text-foreground"
-                              }`}
-                            >
-                              <Clock className="w-3 h-3 inline mr-1" />
-                              {slot.startTime} – {slot.endTime}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-
-                    {bookingSuccess ? (
-                      <div className="flex items-center gap-2 text-emerald-600 text-sm p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                        <CheckCircle2 className="w-4 h-4" />
-                        Visit booked! Check your dashboard for status updates.
-                      </div>
-                    ) : (
-                      <>
-                        {bookingError && (
-                          <p className="text-sm text-red-500">{bookingError}</p>
-                        )}
-                        <Button
-                          onClick={handleBookVisit}
-                          disabled={!selectedSlot || booking}
-                          className="w-full rounded-xl h-11 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white"
-                        >
-                          {booking && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                          {selectedSlot ? "Book Selected Slot" : "Select a time slot above"}
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                )}
+                <div className="space-y-4">
+                  {bookingSuccess ? (
+                    <div className="flex items-center gap-2 text-emerald-600 text-sm p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      Request sent! The admin will schedule your appointment soon. Check your dashboard for updates.
+                    </div>
+                  ) : (
+                    <>
+                      {bookingError && (
+                        <p className="text-sm text-red-500">{bookingError}</p>
+                      )}
+                      <Button
+                        onClick={handleBookVisit}
+                        disabled={booking}
+                        className="w-full rounded-xl h-11 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white"
+                      >
+                        {booking && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                        Send Appointment Request
+                      </Button>
+                    </>
+                  )}
+                </div>
               </CardContent>
             </Card>
 

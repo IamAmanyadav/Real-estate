@@ -118,4 +118,15 @@ export async function getUnreadCount(): Promise<number> {
   return data.unreadCount;
 }
 
+// ── Admin Actions ────────────────────────────────────────────────────────────
+
+export async function deleteConversation(conversationId: string): Promise<void> {
+  await messagesApi.delete(`/messages/conversations/${conversationId}`);
+}
+
+export async function downloadConversation(conversationId: string): Promise<string> {
+  const { data } = await messagesApi.get<string>(`/messages/conversations/${conversationId}/download`);
+  return data;
+}
+
 export default messagesApi;

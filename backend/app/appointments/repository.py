@@ -108,7 +108,7 @@ async def create_appointment(
     property_id: uuid.UUID,
     buyer_id: uuid.UUID,
     seller_id: uuid.UUID,
-    time_slot_id: uuid.UUID,
+    time_slot_id: uuid.UUID | None = None,
 ) -> Appointment:
     appointment = Appointment(
         property_id=property_id,

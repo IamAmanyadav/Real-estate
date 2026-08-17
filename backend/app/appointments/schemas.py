@@ -57,7 +57,7 @@ class PaginatedTimeSlots(BaseModel):
 
 class AppointmentCreate(BaseModel):
     propertyId: str
-    timeSlotId: str
+    timeSlotId: str | None = None
     message: str | None = None
 
 
@@ -81,10 +81,10 @@ class AppointmentResponse(BaseModel):
     sellerId: str
     sellerName: str
     sellerEmail: str
-    timeSlotId: str
-    slotDate: str
-    startTime: str
-    endTime: str
+    timeSlotId: str | None = None
+    slotDate: str | None = None
+    startTime: str | None = None
+    endTime: str | None = None
     status: str
     adminNotes: str | None = None
     cancellationReason: str | None = None

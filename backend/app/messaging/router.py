@@ -211,3 +211,53 @@ async def unread_count(
     """Get total unread message count for the current user."""
     count = await repo.get_unread_count(db, user.id, is_admin=(user.role == "admin"))
     return UnreadCountResponse(unreadCount=count)
+
+
+# ── Chat Deletion & Download ─────────────────────────────────────────────────
+
+@router.delete("/conversations/{conversation_id}")
+async def delete_conversation(
+    conversation_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Admin only: delete a conversation."""
+    if user.role != "admin":
+        raise HTTPException(status_code=403, detail="Only admins can delete conversations")
+    
+    conv_id = uuid.UUID(conversation_id)
+    conv = await repo.get_conversation_by_id(db, conv_id)
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+        
+    await db.delete(conv)
+    await db.flush()
+    return {"message": "Conversation deleted"}
+
+
+from fastapi.responses import PlainTextResponse
+
+@router.get("/conversations/{conversation_id}/download", response_class=PlainTextResponse)
+async def download_conversation(
+    conversation_id: str,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Download a conversation as text."""
+    conv_id = uuid.UUID(conversation_id)
+    conv = await repo.get_conversation_by_id(db, conv_id)
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+        
+    if user.role != "admin" and conv.user_id != user.id:
+        raise HTTPException(status_code=403, detail="Access denied")
+        
+    messages, _ = await repo.get_messages(db, conv_id, 1, 10000) # large limit
+    
+    lines = [f"Chat Download - Conversation ID: {conversation_id}"]
+    for msg in reversed(messages): # Get them in chronological order
+        sender_name = msg.sender.full_name if msg.sender else "Unknown"
+        timestamp = msg.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        lines.append(f"[{timestamp}] {sender_name}: {msg.content}")
+        
+    return "\n".join(lines)

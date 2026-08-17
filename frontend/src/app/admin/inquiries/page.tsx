@@ -19,6 +19,14 @@ import {
 } from "@/lib/admin-api";
 import type { AdminInquiry, PaginatedResponse } from "@/types/admin";
 import { useDebounce } from "@/hooks/useDebounce";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const sColors: Record<string, string> = {
   new: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
@@ -40,6 +48,9 @@ export default function AdminInquiriesPage() {
   const [respondingTo, setRespondingTo] = useState<string | null>(null);
   const [responseText, setResponseText] = useState("");
   const [responding, setResponding] = useState(false);
+  
+  // Delete dialog state
+  const [inquiryToDelete, setInquiryToDelete] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -71,9 +82,9 @@ export default function AdminInquiriesPage() {
     finally { setResponding(false); }
   };
 
-  const remove = async (id: string) => {
-    if (!confirm("Delete this inquiry?")) return;
-    try { await deleteAdminInquiry(id); load(); }
+  const remove = async () => {
+    if (!inquiryToDelete) return;
+    try { await deleteAdminInquiry(inquiryToDelete); setInquiryToDelete(null); load(); }
     catch (e) { console.error(e); }
   };
 
@@ -84,6 +95,25 @@ export default function AdminInquiriesPage() {
 
   return (
     <div className="space-y-6">
+      <Dialog open={!!inquiryToDelete} onOpenChange={(open) => !open && setInquiryToDelete(null)}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Delete Inquiry</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this inquiry? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setInquiryToDelete(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={remove}>
+              Yes, delete inquiry
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold">Inquiry Management</h1>
         <p className="text-muted-foreground text-sm">
@@ -247,7 +277,7 @@ export default function AdminInquiriesPage() {
                       )}
                       <Button size="sm" variant="ghost"
                         className="rounded-full text-destructive"
-                        onClick={() => remove(inq.id)}>
+                        onClick={() => setInquiryToDelete(inq.id)}>
                         <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </div>
