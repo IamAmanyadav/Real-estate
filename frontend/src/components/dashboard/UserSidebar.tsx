@@ -19,7 +19,8 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useUnreadCount } from "@/hooks/useUnreadCount";
+import { memo } from "react";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 
 interface UserSidebarProps {
   collapsed: boolean;
@@ -27,9 +28,9 @@ interface UserSidebarProps {
   userRole: string;
 }
 
-export default function UserSidebar({ collapsed, onToggle, userRole }: UserSidebarProps) {
+const UserSidebar = memo(function UserSidebar({ collapsed, onToggle, userRole }: UserSidebarProps) {
   const pathname = usePathname();
-  const { unreadCount } = useUnreadCount();
+  const { data: unreadCount = 0 } = useUnreadMessages();
 
   const navItems = [
     { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -150,4 +151,6 @@ export default function UserSidebar({ collapsed, onToggle, userRole }: UserSideb
       </div>
     </motion.aside>
   );
-}
+});
+
+export default UserSidebar;

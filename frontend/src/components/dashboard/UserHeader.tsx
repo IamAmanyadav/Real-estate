@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { Sun, Moon, LogOut, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { useUnreadCount } from "@/hooks/useUnreadCount";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 
 interface UserHeaderProps {
   user: { full_name: string; email: string; role: string; avatar: string | null } | null;
@@ -14,7 +14,7 @@ interface UserHeaderProps {
 export default function UserHeader({ user, onLogout }: UserHeaderProps) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const { unreadCount } = useUnreadCount();
+  const { data: unreadCount = 0 } = useUnreadMessages();
 
   useEffect(() => {
     setMounted(true);

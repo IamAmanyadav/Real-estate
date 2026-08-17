@@ -23,18 +23,7 @@ import { attachAuthToken } from "./utils";
 // Attach JWT token to every request
 adminApi.interceptors.request.use(attachAuthToken);
 
-// Auto-logout on 401
-adminApi.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err.response?.status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem("luxe_token");
-      localStorage.removeItem("luxe_user");
-      window.location.href = "/login";
-    }
-    return Promise.reject(err);
-  }
-);
+// Removed legacy 401 auto-logout interceptor to allow multi-device Clerk sessions
 
 // ── Dashboard ────────────────────────────────────────────────────────────────
 

@@ -29,8 +29,8 @@ const SLIDES = [
     title: "Transparent Transactions",
     description:
       "No hidden fees, no surprise charges. We believe in complete transparency — from listing price to closing costs. Our platform connects you directly with sellers for honest, straightforward deals.",
-    accent: "from-blue-400 to-cyan-300",
-    iconColor: "text-blue-400",
+    accent: "from-emerald-400 to-teal-300",
+    iconColor: "text-emerald-400",
     image: "/images/why-choose-2.jpg",
   },
   {
@@ -38,8 +38,8 @@ const SLIDES = [
     title: "Market-Driven Pricing",
     description:
       "Our properties are priced based on real market data and expert appraisals. Whether you're buying or selling, you can trust that every valuation reflects the true worth of the property.",
-    accent: "from-violet-400 to-purple-300",
-    iconColor: "text-purple-400",
+    accent: "from-emerald-400 to-teal-300",
+    iconColor: "text-emerald-400",
     image: "/images/why-choose-3.jpg",
   },
   {
@@ -47,8 +47,8 @@ const SLIDES = [
     title: "Fast & Simple Process",
     description:
       "List a property in minutes. Inquire about your dream home instantly. Our streamlined workflow removes unnecessary steps so you can focus on what matters — finding the perfect property.",
-    accent: "from-amber-400 to-orange-300",
-    iconColor: "text-amber-400",
+    accent: "from-emerald-400 to-teal-300",
+    iconColor: "text-emerald-400",
     image: "/images/why-choose-4.jpg",
   },
   {
@@ -56,8 +56,8 @@ const SLIDES = [
     title: "Dedicated Support",
     description:
       "Have questions or need assistance? Our dedicated team is always ready to help — whether it's about a listing, an inquiry, or navigating the platform. We're just a message away.",
-    accent: "from-rose-400 to-pink-300",
-    iconColor: "text-rose-400",
+    accent: "from-emerald-400 to-teal-300",
+    iconColor: "text-emerald-400",
     image: "/images/why-choose-5.jpg",
   },
   {
@@ -65,8 +65,8 @@ const SLIDES = [
     title: "Trusted by Thousands",
     description:
       "Join a growing community of satisfied buyers and sellers. With years of experience and thousands of successful transactions, Luxe Estates is the name you can trust in premium real estate.",
-    accent: "from-teal-400 to-emerald-300",
-    iconColor: "text-teal-400",
+    accent: "from-emerald-400 to-teal-300",
+    iconColor: "text-emerald-400",
     image: "/images/why-choose-6.jpg",
   },
 ];
