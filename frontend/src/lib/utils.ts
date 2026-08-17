@@ -59,6 +59,23 @@ export async function attachAuthToken(config: any) {
   return config;
 }
 
+export function parseImages(images: any): string[] {
+  if (!images) return [];
+  if (Array.isArray(images)) return images;
+  if (typeof images === "string") {
+    try {
+      const parsed = JSON.parse(images);
+      if (Array.isArray(parsed)) return parsed;
+    } catch (e) {
+      if (images.includes(",")) {
+        return images.split(",").map(s => s.trim());
+      }
+      return [images];
+    }
+  }
+  return [];
+}
+
 export function getImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   if (url.startsWith("/uploads")) {

@@ -33,17 +33,8 @@ import { Separator } from "@/components/ui/separator";
 import ContactForm from "@/components/contact/ContactForm";
 import { getPropertyById } from "@/lib/api";
 import { getPropertyAvailability, createAppointment } from "@/lib/appointment-api";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, parseImages, getImageUrl } from "@/lib/utils";
 import type { Property, TimeSlot } from "@/types";
-
-const BACKEND_BASE = process.env.NEXT_PUBLIC_API_URL
-  ? process.env.NEXT_PUBLIC_API_URL.replace('/api/v1', '')
-  : 'http://localhost:8000';
-
-function resolveImageUrl(url: string): string {
-  if (url.startsWith('/uploads')) return `${BACKEND_BASE}${url}`;
-  return url;
-}
 
 export default function PropertyDetailsPage() {
   const params = useParams();
@@ -113,13 +104,15 @@ export default function PropertyDetailsPage() {
   };
 
   const handleNextImage = () => {
-    if (!property?.images?.length) return;
-    setSelectedImage((prev) => (prev + 1) % property.images.length);
+    const images = parseImages(property?.images);
+    if (!images.length) return;
+    setSelectedImage((prev) => (prev + 1) % images.length);
   };
 
   const handlePrevImage = () => {
-    if (!property?.images?.length) return;
-    setSelectedImage((prev) => (prev - 1 + property.images.length) % property.images.length);
+    const images = parseImages(property?.images);
+    if (!images.length) return;
+    setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
   };
 
   if (loading) {
@@ -196,7 +189,7 @@ export default function PropertyDetailsPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          {property.images && property.images.length > 0 ? (
+          {parseImages(property.images).length > 0 ? (
             <div className="space-y-3">
               {/* Grand Main Photo Display */}
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
@@ -205,7 +198,7 @@ export default function PropertyDetailsPage() {
                   className="lg:col-span-3 relative h-[320px] sm:h-[450px] lg:h-[520px] rounded-3xl overflow-hidden shadow-2xl group cursor-pointer border border-border/60"
                 >
                   <img
-                    src={resolveImageUrl(property.images[selectedImage])}
+                    src={getImageUrl(parseImages(property.images)[selectedImage]) || ""}
                     alt={property.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                   />
@@ -220,7 +213,7 @@ export default function PropertyDetailsPage() {
 
                   {/* Image counter pill */}
                   <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white px-3.5 py-1.5 rounded-full text-xs font-medium border border-white/10">
-                    Photo {selectedImage + 1} of {property.images.length}
+                    Photo {selectedImage + 1} of {parseImages(property.images).length}
                   </div>
 
                   {/* Main Title Badge overlay */}
@@ -236,7 +229,7 @@ export default function PropertyDetailsPage() {
 
                 {/* Right Side Thumbnails Strip (Desktop) */}
                 <div className="hidden lg:flex flex-col gap-3 h-[520px]">
-                  {property.images.slice(0, 4).map((img, i) => (
+                  {parseImages(property.images).slice(0, 4).map((img, i) => (
                     <button
                       key={i}
                       onClick={() => {
@@ -250,13 +243,13 @@ export default function PropertyDetailsPage() {
                       }`}
                     >
                       <img
-                        src={resolveImageUrl(img)}
+                        src={getImageUrl(img) || ""}
                         alt={`View ${i + 1}`}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                       />
-                      {i === 3 && property.images.length > 4 && (
+                      {i === 3 && parseImages(property.images).length > 4 && (
                         <div className="absolute inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center text-white font-bold text-sm">
-                          +{property.images.length - 4} More
+                          +{parseImages(property.images).length - 4} More
                         </div>
                       )}
                     </button>
@@ -266,7 +259,7 @@ export default function PropertyDetailsPage() {
 
               {/* Bottom Horizontal Thumbnails (Mobile & Tablet) */}
               <div className="flex lg:hidden gap-2 overflow-x-auto py-1 scrollbar-none">
-                {property.images.map((img, i) => (
+                {parseImages(property.images).map((img, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
@@ -277,7 +270,7 @@ export default function PropertyDetailsPage() {
                     }`}
                   >
                     <img
-                      src={resolveImageUrl(img)}
+                      src={getImageUrl(img) || ""}
                       alt={`View ${i + 1}`}
                       className="w-full h-full object-cover"
                     />
@@ -295,7 +288,7 @@ export default function PropertyDetailsPage() {
 
         {/* Fullscreen Lightbox Modal Overlay */}
         <AnimatePresence>
-          {isLightboxOpen && property.images && property.images.length > 0 && (
+          {isLightboxOpen && parseImages(property.images).length > 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -306,7 +299,7 @@ export default function PropertyDetailsPage() {
               <div className="flex items-center justify-between text-white z-10">
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-semibold bg-white/10 px-3 py-1 rounded-full border border-white/10">
-                    {selectedImage + 1} / {property.images.length}
+                    {selectedImage + 1} / {parseImages(property.images).length}
                   </span>
                   <span className="text-sm text-gray-300 hidden sm:inline truncate max-w-md">
                     {property.title}
@@ -337,7 +330,7 @@ export default function PropertyDetailsPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  src={resolveImageUrl(property.images[selectedImage])}
+                  src={getImageUrl(parseImages(property.images)[selectedImage]) || ""}
                   alt={property.title}
                   className="max-h-[82vh] max-w-[92vw] object-contain rounded-2xl shadow-2xl"
                 />
@@ -352,7 +345,7 @@ export default function PropertyDetailsPage() {
 
               {/* Bottom Thumbnails Navigation Strip */}
               <div className="flex items-center justify-center gap-2 overflow-x-auto py-2 z-10">
-                {property.images.map((img, i) => (
+                {parseImages(property.images).map((img, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
@@ -363,7 +356,7 @@ export default function PropertyDetailsPage() {
                     }`}
                   >
                     <img
-                      src={resolveImageUrl(img)}
+                      src={getImageUrl(img) || ""}
                       alt=""
                       className="w-full h-full object-cover"
                     />

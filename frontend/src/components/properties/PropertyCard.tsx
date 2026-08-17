@@ -8,7 +8,7 @@ import { BedDouble, Bath, Maximize, MapPin, Heart, Building2, ArrowRight } from 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, parseImages, getImageUrl } from "@/lib/utils";
 import type { Property } from "@/types";
 import type { ViewMode } from "./NavbarFilterBar";
 
@@ -35,12 +35,8 @@ export default function PropertyCard({ property, index = 0, viewMode = "grid" }:
     pending: "Pending",
   };
 
-  const imageUrl =
-    property.images && property.images.length > 0
-      ? property.images[0].startsWith("/uploads")
-        ? `${process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api/v1', '') : 'http://localhost:8000'}${property.images[0]}`
-        : property.images[0]
-      : null;
+  const parsedImages = parseImages(property.images);
+  const imageUrl = parsedImages.length > 0 ? getImageUrl(parsedImages[0]) : null;
 
   if (viewMode === "list") {
     return (
@@ -57,21 +53,11 @@ export default function PropertyCard({ property, index = 0, viewMode = "grid" }:
               {/* Image Section */}
               <div className="relative sm:w-56 md:w-64 shrink-0 aspect-[16/10] sm:aspect-auto overflow-hidden">
                 {imageUrl ? (
-                  property.images[0].startsWith("/uploads") ? (
-                    <img
-                      src={imageUrl}
-                      alt={property.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <Image
-                      src={imageUrl}
-                      alt={property.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 640px) 100vw, 260px"
-                    />
-                  )
+                  <img
+                    src={imageUrl}
+                    alt={property.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center min-h-[140px]">
                     <Building2 className="w-10 h-10 text-muted-foreground/30" />
@@ -180,21 +166,11 @@ export default function PropertyCard({ property, index = 0, viewMode = "grid" }:
           {/* Image Container */}
           <div className="relative aspect-[16/10] overflow-hidden">
             {imageUrl ? (
-              property.images[0].startsWith("/uploads") ? (
-                <img
-                  src={imageUrl}
-                  alt={property.title}
-                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
-                />
-              ) : (
-                <Image
-                  src={imageUrl}
-                  alt={property.title}
-                  fill
-                  className="object-cover group-hover:scale-108 transition-transform duration-500"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                />
-              )
+              <img
+                src={imageUrl}
+                alt={property.title}
+                className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
+              />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
                 <Building2 className="w-10 h-10 text-muted-foreground/30" />
