@@ -48,7 +48,7 @@ export default function ProfilePage() {
 
   const updateMutation = useMutation({
     mutationFn: updateProfile,
-    onSuccess: (updated) => {
+    onSuccess: (updated: any) => {
       queryClient.setQueryData(["profile"], updated);
       setIsEditing(false);
       setSaveSuccess(true);

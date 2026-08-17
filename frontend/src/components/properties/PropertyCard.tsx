@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { BedDouble, Bath, Maximize, MapPin, Heart, Building2, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -73,10 +74,17 @@ function resolveImageUrl(images?: string[] | string | null): string {
 }
 
 export default function PropertyCard({ property, index = 0, viewMode = "grid" }: PropertyCardProps) {
+  const pathname = usePathname();
   const { isSaved, toggleSave } = useSavedProperties();
   const isFavorite = isSaved(property.id);
   const [imgSrc, setImgSrc] = useState<string>(() => resolveImageUrl(property.images));
   const [imgError, setImgError] = useState(false);
+
+  const propertyHref = pathname.startsWith("/admin")
+    ? `/admin/browse/${property.id}`
+    : pathname.startsWith("/dashboard")
+    ? `/dashboard/properties/${property.id}`
+    : `/properties/${property.id}`;
 
   const statusColors: Record<string, string> = {
     for_sale: "bg-emerald-500 text-white shadow-emerald-500/25",
@@ -109,7 +117,7 @@ export default function PropertyCard({ property, index = 0, viewMode = "grid" }:
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.3, delay: Math.min(index * 0.03, 0.3) }}
       >
-        <Link href={`/properties/${property.id}`}>
+        <Link href={propertyHref}>
           <Card className="group overflow-hidden border-border/60 hover:border-emerald-500/40 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 py-0 gap-0 rounded-2xl bg-card">
             <div className="flex flex-col sm:flex-row min-h-[170px]">
               {/* Image Section */}
@@ -223,7 +231,7 @@ export default function PropertyCard({ property, index = 0, viewMode = "grid" }:
       transition={{ duration: 0.3, delay: Math.min(index * 0.03, 0.3) }}
       className="h-full"
     >
-      <Link href={`/properties/${property.id}`} className="block h-full">
+      <Link href={propertyHref} className="block h-full">
         <Card className="group h-full flex flex-col justify-between overflow-hidden border-border/60 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 py-0 gap-0 rounded-2xl bg-card">
           {/* Image Container */}
           <div className="relative aspect-[16/10] overflow-hidden bg-muted shrink-0">
