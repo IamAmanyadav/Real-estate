@@ -15,19 +15,16 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
 import { getDashboardData } from "@/lib/admin-api";
 import type { DashboardData } from "@/types/admin";
 
 export default function AdminDashboardPage() {
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getDashboardData()
-      .then(setData)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data, isLoading: loading, error } = useQuery({
+    queryKey: ["admin-dashboard"],
+    queryFn: getDashboardData,
+    staleTime: 60 * 1000, // 1 minute
+  });
 
   if (loading) {
     return (

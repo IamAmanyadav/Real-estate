@@ -214,6 +214,9 @@ async def get_dashboard_stats(
         totalListings=stats["total"],
         pendingListings=stats["pending"],
         approvedListings=stats["approved"],
+        publishedListings=stats["published"],
+        soldListings=stats["sold"],
+        archivedListings=stats["archived"],
         rejectedListings=stats["rejected"],
         totalInquiriesReceived=stats["inquiries"],
     )

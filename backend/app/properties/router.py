@@ -17,7 +17,10 @@ from app.properties.schemas import (
 router = APIRouter()
 
 
+from fastapi_cache.decorator import cache
+
 @router.get("", response_model=PaginatedProperties)
+@cache(expire=60)
 async def list_properties(
     location: str | None = Query(None),
     min_price: float | None = Query(None, ge=0),
@@ -45,6 +48,7 @@ async def list_properties(
 
 
 @router.get("/{property_id}", response_model=PropertyResponse)
+@cache(expire=60)
 async def get_property(property_id: str, db: AsyncSession = Depends(get_db)):
     prop = await service.get_property(db, property_id)
     if not prop:

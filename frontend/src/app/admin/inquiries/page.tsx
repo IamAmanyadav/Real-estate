@@ -162,27 +162,39 @@ export default function AdminInquiriesPage() {
                       {inq.name.charAt(0)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <h3 className="font-semibold">{inq.name}</h3>
-                        <Badge variant="outline" className={sColors[inq.inquiryStatus] || ""}>
-                          {inq.inquiryStatus}
-                        </Badge>
-                        {inq.propertyTitle && (
-                          <span className="text-xs text-muted-foreground">
-                            re: {inq.propertyTitle}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground mb-1">
-                        <span className="flex items-center gap-1">
-                          <Mail className="w-3 h-3" /> {inq.email}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold text-base">{inq.name}</h3>
+                          <Badge variant="outline" className={sColors[inq.inquiryStatus] || ""}>
+                            {inq.inquiryStatus}
+                          </Badge>
+                        </div>
+                        <span className="text-xs text-muted-foreground sm:ml-auto">
+                          {fmtDate(inq.createdAt)}
                         </span>
-                        {inq.phone && (
-                          <span className="flex items-center gap-1">
-                            <Phone className="w-3 h-3" /> {inq.phone}
-                          </span>
+                      </div>
+                      
+                      <div className="flex flex-col gap-1.5 mb-3 bg-muted/30 p-2.5 rounded-lg border border-border/50">
+                        {inq.propertyTitle && (
+                          <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400 font-medium">
+                            <span className="text-muted-foreground text-xs font-normal">Property:</span>
+                            {inq.propertyTitle}
+                          </div>
                         )}
-                        <span>{fmtDate(inq.createdAt)}</span>
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-muted-foreground text-xs">Email:</span>
+                          <a href={`mailto:${inq.email}`} className="text-blue-600 hover:underline flex items-center gap-1">
+                            <Mail className="w-3.5 h-3.5" /> {inq.email}
+                          </a>
+                        </div>
+                        {inq.phone && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-muted-foreground text-xs">Phone:</span>
+                            <a href={`tel:${inq.phone}`} className="flex items-center gap-1 hover:underline">
+                              <Phone className="w-3.5 h-3.5" /> {inq.phone}
+                            </a>
+                          </div>
+                        )}
                       </div>
                       {/* Expandable message */}
                       <p className={`text-sm text-foreground/80 ${expanded === inq.id ? "" : "line-clamp-2"}`}>

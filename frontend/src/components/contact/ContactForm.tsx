@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Send, CheckCircle2, Loader2 } from "lucide-react";
 import { submitInquiry } from "@/lib/api";
-import { getStoredToken } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ContactFormProps {
   propertyId?: string;
@@ -15,9 +15,9 @@ interface ContactFormProps {
 }
 
 export default function ContactForm({ propertyId, compact }: ContactFormProps) {
+  const { user } = useAuth();
   const [form, setForm] = useState({
     name: "",
-    email: "",
     phone: "",
     message: propertyId
       ? "I'm interested in this property. Please contact me with more details."
@@ -34,9 +34,10 @@ export default function ContactForm({ propertyId, compact }: ContactFormProps) {
 
     try {
       // Include auth token if user is logged in so inquiry gets linked
-      const token = getStoredToken();
+      const token = localStorage.getItem("auth_token") || null;
       await submitInquiry({
         ...form,
+        email: user?.email || "guest@luxeestates.com",
         propertyId,
       }, token || undefined);
       setSubmitted(true);
@@ -60,7 +61,7 @@ export default function ContactForm({ propertyId, compact }: ContactFormProps) {
           className="mt-4"
           onClick={() => {
             setSubmitted(false);
-            setForm({ name: "", email: "", phone: "", message: "" });
+            setForm({ name: "", phone: "", message: "" });
           }}
         >
           Send Another Message
@@ -77,24 +78,9 @@ export default function ContactForm({ propertyId, compact }: ContactFormProps) {
         </Label>
         <Input
           id="name"
-          placeholder="Aman Yadav"
+          placeholder="Name"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
-          required
-          className="rounded-xl"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="email" className="text-sm font-medium">
-          Email Address
-        </Label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="abc@example.com"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
           required
           className="rounded-xl"
         />

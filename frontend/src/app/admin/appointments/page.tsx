@@ -175,32 +175,44 @@ export default function AdminAppointmentsPage() {
                 }`}>
                   <CardContent className="p-5">
                     <div className="flex flex-col lg:flex-row gap-4">
-                      <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 flex flex-col items-center justify-center shrink-0">
-                        {appt.slotDate ? (
-                          <>
-                            <span className="text-xs text-emerald-600 font-medium">
-                              {new Date(appt.slotDate + "T00:00:00").toLocaleDateString("en", { month: "short" })}
-                            </span>
-                            <span className="text-lg font-bold text-emerald-600">
-                              {new Date(appt.slotDate + "T00:00:00").getDate()}
-                            </span>
-                          </>
+                      {/* Property Image & Date */}
+                      <div className="flex gap-3 shrink-0">
+                        {appt.propertyImage ? (
+                          <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 relative">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={appt.propertyImage} alt={appt.propertyTitle} className="w-full h-full object-cover" />
+                          </div>
                         ) : (
-                          <span className="text-xs text-emerald-600 font-medium text-center leading-tight">
-                            TBD
-                          </span>
+                          <div className="w-16 h-16 rounded-xl bg-muted flex items-center justify-center shrink-0">
+                            <Building2 className="w-6 h-6 text-muted-foreground/50" />
+                          </div>
                         )}
+                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 flex flex-col items-center justify-center shrink-0">
+                          {appt.slotDate ? (
+                            <>
+                              <span className="text-xs text-emerald-600 font-medium">
+                                {new Date(appt.slotDate + "T00:00:00").toLocaleDateString("en", { month: "short" })}
+                              </span>
+                              <span className="text-lg font-bold text-emerald-600">
+                                {new Date(appt.slotDate + "T00:00:00").getDate()}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="text-xs text-emerald-600 font-medium text-center leading-tight">
+                              TBD
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-3 flex-wrap">
                           <div>
                             <h3 className="font-semibold flex items-center gap-2">
-                              <Building2 className="w-4 h-4 text-emerald-500" />
                               {appt.propertyTitle}
                             </h3>
                             {appt.propertyAddress && (
-                              <p className="text-xs text-muted-foreground mt-0.5 ml-6">{appt.propertyAddress}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">{appt.propertyAddress}</p>
                             )}
                           </div>
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border shrink-0 ${cfg.color}`}>
@@ -210,16 +222,45 @@ export default function AdminAppointmentsPage() {
                         </div>
 
                         {/* Buyer / Seller info */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
-                          <div className="flex items-center gap-2 text-sm">
-                            <User className="w-3.5 h-3.5 text-blue-500" />
-                            <span className="text-muted-foreground">Buyer:</span>
-                            <span className="font-medium truncate">{appt.buyerName}</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 bg-muted/30 p-3 rounded-xl border border-border/50">
+                          {/* Buyer */}
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-2 text-sm font-semibold">
+                              <User className="w-4 h-4 text-blue-500" /> Buyer
+                            </div>
+                            <div className="text-sm truncate">{appt.buyerName}</div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <a href={`mailto:${appt.buyerEmail}`} className="hover:text-blue-500 hover:underline truncate">
+                                {appt.buyerEmail}
+                              </a>
+                            </div>
+                            {appt.buyerPhone && (
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <a href={`tel:${appt.buyerPhone}`} className="hover:text-blue-500 hover:underline truncate">
+                                  {appt.buyerPhone}
+                                </a>
+                              </div>
+                            )}
                           </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <User className="w-3.5 h-3.5 text-purple-500" />
-                            <span className="text-muted-foreground">Seller:</span>
-                            <span className="font-medium truncate">{appt.sellerName}</span>
+
+                          {/* Seller */}
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-2 text-sm font-semibold">
+                              <User className="w-4 h-4 text-purple-500" /> Seller
+                            </div>
+                            <div className="text-sm truncate">{appt.sellerName}</div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <a href={`mailto:${appt.sellerEmail}`} className="hover:text-purple-500 hover:underline truncate">
+                                {appt.sellerEmail}
+                              </a>
+                            </div>
+                            {appt.sellerPhone && (
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <a href={`tel:${appt.sellerPhone}`} className="hover:text-purple-500 hover:underline truncate">
+                                  {appt.sellerPhone}
+                                </a>
+                              </div>
+                            )}
                           </div>
                         </div>
 

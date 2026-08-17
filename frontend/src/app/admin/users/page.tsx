@@ -1,8 +1,10 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Search, Users, Trash2, Shield, Ban, CheckCircle, Filter } from "lucide-react";
+import { Search, Users, Trash2, Shield, Ban, CheckCircle, Filter, Mail, Phone, Building2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,27 +28,23 @@ const roleColors: Record<string, string> = {
 };
 
 export default function AdminUsersPage() {
-  const [data, setData] = useState<PaginatedResponse<AdminUser> | null>(null);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebounce(search, 300);
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true);
-    try {
+  const { data, isLoading: loading, refetch: fetchUsers } = useQuery({
+    queryKey: ["admin-users", debouncedSearch, roleFilter, statusFilter, page],
+    queryFn: async () => {
       const params: Record<string, string | number> = { page, limit: 10 };
       if (debouncedSearch) params.search = debouncedSearch;
       if (roleFilter !== "all") params.role = roleFilter;
       if (statusFilter !== "all") params.status = statusFilter;
-      setData(await getAdminUsers(params));
-    } catch (err) { console.error(err); }
-    finally { setLoading(false); }
-  }, [debouncedSearch, roleFilter, statusFilter, page]);
-
-  useEffect(() => { fetchUsers(); }, [fetchUsers]);
+      return getAdminUsers(params);
+    },
+    staleTime: 60 * 1000,
+  });
 
   const handleStatus = async (id: string, status: string) => {
     try { await updateUserStatus(id, status); fetchUsers(); }
@@ -109,7 +107,39 @@ export default function AdminUsersPage() {
                         <Badge variant="secondary" className="text-xs capitalize">{u.role}</Badge>
                         <Badge variant="outline" className={statusColors[u.status] || ""}>{u.status.replace("_", " ")}</Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">{u.email} {u.propertyCount > 0 && `• ${u.propertyCount} properties`}</p>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3 mb-1 bg-muted/30 p-3 rounded-xl border border-border/50">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-muted-foreground text-xs font-medium flex items-center gap-1.5">
+                            <Mail className="w-3.5 h-3.5" /> Email
+                          </span>
+                          <a href={`mailto:${u.email}`} className="text-sm font-medium hover:text-blue-500 hover:underline truncate">
+                            {u.email}
+                          </a>
+                        </div>
+
+                        {u.phone && (
+                          <div className="flex flex-col gap-1">
+                            <span className="text-muted-foreground text-xs font-medium flex items-center gap-1.5">
+                              <Phone className="w-3.5 h-3.5" /> Phone
+                            </span>
+                            <a href={`tel:${u.phone}`} className="text-sm font-medium hover:text-emerald-600 hover:underline truncate">
+                              {u.phone}
+                            </a>
+                          </div>
+                        )}
+
+                        {u.propertyCount > 0 && (
+                          <div className="flex flex-col gap-1">
+                            <span className="text-muted-foreground text-xs font-medium flex items-center gap-1.5">
+                              <Building2 className="w-3.5 h-3.5" /> Properties
+                            </span>
+                            <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                              {u.propertyCount} properties
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       {u.status === "pending_verification" && (

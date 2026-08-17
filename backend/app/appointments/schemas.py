@@ -78,9 +78,11 @@ class AppointmentResponse(BaseModel):
     buyerId: str
     buyerName: str
     buyerEmail: str
+    buyerPhone: str | None = None
     sellerId: str
     sellerName: str
     sellerEmail: str
+    sellerPhone: str | None = None
     timeSlotId: str | None = None
     slotDate: str | None = None
     startTime: str | None = None

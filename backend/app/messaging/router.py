@@ -2,15 +2,25 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+    status,
+)
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.auth.deps import get_current_user
+from app.auth.deps import get_current_user, get_user_from_token
 from app.db.deps import get_db
 from app.models.user import User
 from app.messaging import repository as repo
+from app.messaging.websocket_manager import ws_manager
 from app.messaging.schemas import (
     ConversationCreate,
     ConversationListItem,
@@ -19,6 +29,8 @@ from app.messaging.schemas import (
     MessageResponse,
     UnreadCountResponse,
 )
+
+logger = logging.getLogger("uvicorn.error")
 
 router = APIRouter()
 
@@ -137,6 +149,7 @@ async def get_messages(
             id=str(msg.id),
             conversationId=str(msg.conversation_id),
             senderId=str(msg.sender_id),
+            senderClerkId=msg.sender.clerk_id if msg.sender else None,
             senderName=msg.sender.full_name if msg.sender else "Unknown",
             senderRole=msg.sender.role if msg.sender else "",
             content=msg.content,
@@ -165,17 +178,31 @@ async def send_message(
         raise HTTPException(status_code=403, detail="Access denied")
 
     msg = await repo.create_message(db, conv_id, user.id, body.content)
+    await db.commit()
+    await db.refresh(msg)
 
-    return MessageResponse(
+    response_data = MessageResponse(
         id=str(msg.id),
         conversationId=str(msg.conversation_id),
         senderId=str(msg.sender_id),
+        senderClerkId=user.clerk_id,
         senderName=user.full_name,
         senderRole=user.role,
         content=msg.content,
         isRead=msg.is_read,
         createdAt=msg.created_at.isoformat(),
     )
+
+    # Broadcast to all live WebSocket clients in this conversation
+    await ws_manager.broadcast_to_conversation(
+        str(conv_id),
+        {
+            "type": "new_message",
+            "data": response_data.model_dump(),
+        },
+    )
+
+    return response_data
 
 
 # ── Read Receipts ────────────────────────────────────────────────────────────
@@ -197,6 +224,19 @@ async def mark_as_read(
         raise HTTPException(status_code=403, detail="Access denied")
 
     count = await repo.mark_messages_as_read(db, conv_id, user.id)
+    await db.commit()
+
+    # Broadcast read event so other clients can update checkmarks
+    await ws_manager.broadcast_to_conversation(
+        str(conv_id),
+        {
+            "type": "messages_read",
+            "conversationId": str(conv_id),
+            "readerId": str(user.id),
+            "count": count,
+        },
+    )
+
     return {"markedRead": count}
 
 
@@ -261,3 +301,139 @@ async def download_conversation(
         lines.append(f"[{timestamp}] {sender_name}: {msg.content}")
         
     return "\n".join(lines)
+
+# ── WebSocket Real-Time Channel ──────────────────────────────────────────────
+
+
+@router.websocket("/ws/{conversation_id}")
+async def websocket_chat(
+    websocket: WebSocket,
+    conversation_id: str,
+    token: str = Query(..., description="Authentication token"),
+    db: AsyncSession = Depends(get_db),
+):
+    """Real-time bi-directional chat socket."""
+    # 1. Authenticate user from query token
+    try:
+        user = await get_user_from_token(token, db)
+    except Exception as err:
+        logger.warning(f"WebSocket auth failed: {err}")
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
+    # 2. Validate conversation access
+    try:
+        conv_uuid = uuid.UUID(conversation_id)
+    except ValueError:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
+    conv = await repo.get_conversation_by_id(db, conv_uuid)
+    if not conv:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
+    if user.role != "admin" and conv.user_id != user.id:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
+    # 3. Accept & Register connection
+    await ws_manager.connect(websocket, conversation_id, str(user.id))
+
+    # Send handshake confirmation
+    await ws_manager.send_personal_message(
+        websocket,
+        {
+            "type": "connected",
+            "conversationId": conversation_id,
+            "userId": str(user.id),
+        },
+    )
+
+    try:
+        while True:
+            payload = await websocket.receive_json()
+            if not isinstance(payload, dict):
+                continue
+
+            event_type = payload.get("type")
+
+            try:
+                if event_type == "chat_message":
+                    raw_content = payload.get("content") or ""
+                    content = str(raw_content).strip()
+                    if not content:
+                        continue
+                    # Truncate content to max 2000 chars
+                    if len(content) > 2000:
+                        content = content[:2000]
+
+                    msg = await repo.create_message(db, conv.id, user.id, content)
+                    await db.commit()
+                    await db.refresh(msg)
+
+                    msg_data = {
+                        "id": str(msg.id),
+                        "conversationId": str(msg.conversation_id),
+                        "senderId": str(msg.sender_id),
+                        "senderClerkId": user.clerk_id,
+                        "senderName": user.full_name,
+                        "senderRole": user.role,
+                        "content": msg.content,
+                        "isRead": msg.is_read,
+                        "createdAt": msg.created_at.isoformat(),
+                    }
+
+                    await ws_manager.broadcast_to_conversation(
+                        conversation_id,
+                        {
+                            "type": "new_message",
+                            "data": msg_data,
+                        },
+                    )
+
+                elif event_type == "typing":
+                    is_typing = bool(payload.get("isTyping", False))
+                    await ws_manager.broadcast_to_conversation(
+                        conversation_id,
+                        {
+                            "type": "typing",
+                            "userId": str(user.id),
+                            "userName": user.full_name,
+                            "isTyping": is_typing,
+                        },
+                        exclude=websocket,
+                    )
+
+                elif event_type == "mark_read":
+                    count = await repo.mark_messages_as_read(db, conv.id, user.id)
+                    await db.commit()
+                    await ws_manager.broadcast_to_conversation(
+                        conversation_id,
+                        {
+                            "type": "messages_read",
+                            "conversationId": conversation_id,
+                            "readerId": str(user.id),
+                            "count": count,
+                        },
+                    )
+
+                elif event_type == "ping":
+                    await websocket.send_json({"type": "pong"})
+
+            except Exception as inner_err:
+                logger.error(f"Error handling event {event_type} in {conversation_id}: {inner_err}")
+                await db.rollback()
+                await ws_manager.send_personal_message(
+                    websocket,
+                    {
+                        "type": "error",
+                        "message": "Failed to process chat action. Please try again.",
+                    },
+                )
+
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket, conversation_id, str(user.id))
+    except Exception as err:
+        logger.warning(f"WebSocket closed in {conversation_id}: {err}")
+        ws_manager.disconnect(websocket, conversation_id, str(user.id))

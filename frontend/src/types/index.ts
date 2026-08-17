@@ -183,6 +183,9 @@ export interface SellerDashboardStats {
   totalListings: number;
   pendingListings: number;
   approvedListings: number;
+  publishedListings: number;
+  soldListings: number;
+  archivedListings: number;
   rejectedListings: number;
   totalInquiriesReceived: number;
 }
@@ -249,9 +252,11 @@ export interface Appointment {
   buyerId: string;
   buyerName: string;
   buyerEmail: string;
+  buyerPhone: string | null;
   sellerId: string;
   sellerName: string;
   sellerEmail: string;
+  sellerPhone: string | null;
   timeSlotId: string;
   slotDate: string;
   startTime: string;

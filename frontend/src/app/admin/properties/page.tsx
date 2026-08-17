@@ -1,5 +1,7 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+
 import { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -170,39 +172,38 @@ function ActionMenu({
 
 /* ── Main Page ────────────────────────────────────────────────────────────── */
 export default function AdminPropertiesPage() {
-  const [data, setData] = useState<PaginatedResponse<AdminProperty> | null>(null);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [vFilter, setVFilter] = useState("all");
   const [tFilter, setTFilter] = useState("all");
   const [page, setPage] = useState(1);
   const dSearch = useDebounce(search, 300);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
+  const { data, isLoading: loading, refetch } = useQuery({
+    queryKey: ["admin-properties", dSearch, vFilter, tFilter, page],
+    queryFn: async () => {
       const p: Record<string, string | number> = { page, limit: 10 };
       if (dSearch) p.search = dSearch;
       if (vFilter !== "all") p.verificationStatus = vFilter;
       if (tFilter !== "all") p.propertyType = tFilter;
-      setData(await getAdminProperties(p));
-    } catch (e) { console.error(e); }
-    finally { setLoading(false); }
-  }, [dSearch, vFilter, tFilter, page]);
-
-  useEffect(() => { load(); }, [load]);
+      return getAdminProperties(p);
+    },
+    staleTime: 60 * 1000,
+  });
 
   const verify = async (id: string, s: string) => {
-    try { await updatePropertyVerification(id, s); load(); }
+    try { await updatePropertyVerification(id, s); refetch(); }
     catch (e) { console.error(e); }
   };
   const remove = async (id: string) => {
     if (!confirm("Permanently delete this property? This action cannot be undone.")) return;
-    try { await deleteAdminProperty(id); load(); }
+    try { await deleteAdminProperty(id); refetch(); }
     catch (e) { console.error(e); }
   };
-  const fmt = (n: number) =>
-    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+  const fmt = (n: number) => {
+    if (n >= 10000000) return `₹${+(n / 10000000).toFixed(2)} Cr`;
+    if (n >= 100000) return `₹${+(n / 100000).toFixed(2)} Lac`;
+    return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+  };
 
   return (
     <div className="space-y-6">

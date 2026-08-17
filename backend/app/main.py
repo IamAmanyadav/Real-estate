@@ -36,9 +36,16 @@ from app.api.webhooks import router as webhooks_router
 UPLOADS_DIR = Path(__file__).resolve().parent.parent / "uploads" / "properties"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 
+from redis.asyncio import Redis
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown events for the application."""
+    # Initialize Redis caching
+    redis = Redis.from_url(settings.redis_url, encoding="utf-8", decode_responses=False)
+    FastAPICache.init(RedisBackend(redis), prefix="luxe-cache")
     yield
     await engine.dispose()
 

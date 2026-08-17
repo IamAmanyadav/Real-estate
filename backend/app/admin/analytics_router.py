@@ -53,7 +53,10 @@ class DashboardData(BaseModel):
     recentActivity: list[RecentActivityItem]
 
 
+from fastapi_cache.decorator import cache
+
 @router.get("/overview", response_model=DashboardData)
+@cache(expire=300)
 async def get_dashboard(
     db: AsyncSession = Depends(get_db),
     _admin: User = Depends(get_current_admin),

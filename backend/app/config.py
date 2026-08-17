@@ -20,6 +20,7 @@ class Settings(BaseSettings):
 
     # Database
     database_url: str = "postgresql+asyncpg://neondb_owner:npg_GEwy51WAmHDJ@ep-long-waterfall-azzs0qit.c-3.ap-southeast-1.aws.neon.tech/neondb?ssl=require"
+    redis_url: str = "redis://localhost:6379"
 
     # CORS
     cors_origins: list[str] = [

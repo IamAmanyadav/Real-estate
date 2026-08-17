@@ -214,7 +214,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                     <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="mt-1.5 rounded-lg" />
                   </div>
                   <div>
-                    <Label>Price (USD)</Label>
+                    <Label>Price (₹)</Label>
                     <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="mt-1.5 rounded-lg" />
                   </div>
                   <div>

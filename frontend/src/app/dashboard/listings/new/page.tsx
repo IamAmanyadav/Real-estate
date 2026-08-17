@@ -314,17 +314,17 @@ export default function NewPropertyPage() {
                 </div>
                 <div>
                   <Label htmlFor="propertyType">Property Type *</Label>
-                  <select id="propertyType" value={form.propertyType} onChange={(e) => updateField("propertyType", e.target.value)} className="mt-1.5 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm">
+                  <select id="propertyType" value={form.propertyType} onChange={(e) => updateField("propertyType", e.target.value)} className="mt-1.5 w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm">
                     {PROPERTY_TYPES.map((t) => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
+                      <option key={t.value} value={t.value} className="bg-background text-foreground">{t.label}</option>
                     ))}
                   </select>
                 </div>
                 <div>
                   <Label htmlFor="status">Listing Status *</Label>
-                  <select id="status" value={form.status} onChange={(e) => updateField("status", e.target.value)} className="mt-1.5 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm">
-                    <option value="for_sale">For Sale</option>
-                    <option value="for_rent">For Rent</option>
+                  <select id="status" value={form.status} onChange={(e) => updateField("status", e.target.value)} className="mt-1.5 w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm">
+                    <option value="for_sale" className="bg-background text-foreground">For Sale</option>
+                    <option value="for_rent" className="bg-background text-foreground">For Rent</option>
                   </select>
                 </div>
                 <div>
@@ -378,8 +378,8 @@ export default function NewPropertyPage() {
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="col-span-2">
-                  <Label htmlFor="price">Price (USD) *</Label>
-                  <Input id="price" type="number" value={form.price} onChange={(e) => updateField("price", e.target.value)} placeholder="500000" required min={1} className="mt-1.5 rounded-lg" />
+                  <Label htmlFor="price">Price (₹) *</Label>
+                  <Input id="price" type="number" value={form.price} onChange={(e) => updateField("price", e.target.value)} placeholder="5000000" required min={1} className="mt-1.5 rounded-lg" />
                 </div>
                 <div>
                   <Label htmlFor="bedrooms" className="flex items-center gap-1"><Bed className="w-3.5 h-3.5" /> Bedrooms *</Label>
@@ -544,10 +544,10 @@ export default function NewPropertyPage() {
                       <select
                         value={doc.documentType}
                         onChange={(e) => updateDocument(i, "documentType", e.target.value)}
-                        className="mt-1 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm"
+                        className="mt-1 w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm"
                       >
                         {DOCUMENT_TYPES.map((t) => (
-                          <option key={t.value} value={t.value}>{t.label}</option>
+                          <option key={t.value} value={t.value} className="bg-background text-foreground">{t.label}</option>
                         ))}
                       </select>
                     </div>
