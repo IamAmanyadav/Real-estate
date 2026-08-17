@@ -16,7 +16,6 @@ import {
 import {
   getAdminProperties, updatePropertyVerification, deleteAdminProperty,
 } from "@/lib/admin-api";
-import { formatPrice, parseImages, getImageUrl } from "@/lib/utils";
 import type { AdminProperty, PaginatedResponse } from "@/types/admin";
 import { useDebounce } from "@/hooks/useDebounce";
 
@@ -280,13 +279,18 @@ export default function AdminPropertiesPage() {
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
                     {(() => {
-                      const parsedImages = parseImages(prop.images);
-                      const firstImg = parsedImages.length > 0 ? parsedImages[0] : null;
+                      let images = prop.images;
+                      if (typeof images === "string") {
+                        try {
+                          images = JSON.parse(images);
+                        } catch (e) {}
+                      }
+                      const firstImg = Array.isArray(images) && images.length > 0 ? images[0] : null;
                       const dummyImage = "/images/property-fallback.jpg";
                       
                       return firstImg ? (
                         <img
-                          src={getImageUrl(firstImg) || ""}
+                          src={firstImg.startsWith("/uploads") ? `${process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api/v1', '') : 'http://localhost:8000'}${firstImg}` : firstImg}
                           alt={prop.title}
                           className="w-20 h-16 rounded-lg object-cover shrink-0"
                           onError={(e) => {
