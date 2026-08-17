@@ -463,7 +463,7 @@ export default function PropertyDetailsPage() {
                     }`}
                   >
                     <img
-                      src={getImageUrl(img) || ""}
+                      src={resolveImageUrl(img) || ""}
                       alt=""
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = DEFAULT_FALLBACK_IMAGE;
