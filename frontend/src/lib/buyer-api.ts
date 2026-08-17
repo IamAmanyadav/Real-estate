@@ -90,6 +90,7 @@ export async function updateProfile(updates: {
   fullName?: string;
   phone?: string;
   bio?: string;
+  avatar?: string;
 }): Promise<UserProfile> {
   const { data } = await buyerApi.put<UserProfile>("/auth/profile", updates);
   return data;

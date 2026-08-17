@@ -37,6 +37,7 @@ class ProfileUpdate(BaseModel):
     fullName: str | None = Field(None, min_length=2, max_length=150)
     phone: str | None = None
     bio: str | None = None
+    avatar: str | None = None
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -78,6 +79,8 @@ async def update_profile(
         user.phone = data.phone
     if data.bio is not None:
         user.bio = data.bio
+    if data.avatar is not None:
+        user.avatar = data.avatar
 
     user.updated_at = datetime.now(timezone.utc)
     await db.flush()

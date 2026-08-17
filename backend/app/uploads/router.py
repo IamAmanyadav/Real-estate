@@ -13,7 +13,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from pydantic import BaseModel
 
-from app.auth.deps import get_current_seller
+from app.auth.deps import get_current_seller, get_current_user
 from app.models.user import User
 
 router = APIRouter()
@@ -21,6 +21,7 @@ router = APIRouter()
 # ── Configuration ────────────────────────────────────────────────────────────
 
 UPLOAD_DIR = Path(__file__).resolve().parent.parent.parent / "uploads" / "properties"
+AVATAR_UPLOAD_DIR = Path(__file__).resolve().parent.parent.parent / "uploads" / "avatars"
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB per file
 MAX_FILES = 10
@@ -89,3 +90,47 @@ async def upload_images(
         urls.append(url)
 
     return UploadResponse(urls=urls, count=len(urls))
+
+
+class AvatarUploadResponse(BaseModel):
+    url: str
+
+@router.post("/avatar", response_model=AvatarUploadResponse)
+async def upload_avatar(
+    file: UploadFile = File(...),
+    _user: User = Depends(get_current_user),
+):
+    """Upload a profile avatar.
+    
+    - Accepts JPEG, PNG, WebP, GIF
+    - Max 5 MB per file
+    - Returns the serving URL
+    """
+    AVATAR_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File '{file.filename}' is not a valid image.",
+        )
+
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File type '{ext}' is not allowed. Allowed: {', '.join(ALLOWED_EXTENSIONS)}",
+        )
+
+    content = await file.read()
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File '{file.filename}' exceeds the 5 MB limit.",
+        )
+
+    unique_name = f"{uuid.uuid4().hex}{ext}"
+    file_path = AVATAR_UPLOAD_DIR / unique_name
+    file_path.write_bytes(content)
+
+    url = f"/uploads/avatars/{unique_name}"
+    return AvatarUploadResponse(url=url)

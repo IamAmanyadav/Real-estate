@@ -6,11 +6,17 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(price);
+  if (price >= 10000000) {
+    return `₹${+(price / 10000000).toFixed(2)} Cr`;
+  } else if (price >= 100000) {
+    return `₹${+(price / 100000).toFixed(2)} Lac`;
+  } else {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(price);
+  }
 }
 
 export function formatDate(dateString: string): string {
@@ -51,4 +57,13 @@ export async function attachAuthToken(config: any) {
     }
   }
   return config;
+}
+
+export function getImageUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith("/uploads")) {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api/v1', '') : 'http://localhost:8000';
+    return `${baseUrl}${url}`;
+  }
+  return url;
 }

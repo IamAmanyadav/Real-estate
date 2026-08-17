@@ -71,8 +71,8 @@ export default function UserDashboard() {
           change: sellerStats ? `${sellerStats.pendingListings} pending` : "",
         },
         {
-          title: "Approved",
-          value: sellerStats ? sellerStats.approvedListings.toString() : "—",
+          title: "Approved & Published",
+          value: sellerStats ? (sellerStats.approvedListings + sellerStats.publishedListings).toString() : "—",
           icon: CheckCircle2,
           color: "from-blue-500 to-indigo-500",
           change: "Live on the platform",
