@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { getSellerProperties, deleteSellerProperty } from "@/lib/seller-api";
-import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
+import { formatPrice, formatDate, getImageUrl, parseImages } from "@/lib/utils";
 import type { SellerProperty, VerificationStatus } from "@/types";
 
 const STATUS_CONFIG: Record<
@@ -188,9 +188,9 @@ export default function MyListingsPage() {
                   <div className="flex flex-col sm:flex-row">
                     {/* Image */}
                     <div className="sm:w-48 h-40 sm:h-auto relative shrink-0">
-                      {prop.images[0] ? (
+                      {parseImages(prop.images).length > 0 ? (
                         <img
-                          src={getImageUrl(prop.images[0]) || ""}
+                          src={getImageUrl(parseImages(prop.images)[0]) || ""}
                           alt={prop.title}
                           className="w-full h-full object-cover"
                         />
