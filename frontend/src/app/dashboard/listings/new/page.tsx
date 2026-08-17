@@ -314,17 +314,17 @@ export default function NewPropertyPage() {
                 </div>
                 <div>
                   <Label htmlFor="propertyType">Property Type *</Label>
-                  <select id="propertyType" value={form.propertyType} onChange={(e) => updateField("propertyType", e.target.value)} className="mt-1.5 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm">
+                  <select id="propertyType" value={form.propertyType} onChange={(e) => updateField("propertyType", e.target.value)} className="mt-1.5 w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm">
                     {PROPERTY_TYPES.map((t) => (
-                      <option key={t.value} value={t.value}>{t.label}</option>
+                      <option key={t.value} value={t.value} className="bg-background text-foreground">{t.label}</option>
                     ))}
                   </select>
                 </div>
                 <div>
                   <Label htmlFor="status">Listing Status *</Label>
-                  <select id="status" value={form.status} onChange={(e) => updateField("status", e.target.value)} className="mt-1.5 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm">
-                    <option value="for_sale">For Sale</option>
-                    <option value="for_rent">For Rent</option>
+                  <select id="status" value={form.status} onChange={(e) => updateField("status", e.target.value)} className="mt-1.5 w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm">
+                    <option value="for_sale" className="bg-background text-foreground">For Sale</option>
+                    <option value="for_rent" className="bg-background text-foreground">For Rent</option>
                   </select>
                 </div>
                 <div>
@@ -544,10 +544,10 @@ export default function NewPropertyPage() {
                       <select
                         value={doc.documentType}
                         onChange={(e) => updateDocument(i, "documentType", e.target.value)}
-                        className="mt-1 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm"
+                        className="mt-1 w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm"
                       >
                         {DOCUMENT_TYPES.map((t) => (
-                          <option key={t.value} value={t.value}>{t.label}</option>
+                          <option key={t.value} value={t.value} className="bg-background text-foreground">{t.label}</option>
                         ))}
                       </select>
                     </div>
