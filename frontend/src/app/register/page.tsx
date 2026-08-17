@@ -25,7 +25,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [pendingVerification, setPendingVerification] = useState(false);
+  const [step, setStep] = useState<"role" | "method" | "manual" | "verify">("role");
   const [code, setCode] = useState("");
 
   const { client, setActive } = useClerk();
@@ -75,11 +75,28 @@ export default function RegisterPage() {
         throw new Error("Could not find Clerk verification method on client.signUp.");
       }
       
-      setPendingVerification(true);
+      setStep("verify");
     } catch (err: any) {
       console.error("Signup error:", err);
       setError(err.errors?.[0]?.longMessage || err.message || "Registration failed. Please try again.");
     } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    if (!client || !client.signUp) return;
+    setIsLoading(true);
+    try {
+      localStorage.setItem("pending_oauth_role", role);
+      await client.signUp.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/sso-callback",
+        redirectUrlComplete: "/dashboard",
+      });
+    } catch (err: any) {
+      console.error("Google sign up error:", err);
+      setError(err.errors?.[0]?.longMessage || err.message || "Google Sign Up failed.");
       setIsLoading(false);
     }
   };
@@ -226,7 +243,9 @@ export default function RegisterPage() {
             </motion.div>
           )}
 
-          {pendingVerification ? (
+          <div id="clerk-captcha"></div>
+
+          {step === "verify" ? (
             <form onSubmit={handleVerify} className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="code" className="text-sm font-medium">Verification Code</Label>
@@ -261,164 +280,230 @@ export default function RegisterPage() {
                 )}
               </Button>
             </form>
+          ) : step === "role" ? (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label className="text-base font-semibold">I want to</Label>
+                <div className="grid grid-cols-2 gap-4 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setRole("buyer")}
+                    className={`relative flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200 ${
+                      role === "buyer"
+                        ? "border-emerald-500 bg-emerald-500/5 shadow-md shadow-emerald-500/10 scale-[1.02]"
+                        : "border-border hover:border-emerald-300 dark:hover:border-emerald-800 hover:bg-accent/30"
+                    }`}
+                  >
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                      role === "buyer"
+                        ? "bg-gradient-to-br from-sky-500 to-blue-600 shadow-lg shadow-blue-500/25"
+                        : "bg-muted"
+                    }`}>
+                      <Home className={`w-6 h-6 ${role === "buyer" ? "text-white" : "text-muted-foreground"}`} />
+                    </div>
+                    <div className="text-center">
+                      <span className={`block text-base font-bold ${role === "buyer" ? "text-emerald-700 dark:text-emerald-400" : "text-foreground"}`}>
+                        Buy Property
+                      </span>
+                      <span className="text-xs text-muted-foreground mt-1 block">Browse & inquire</span>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setRole("seller")}
+                    className={`relative flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all duration-200 ${
+                      role === "seller"
+                        ? "border-emerald-500 bg-emerald-500/5 shadow-md shadow-emerald-500/10 scale-[1.02]"
+                        : "border-border hover:border-emerald-300 dark:hover:border-emerald-800 hover:bg-accent/30"
+                    }`}
+                  >
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                      role === "seller"
+                        ? "bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/25"
+                        : "bg-muted"
+                    }`}>
+                      <Store className={`w-6 h-6 ${role === "seller" ? "text-white" : "text-muted-foreground"}`} />
+                    </div>
+                    <div className="text-center">
+                      <span className={`block text-base font-bold ${role === "seller" ? "text-emerald-700 dark:text-emerald-400" : "text-foreground"}`}>
+                        Sell Property
+                      </span>
+                      <span className="text-xs text-muted-foreground mt-1 block">List & manage</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+              <Button
+                onClick={() => setStep("method")}
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 text-base font-medium"
+              >
+                Continue
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          ) : step === "method" ? (
+            <div className="space-y-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGoogleSignUp}
+                disabled={isLoading}
+                className="w-full h-14 rounded-xl border-border hover:bg-accent hover:text-accent-foreground font-medium text-base shadow-sm"
+              >
+                <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                </svg>
+                Sign up with Google
+              </Button>
+              
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-4 text-muted-foreground font-medium">Or</span>
+                </div>
+              </div>
+
+              <Button
+                onClick={() => setStep("manual")}
+                variant="secondary"
+                className="w-full h-14 rounded-xl font-medium text-base shadow-sm"
+              >
+                <Mail className="w-5 h-5 mr-3" />
+                Sign up with Email
+              </Button>
+
+              <div className="pt-4 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setStep("role")}
+                  className="text-sm text-muted-foreground hover:text-foreground font-medium flex items-center gap-1"
+                >
+                  ← Back to role selection
+                </button>
+              </div>
+            </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Role Selection */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">I want to</Label>
-              <div className="grid grid-cols-2 gap-3">
+              {/* Full Name */}
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="text-sm font-medium">Full Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="John Doe"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="pl-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
+                    required
+                    minLength={2}
+                    autoComplete="name"
+                  />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Min. 8 characters"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-sm font-medium">Confirm Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="confirmPassword"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Re-enter your password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={`pl-10 h-12 rounded-xl bg-muted/50 focus:bg-background transition-colors ${
+                      confirmPassword && password !== confirmPassword 
+                        ? "border-2 border-red-500 focus:border-red-500" 
+                        : "border-border"
+                    }`}
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 text-base font-medium mt-2"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  <>
+                    Create Account
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </>
+                )}
+              </Button>
+              
+              <div className="pt-2 flex justify-center">
                 <button
                   type="button"
-                  onClick={() => setRole("buyer")}
-                  className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
-                    role === "buyer"
-                      ? "border-emerald-500 bg-emerald-500/5 shadow-md shadow-emerald-500/10"
-                      : "border-border hover:border-emerald-300 dark:hover:border-emerald-800 hover:bg-accent/30"
-                  }`}
+                  onClick={() => setStep("method")}
+                  className="text-sm text-muted-foreground hover:text-foreground font-medium flex items-center gap-1"
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                    role === "buyer"
-                      ? "bg-gradient-to-br from-sky-500 to-blue-600 shadow-lg shadow-blue-500/25"
-                      : "bg-muted"
-                  }`}>
-                    <Home className={`w-5 h-5 ${role === "buyer" ? "text-white" : "text-muted-foreground"}`} />
-                  </div>
-                  <span className={`text-sm font-semibold ${role === "buyer" ? "text-emerald-700 dark:text-emerald-400" : "text-foreground"}`}>
-                    Buy Property
-                  </span>
-                  <span className="text-[11px] text-muted-foreground">Browse & inquire</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setRole("seller")}
-                  className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 ${
-                    role === "seller"
-                      ? "border-emerald-500 bg-emerald-500/5 shadow-md shadow-emerald-500/10"
-                      : "border-border hover:border-emerald-300 dark:hover:border-emerald-800 hover:bg-accent/30"
-                  }`}
-                >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                    role === "seller"
-                      ? "bg-gradient-to-br from-emerald-500 to-teal-600 shadow-lg shadow-emerald-500/25"
-                      : "bg-muted"
-                  }`}>
-                    <Store className={`w-5 h-5 ${role === "seller" ? "text-white" : "text-muted-foreground"}`} />
-                  </div>
-                  <span className={`text-sm font-semibold ${role === "seller" ? "text-emerald-700 dark:text-emerald-400" : "text-foreground"}`}>
-                    Sell Property
-                  </span>
-                  <span className="text-[11px] text-muted-foreground">List & manage</span>
+                  ← Back
                 </button>
               </div>
-            </div>
-
-            {/* Full Name */}
-            <div className="space-y-2">
-              <Label htmlFor="fullName" className="text-sm font-medium">Full Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="fullName"
-                  type="text"
-                  placeholder="John Doe"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="pl-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
-                  required
-                  minLength={2}
-                  autoComplete="name"
-                />
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
-                  required
-                  autoComplete="email"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Min. 8 characters"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10 h-12 rounded-xl bg-muted/50 border-border focus:bg-background transition-colors"
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            {/* Confirm Password */}
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-sm font-medium">Confirm Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="confirmPassword"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Re-enter your password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className={`pl-10 h-12 rounded-xl bg-muted/50 focus:bg-background transition-colors ${
-                    confirmPassword && password !== confirmPassword 
-                      ? "border-2 border-red-500 focus:border-red-500" 
-                      : "border-border"
-                  }`}
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                />
-              </div>
-            </div>
-
-            <div id="clerk-captcha"></div>
-
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full h-12 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/25 text-base font-medium"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creating account...
-                </>
-              ) : (
-                <>
-                  Create Account
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </>
-              )}
-            </Button>
-          </form>
+            </form>
           )}
 
           {/* Sign In Link */}

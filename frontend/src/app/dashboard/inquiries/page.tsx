@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   MessageSquare,
   ShoppingCart,
@@ -168,8 +169,8 @@ export default function BuyerInquiriesPage() {
                   <div className="flex flex-col sm:flex-row gap-4">
                     {/* Property Image */}
                     {inq.propertyImage && (
-                      <div className="w-full sm:w-24 h-20 rounded-lg overflow-hidden shrink-0">
-                        <img src={inq.propertyImage} alt="" className="w-full h-full object-cover" />
+                      <div className="relative w-full sm:w-24 h-20 rounded-lg overflow-hidden shrink-0">
+                        <Image src={inq.propertyImage} alt="" fill className="object-cover" />
                       </div>
                     )}
 

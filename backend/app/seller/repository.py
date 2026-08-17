@@ -153,11 +153,6 @@ async def get_seller_stats(
     db: AsyncSession, seller_id: uuid.UUID,
 ) -> dict[str, int]:
     """Get dashboard statistics for a seller."""
-    # Total listings
-    total = (await db.execute(
-        select(func.count(Property.id)).where(Property.seller_id == seller_id)
-    )).scalar_one()
-
     # By verification status
     status_counts = {}
     result = await db.execute(
@@ -174,6 +169,8 @@ async def get_seller_stats(
         .join(Property, Inquiry.property_id == Property.id)
         .where(Property.seller_id == seller_id)
     )).scalar_one()
+
+    total = sum(status_counts.values())
 
     return {
         "total": total,

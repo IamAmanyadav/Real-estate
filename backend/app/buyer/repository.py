@@ -90,34 +90,20 @@ async def get_buyer_stats(
     db: AsyncSession, buyer_id: uuid.UUID,
 ) -> dict[str, int]:
     """Get dashboard statistics for a buyer."""
-    total = (await db.execute(
-        select(func.count(Inquiry.id)).where(Inquiry.buyer_id == buyer_id)
-    )).scalar_one()
+    from sqlalchemy import case
+    
+    query = select(
+        func.count(Inquiry.id).label("total"),
+        func.count(case((Inquiry.inquiry_type == "purchase_request", 1))).label("purchase_requests"),
+        func.count(case((Inquiry.tracking_status.in_(["submitted", "under_review"]), 1))).label("pending"),
+        func.count(case((Inquiry.inquiry_status.in_(["responded", "closed"]), 1))).label("responded"),
+    ).where(Inquiry.buyer_id == buyer_id)
 
-    purchase_requests = (await db.execute(
-        select(func.count(Inquiry.id)).where(
-            Inquiry.buyer_id == buyer_id,
-            Inquiry.inquiry_type == "purchase_request",
-        )
-    )).scalar_one()
-
-    pending = (await db.execute(
-        select(func.count(Inquiry.id)).where(
-            Inquiry.buyer_id == buyer_id,
-            Inquiry.tracking_status.in_(["submitted", "under_review"]),
-        )
-    )).scalar_one()
-
-    responded = (await db.execute(
-        select(func.count(Inquiry.id)).where(
-            Inquiry.buyer_id == buyer_id,
-            Inquiry.inquiry_status.in_(["responded", "closed"]),
-        )
-    )).scalar_one()
+    result = (await db.execute(query)).first()
 
     return {
-        "total": total,
-        "purchase_requests": purchase_requests,
-        "pending": pending,
-        "responded": responded,
+        "total": result.total if result else 0,
+        "purchase_requests": result.purchase_requests if result else 0,
+        "pending": result.pending if result else 0,
+        "responded": result.responded if result else 0,
     }

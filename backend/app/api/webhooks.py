@@ -83,6 +83,12 @@ async def clerk_webhook(request: Request, db: AsyncSession = Depends(get_db)):
             email_addresses = data.get("email_addresses", [])
             if email_addresses:
                 user.email = email_addresses[0].get("email_address")
+                
+            # Update role if it changed
+            new_role = data.get("unsafe_metadata", {}).get("role") or data.get("public_metadata", {}).get("role")
+            if new_role and user.role != new_role:
+                user.role = new_role
+                
             await db.commit()
             
     elif evt_type == "user.deleted":

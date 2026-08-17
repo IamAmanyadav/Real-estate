@@ -82,7 +82,9 @@ export default function BlogPostPage() {
 
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-8">
             <div className="flex items-center gap-2">
-              <img src={post.author.avatar} alt={post.author.name} className="w-8 h-8 rounded-full object-cover" />
+              <div className="relative w-8 h-8 rounded-full overflow-hidden shrink-0">
+                <Image src={post.author.avatar} alt={post.author.name} fill className="object-cover" />
+              </div>
               <span>{post.author.name}</span>
             </div>
             <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{formatDate(post.publishedAt)}</span>
