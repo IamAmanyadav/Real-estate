@@ -14,3 +14,4 @@ svix>=1.14.0
 clerk-backend-api>=0.0.1
 
 cloudinary==1.45.0
+slowapi>=0.1.9

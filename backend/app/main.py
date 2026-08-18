@@ -2,10 +2,16 @@
 
 from contextlib import asynccontextmanager
 from pathlib import Path
+import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
+
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
 from app.db.session import engine
@@ -39,9 +45,18 @@ UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup / shutdown events for the application."""
+    logging.basicConfig(
+        level=logging.INFO if not settings.debug else logging.DEBUG,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+    logger = logging.getLogger(__name__)
+    logger.info("Starting up Luxe Estates API...")
     yield
     await engine.dispose()
+    logger.info("Shutting down Luxe Estates API...")
 
+
+limiter = Limiter(key_func=get_remote_address, default_limits=["100/minute"])
 
 app = FastAPI(
     title=settings.app_name,
@@ -51,6 +66,12 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan,
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# Compression
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # CORS
 app.add_middleware(

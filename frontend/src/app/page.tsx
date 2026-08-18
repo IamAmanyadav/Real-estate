@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import HeroSection from "@/components/home/HeroSection";
-import WhyChooseUs from "@/components/home/WhyChooseUs";
-import StatsSection from "@/components/home/StatsSection";
-import Testimonials from "@/components/home/Testimonials";
-import CTASection from "@/components/home/CTASection";
+import dynamic from 'next/dynamic';
+
+const WhyChooseUs = dynamic(() => import("@/components/home/WhyChooseUs"), { ssr: true });
+const StatsSection = dynamic(() => import("@/components/home/StatsSection"), { ssr: true });
+const Testimonials = dynamic(() => import("@/components/home/Testimonials"), { ssr: true });
+const CTASection = dynamic(() => import("@/components/home/CTASection"), { ssr: true });
 
 export const metadata: Metadata = {
   title: "Luxe Estates — Find Your Dream Property",
