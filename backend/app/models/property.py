@@ -17,6 +17,7 @@ from sqlalchemy import (
     event,
     func,
     select,
+    Index,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -27,6 +28,7 @@ class Property(Base):
     __tablename__ = "properties"
     __table_args__ = (
         CheckConstraint("price > 0", name="positive_price"),
+        Index("ix_properties_created_at", "created_at"),
     )
 
     property_code: Mapped[str | None] = mapped_column(
@@ -57,6 +59,7 @@ class Property(Base):
         SAEnum("for_sale", "for_rent", "sold", "pending", name="property_status_enum"),
         nullable=False,
         default="for_sale",
+        index=True,
     )
     year_built: Mapped[int] = mapped_column(Integer, nullable=False)
     agent_id: Mapped[uuid.UUID] = mapped_column(
