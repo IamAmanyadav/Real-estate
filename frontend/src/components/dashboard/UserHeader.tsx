@@ -18,7 +18,7 @@ import { getProfile } from "@/lib/buyer-api";
 import { getImageUrl } from "@/lib/utils";
 
 interface UserHeaderProps {
-  user: { full_name: string; email: string; role: string; avatar: string | null } | null;
+  user: { id: string; full_name: string; email: string; role: string; avatar: string | null } | null;
   onLogout: () => void;
 }
 
