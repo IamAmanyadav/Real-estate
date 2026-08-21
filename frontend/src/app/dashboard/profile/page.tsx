@@ -29,9 +29,10 @@ export default function ProfilePage() {
   const [avatar, setAvatar] = useState<string | null>(null);
 
   const { data: profile, isLoading } = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", user?.id],
     queryFn: getProfile,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    enabled: !!user?.id,
   });
 
   // Sync state when profile loads
@@ -49,7 +50,7 @@ export default function ProfilePage() {
   const updateMutation = useMutation({
     mutationFn: updateProfile,
     onSuccess: (updated: any) => {
-      queryClient.setQueryData(["profile"], updated);
+      queryClient.setQueryData(["profile", user?.id], updated);
       setIsEditing(false);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);

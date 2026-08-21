@@ -18,7 +18,7 @@ import { getProfile } from "@/lib/buyer-api";
 import { getImageUrl } from "@/lib/utils";
 
 interface AdminHeaderProps {
-  user: { full_name: string; email: string; avatar: string | null } | null;
+  user: { id: string; full_name: string; email: string; avatar: string | null } | null;
   onLogout: () => void;
 }
 
@@ -27,9 +27,10 @@ export default function AdminHeader({ user, onLogout }: AdminHeaderProps) {
   const [mounted, setMounted] = useState(false);
   const { data: unreadCount = 0 } = useUnreadMessages();
   const { data: profile } = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", user?.id],
     queryFn: getProfile,
     staleTime: 5 * 60 * 1000,
+    enabled: !!user?.id,
   });
 
   useEffect(() => { setMounted(true); }, []);

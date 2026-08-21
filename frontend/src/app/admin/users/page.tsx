@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getAdminUsers, updateUserStatus, deleteAdminUser } from "@/lib/admin-api";
 import type { AdminUser, PaginatedResponse } from "@/types/admin";
 import { useDebounce } from "@/hooks/useDebounce";
+import { getImageUrl } from "@/lib/utils";
 
 const statusColors: Record<string, string> = {
   active: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
@@ -100,9 +101,13 @@ export default function AdminUsersPage() {
               <Card className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${roleColors[u.role] || roleColors.buyer} flex items-center justify-center text-white text-sm font-bold shrink-0 shadow-lg`}>
-                      {u.fullName.charAt(0)}
-                    </div>
+                    {u.avatar ? (
+                      <img src={getImageUrl(u.avatar) || ""} alt={u.fullName} className="w-10 h-10 rounded-xl object-cover shrink-0 shadow-lg" />
+                    ) : (
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${roleColors[u.role] || roleColors.buyer} flex items-center justify-center text-white text-sm font-bold shrink-0 shadow-lg`}>
+                        {u.fullName.charAt(0)}
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <h3 className="font-semibold truncate">{u.fullName}</h3>
