@@ -27,9 +27,10 @@ export default function AdminHeader({ user, onLogout }: AdminHeaderProps) {
   const [mounted, setMounted] = useState(false);
   const { data: unreadCount = 0 } = useUnreadMessages();
   const { data: profile } = useQuery({
-    queryKey: ["profile"],
+    queryKey: ["profile", user?.id],
     queryFn: getProfile,
     staleTime: 5 * 60 * 1000,
+    enabled: !!user?.id,
   });
 
   useEffect(() => { setMounted(true); }, []);
