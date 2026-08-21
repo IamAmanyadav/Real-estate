@@ -143,7 +143,12 @@ export default function ProfilePage() {
                 name={displayName} 
                 onUploadSuccess={(url) => {
                   setAvatar(url);
-                  setIsEditing(true); // Switch to edit mode so they can save
+                  updateMutation.mutate({
+                    fullName: fullName.trim() || displayName,
+                    phone: phone.trim() || undefined,
+                    bio: bio.trim() || undefined,
+                    avatar: url,
+                  });
                 }} 
               />
               <div className="flex-1">
