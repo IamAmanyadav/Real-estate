@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Camera, Loader2 } from "lucide-react";
 import { getImageUrl, attachAuthToken } from "@/lib/utils";
 import axios from "axios";
+import { API_BASE_URL } from "@/lib/constants";
 
 export default function ProfileAvatarUpload({ 
   currentAvatar, 
@@ -86,8 +87,7 @@ export default function ProfileAvatarUpload({
         headers: { "Content-Type": "multipart/form-data" },
       });
       
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
-      const { data } = await axios.post(`${baseUrl}/uploads/avatar`, formData, config);
+      const { data } = await axios.post(`${API_BASE_URL}/uploads/avatar`, formData, config);
       
       onUploadSuccess(data.url);
       setImageSrc(null);
