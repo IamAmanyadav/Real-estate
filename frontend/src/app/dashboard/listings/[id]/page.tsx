@@ -29,7 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getSellerProperty, updateSellerProperty } from "@/lib/seller-api";
-import { formatPrice, formatDate } from "@/lib/utils";
+import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
 import type { SellerProperty, VerificationStatus } from "@/types";
 import Link from "next/link";
 
@@ -189,8 +189,15 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {property.images.map((url, i) => (
-              <div key={i} className={`relative rounded-xl overflow-hidden ${i === 0 ? "col-span-2 row-span-2 aspect-[16/10]" : "aspect-video"}`}>
-              <Image src={url.startsWith("/uploads") ? `http://localhost:8000${url}` : url} alt={`${property.title} ${i + 1}`} fill className="object-cover" />
+              <div key={i} className={`relative rounded-xl overflow-hidden bg-muted/60 ${i === 0 ? "col-span-2 row-span-2 aspect-[16/10]" : "aspect-video"}`}>
+                <img
+                  src={getImageUrl(url)}
+                  alt={`${property.title} ${i + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/images/property-fallback.jpg";
+                  }}
+                />
               </div>
             ))}
           </div>
@@ -214,7 +221,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                     <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className="mt-1.5 rounded-lg" />
                   </div>
                   <div>
-                    <Label>Price (USD)</Label>
+                    <Label>Price (INR / ₹)</Label>
                     <Input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className="mt-1.5 rounded-lg" />
                   </div>
                   <div>

@@ -44,6 +44,10 @@ class User(Base):
     )
     bio: Mapped[str | None] = mapped_column(Text, nullable=True)
 
+    @property
+    def name(self) -> str:
+        return self.full_name or ""
+
     # Relationships — seller's properties
     properties: Mapped[list["Property"]] = relationship(
         "Property",

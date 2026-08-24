@@ -16,6 +16,9 @@ class PropertyType(str, Enum):
     condo = "condo"
     townhouse = "townhouse"
     villa = "villa"
+    flat = "flat"
+    plot = "plot"
+    ground = "ground"
 
 
 class PropertyStatus(str, Enum):
@@ -55,7 +58,7 @@ class PropertyBase(BaseModel):
     city: str
     state: str
     zipCode: str
-    country: str = "United States"
+    country: str = "India"
     latitude: float | None = None
     longitude: float | None = None
     bedrooms: int = Field(..., ge=0)
@@ -114,6 +117,13 @@ class PropertyResponse(BaseModel):
     images: list[str]
     features: list[str]
     agent: AgentResponse
+    isAuction: bool = False
+    reservePrice: float | None = None
+    currentHighestBid: float | None = None
+    auctionStartDate: str | None = None
+    auctionEndDate: str | None = None
+    minBidIncrement: float | None = 1000.0
+    auctionStatus: str | None = None
     createdAt: str
     updatedAt: str
 

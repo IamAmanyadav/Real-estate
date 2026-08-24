@@ -6,7 +6,7 @@ import {
   Users,
   Building2,
   MessageSquare,
-  DollarSign,
+  IndianRupee,
   TrendingUp,
   Clock,
   CheckCircle2,
@@ -81,8 +81,10 @@ export default function AdminDashboardPage() {
     },
     {
       title: "Revenue",
-      value: `$${(overview.totalRevenue / 1000000).toFixed(1)}M`,
-      icon: DollarSign,
+      value: overview.totalRevenue >= 10000000
+        ? `₹${(overview.totalRevenue / 10000000).toFixed(1)} Cr`
+        : `₹${(overview.totalRevenue / 100000).toFixed(1)} L`,
+      icon: IndianRupee,
       color: "from-purple-500 to-pink-500",
       subtitle: "Total sold value",
     },

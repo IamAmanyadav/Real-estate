@@ -24,6 +24,13 @@ export interface Property {
   images: string[];
   features: string[];
   agent: Agent;
+  isAuction?: boolean;
+  reservePrice?: number | null;
+  currentHighestBid?: number | null;
+  auctionStartDate?: string | null;
+  auctionEndDate?: string | null;
+  minBidIncrement?: number | null;
+  auctionStatus?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -175,6 +182,13 @@ export interface SellerProperty {
   documents: PropertyDocument[];
   verificationStatus: VerificationStatus;
   rejectionReason: string | null;
+  isAuction?: boolean;
+  reservePrice?: number | null;
+  currentHighestBid?: number | null;
+  auctionStartDate?: string | null;
+  auctionEndDate?: string | null;
+  minBidIncrement?: number | null;
+  auctionStatus?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -261,4 +275,89 @@ export interface Appointment {
   cancellationReason: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+// ── Bidding / Auction Types ──────────────────────────────────────────────────
+
+export interface AuctionState {
+  propertyId: string;
+  title: string;
+  propertyCode: string | null;
+  propertyImage?: string | null;
+  isAuction: boolean;
+  reservePrice: number;
+  currentHighestBid: number | null;
+  minNextBid: number;
+  maxNextBid?: number;
+  minBidIncrement: number;
+  maxBidIncrement?: number;
+  auctionStartDate: string | null;
+  auctionEndDate: string | null;
+  auctionStatus: "draft" | "active" | "waiting_for_bids" | "ended" | "accepted" | "rejected" | "offline_completed" | "cancelled";
+  totalBids: number;
+  timeRemainingSeconds: number;
+  isSeller: boolean;
+  isHighestBidder: boolean;
+  winningBidAmount: number | null;
+}
+
+export interface BidItem {
+  id: string;
+  propertyId: string;
+  amount: number;
+  createdAt: string;
+  bidderLabel: string;
+  status: "active" | "outbid" | "winning" | "accepted" | "rejected";
+  isCurrentUser: boolean;
+}
+
+export interface MyBidItem {
+  id: string;
+  property_id: string;
+  property_title: string;
+  property_code: string | null;
+  property_image?: string | null;
+  property_city: string;
+  property_state: string;
+  amount: number;
+  bid_status: string;
+  is_outbid: boolean;
+  created_at: string;
+  auction_status: string | null;
+  current_highest_bid: number | null;
+  is_winning: boolean;
+}
+
+export interface AdminAuctionOverviewItem {
+  property_id: string;
+  title: string;
+  property_code: string | null;
+  property_image?: string | null;
+  seller_name: string | null;
+  seller_email: string | null;
+  reserve_price: number | null;
+  current_highest_bid: number | null;
+  highest_bidder_id: string | null;
+  highest_bidder_name: string | null;
+  highest_bidder_email: string | null;
+  highest_bidder_phone: string | null;
+  auction_start_date: string | null;
+  auction_end_date: string | null;
+  auction_status: string | null;
+  total_bids: number;
+  time_remaining_seconds: number;
+  bids?: AdminBidItem[];
+}
+
+export interface AdminBidItem {
+  id: string;
+  property_id: string;
+  bidder_id: string;
+  bidder_name: string;
+  bidder_email: string;
+  bidder_phone: string | null;
+  amount: number;
+  status: string;
+  is_outbid: boolean;
+  created_at: string;
 }

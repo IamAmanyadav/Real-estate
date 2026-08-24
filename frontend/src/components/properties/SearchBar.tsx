@@ -6,7 +6,7 @@ import {
   Search,
   MapPin,
   Home,
-  DollarSign,
+  IndianRupee,
   BedDouble,
   Bath,
   SlidersHorizontal,
@@ -325,7 +325,7 @@ export default function SearchBar({ variant = "compact", className }: SearchBarP
             <Select value={priceRange} onValueChange={(v) => setPriceRange(v ?? "any")}>
               <SelectTrigger className="h-11 rounded-xl bg-background text-sm">
                 <div className="flex items-center gap-2 truncate">
-                  <DollarSign className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <IndianRupee className="w-4 h-4 text-emerald-500 shrink-0" />
                   <SelectValue placeholder="Price" />
                 </div>
               </SelectTrigger>

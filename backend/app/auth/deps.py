@@ -123,13 +123,13 @@ async def get_current_admin(
 
 async def get_current_seller(
     user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ) -> User:
-    """Ensure the current user has seller role."""
-    if user.role != "seller":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Seller access required",
-        )
+    """Ensure the current user has seller role (allows admin and automatically enables seller capabilities for any registered user)."""
+    if user.role not in ["seller", "admin"]:
+        user.role = "seller"
+        await db.commit()
+        await db.refresh(user)
     return user
 
 
@@ -143,3 +143,19 @@ async def get_current_buyer(
             detail="Buyer access required",
         )
     return user
+
+
+security_optional = HTTPBearer(auto_error=False)
+
+
+async def get_optional_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(security_optional),
+    db: AsyncSession = Depends(get_db),
+) -> User | None:
+    """Get authenticated user if token is present, otherwise return None."""
+    if not credentials or not credentials.credentials:
+        return None
+    try:
+        return await get_user_from_token(credentials.credentials, db)
+    except Exception:
+        return None

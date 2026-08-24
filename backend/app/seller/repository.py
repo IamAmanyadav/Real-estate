@@ -73,6 +73,9 @@ async def create_property(
     documents: list[dict],
 ) -> Property:
     """Create a new property listing with pending verification status."""
+    if not data.get("property_code"):
+        data["property_code"] = f"IND-{uuid.uuid4().hex[:6].upper()}"
+
     prop = Property(
         **data,
         seller_id=seller_id,

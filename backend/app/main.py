@@ -30,6 +30,7 @@ from app.appointments.router import (
     public_availability_router,
 )
 from app.api.webhooks import router as webhooks_router
+from app.bidding.router import router as bidding_router
 
 
 # Ensure uploads directory exists
@@ -56,7 +57,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    allow_origin_regex=r"^https://.*\.vercel\.app$",
+    allow_origin_regex=r"^(https?://(localhost|127\.0\.0\.1)(:\d+)?|https://.*\.vercel\.app)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -70,6 +71,9 @@ app.include_router(blog_router, prefix="/api/v1/blog", tags=["Blog"])
 # ── Auth ─────────────────────────────────────────────────────────────────────
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth"])
 app.include_router(profile_router, prefix="/api/v1/auth", tags=["Auth Profile"])
+
+# ── Bidding / Live Auction ───────────────────────────────────────────────────
+app.include_router(bidding_router, prefix="/api/v1/bidding", tags=["Bidding"])
 
 # ── Webhooks ─────────────────────────────────────────────────────────────────
 app.include_router(webhooks_router, prefix="/api/v1/webhooks", tags=["Webhooks"])

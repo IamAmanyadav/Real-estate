@@ -6,11 +6,12 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat("en-US", {
+  if (isNaN(price) || price === null || price === undefined) return "₹0";
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
-    currency: "USD",
+    currency: "INR",
     maximumFractionDigits: 0,
-  }).format(price);
+  }).format(price).replace("INR", "₹").trim();
 }
 
 export function formatDate(dateString: string): string {
@@ -24,6 +25,44 @@ export function formatDate(dateString: string): string {
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength).trimEnd() + "...";
+}
+
+export function getImageUrl(url: any): string {
+  if (!url) return "/images/property-fallback.jpg";
+  let cleaned = url;
+  if (typeof cleaned === "string" && (cleaned.startsWith("[") || cleaned.startsWith("{"))) {
+    try {
+      const parsed = JSON.parse(cleaned);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        cleaned = typeof parsed[0] === "string" ? parsed[0] : parsed[0]?.url || "";
+      } else if (typeof parsed === "object" && parsed !== null) {
+        cleaned = parsed.url || "";
+      }
+    } catch {}
+  }
+  if (typeof cleaned === "object" && cleaned !== null) {
+    cleaned = cleaned.url || "";
+  }
+  if (typeof cleaned !== "string" || !cleaned.trim()) {
+    return "/images/property-fallback.jpg";
+  }
+
+  cleaned = cleaned.trim();
+  if (cleaned.startsWith("http://") || cleaned.startsWith("https://")) {
+    return cleaned;
+  }
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+  const BACKEND_BASE = API_URL.replace(/\/api\/v1\/?$/, "");
+  if (cleaned.startsWith("/uploads")) {
+    return `${BACKEND_BASE}${cleaned}`;
+  }
+  if (cleaned.startsWith("uploads/")) {
+    return `${BACKEND_BASE}/${cleaned}`;
+  }
+  if (cleaned.startsWith("/")) {
+    return cleaned;
+  }
+  return `${BACKEND_BASE}/${cleaned}`;
 }
 
 let tokenPromise: Promise<string | null> | null = null;

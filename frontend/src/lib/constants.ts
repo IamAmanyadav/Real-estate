@@ -21,15 +21,16 @@ export const PROPERTY_TYPES = [
   { label: "Apartment", value: "apartment" },
   { label: "Townhouse", value: "townhouse" },
   { label: "Villa", value: "villa" },
+  { label: "Plot / Ground", value: "plot" },
 ];
 
 export const PRICE_RANGES = [
   { label: "Any Price", value: "any" },
-  { label: "Under 5 Lakh", value: "0-200000" },
-  { label: "5 - 10 Lakh", value: "200000-500000" },
-  { label: "10 - 20 Lakh", value: "500000-1000000" },
-  { label: "20 - 30 Lakh", value: "1000000-2000000" },
-  { label: "30+ Lakh", value: "2000000-999999999" },
+  { label: "Under ₹25 Lakh", value: "0-2500000" },
+  { label: "₹25 Lakh - ₹50 Lakh", value: "2500000-5000000" },
+  { label: "₹50 Lakh - ₹1 Crore", value: "5000000-10000000" },
+  { label: "₹1 Crore - ₹2.5 Crore", value: "10000000-25000000" },
+  { label: "₹2.5 Crore+", value: "25000000-999999999" },
 ];
 
 export const BEDROOM_OPTIONS = [
@@ -93,7 +94,7 @@ export const FAQS: FAQ[] = [
   },
   {
     question: "What areas do you serve?",
-    answer: "We currently serve major metropolitan areas across the United States, including New York, Los Angeles, Miami, Chicago, San Francisco, and many more. Contact us to learn if we operate in your desired area.",
+    answer: "We currently serve major metropolitan areas across India, including Mumbai, Delhi NCR, Bengaluru, Hyderabad, Pune, Chennai, and many more. Contact us to learn if we operate in your desired area.",
   },
   {
     question: "Are there any hidden fees?",

@@ -18,6 +18,7 @@ import {
 } from "@/lib/admin-api";
 import type { AdminProperty, PaginatedResponse } from "@/types/admin";
 import { useDebounce } from "@/hooks/useDebounce";
+import { formatPrice } from "@/lib/utils";
 
 const vColors: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
@@ -201,8 +202,7 @@ export default function AdminPropertiesPage() {
     try { await deleteAdminProperty(id); load(); }
     catch (e) { console.error(e); }
   };
-  const fmt = (n: number) =>
-    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+  const fmt = (n: number) => formatPrice(n);
 
   return (
     <div className="space-y-6">

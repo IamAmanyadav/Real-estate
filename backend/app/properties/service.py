@@ -51,6 +51,13 @@ def _to_response(prop: Property) -> PropertyResponse:
             avatar=prop.agent.avatar,
             title=prop.agent.title,
         ),
+        isAuction=bool(prop.is_auction),
+        reservePrice=float(prop.reserve_price) if prop.reserve_price is not None else float(prop.price),
+        currentHighestBid=float(prop.current_highest_bid) if prop.current_highest_bid is not None else None,
+        auctionStartDate=prop.auction_start_date.isoformat() if prop.auction_start_date else None,
+        auctionEndDate=prop.auction_end_date.isoformat() if prop.auction_end_date else None,
+        minBidIncrement=float(prop.min_bid_increment) if prop.min_bid_increment is not None else 1000.0,
+        auctionStatus=prop.auction_status,
         createdAt=prop.created_at.isoformat() if prop.created_at else "",
         updatedAt=prop.updated_at.isoformat() if prop.updated_at else "",
     )

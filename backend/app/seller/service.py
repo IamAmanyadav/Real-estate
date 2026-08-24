@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timezone, timedelta
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,7 +18,6 @@ from app.seller.schemas import (
     SellerPropertyResponse,
     SellerPropertyUpdate,
 )
-
 
 
 def _doc_to_response(doc) -> DocumentResponse:
@@ -57,6 +57,13 @@ def _to_response(prop: Property) -> SellerPropertyResponse:
         documents=[_doc_to_response(d) for d in (prop.documents or [])],
         verificationStatus=prop.verification_status,
         rejectionReason=prop.rejection_reason,
+        isAuction=bool(prop.is_auction),
+        reservePrice=float(prop.reserve_price) if prop.reserve_price is not None else float(prop.price),
+        currentHighestBid=float(prop.current_highest_bid) if prop.current_highest_bid is not None else None,
+        auctionStartDate=prop.auction_start_date.isoformat() if prop.auction_start_date else None,
+        auctionEndDate=prop.auction_end_date.isoformat() if prop.auction_end_date else None,
+        minBidIncrement=float(prop.min_bid_increment) if prop.min_bid_increment is not None else 1000.0,
+        auctionStatus=prop.auction_status,
         createdAt=prop.created_at.isoformat() if prop.created_at else "",
         updatedAt=prop.updated_at.isoformat() if prop.updated_at else "",
     )
@@ -101,15 +108,43 @@ async def get_property(
 async def create_property(
     db: AsyncSession, data: SellerPropertyCreate, seller_id: uuid.UUID,
 ) -> SellerPropertyResponse:
-    # Get a default agent
+    # Get or create a default agent for property assignment
     agent_id = await repo.get_first_agent_id(db)
     if not agent_id:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="No agents available. Please contact admin.",
+        from app.models.agent import Agent
+        default_agent = Agent(
+            name="Estate Verification Consultant",
+            email="verification@realestate.in",
+            phone="+91 9876543210",
+            avatar="/images/default-avatar.png",
+            title="Senior Property Consultant",
         )
+        db.add(default_agent)
+        await db.flush()
+        agent_id = default_agent.id
 
     dump = data.model_dump(exclude={"images", "features", "documents"})
+    
+    # All seller properties are listed with Live Dynamic Auction mode enabled by default
+    is_auction = True
+
+    auction_start = None
+    if dump.get("auctionStartDate"):
+        try:
+            auction_start = datetime.fromisoformat(dump["auctionStartDate"].replace("Z", "+00:00"))
+        except Exception:
+            auction_start = None
+
+    auction_end = None
+    if dump.get("auctionEndDate"):
+        try:
+            auction_end = datetime.fromisoformat(dump["auctionEndDate"].replace("Z", "+00:00"))
+        except Exception:
+            auction_end = None
+    else:
+        # Default 24-hour reference duration until 1st bid triggers active countdown
+        auction_end = datetime.now(timezone.utc) + timedelta(hours=24)
+
     prop_data = {
         "title": dump["title"],
         "description": dump["description"],
@@ -127,6 +162,12 @@ async def create_property(
         "property_type": dump["propertyType"],
         "status": dump["status"],
         "year_built": dump["yearBuilt"],
+        "is_auction": True,
+        "reserve_price": dump.get("reservePrice") or dump["price"],
+        "auction_start_date": auction_start,
+        "auction_end_date": auction_end,
+        "min_bid_increment": dump.get("minBidIncrement", 1000.0) or 1000.0,
+        "auction_status": "draft",
     }
 
     doc_dicts = [d.model_dump() for d in data.documents]
@@ -170,11 +211,24 @@ async def update_property(
         "zipCode": "zip_code",
         "propertyType": "property_type",
         "yearBuilt": "year_built",
+        "isAuction": "is_auction",
+        "reservePrice": "reserve_price",
+        "minBidIncrement": "min_bid_increment",
     }
     updates: dict = {}
     for k, v in raw.items():
         if k == "documents":
             updates["documents"] = [d.model_dump() for d in data.documents] if data.documents else []
+        elif k == "auctionStartDate" and v:
+            try:
+                updates["auction_start_date"] = datetime.fromisoformat(v.replace("Z", "+00:00"))
+            except Exception:
+                pass
+        elif k == "auctionEndDate" and v:
+            try:
+                updates["auction_end_date"] = datetime.fromisoformat(v.replace("Z", "+00:00"))
+            except Exception:
+                pass
         else:
             db_key = mapping.get(k, k)
             updates[db_key] = v

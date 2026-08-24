@@ -199,16 +199,18 @@ export default function UserDashboard() {
               <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Link href="/properties" className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors group">
-                <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                  <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Browse Properties</p>
-                  <p className="text-xs text-muted-foreground">Explore new listings</p>
-                </div>
-                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-              </Link>
+              {!isSeller && (
+                <Link href="/properties" className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors group">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Browse Properties</p>
+                    <p className="text-xs text-muted-foreground">Explore new listings</p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                </Link>
+              )}
 
               {isBuyer && (
                 <Link href="/dashboard/inquiries" className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors group">

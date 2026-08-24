@@ -16,13 +16,14 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  Gavel,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { getSellerProperties, deleteSellerProperty } from "@/lib/seller-api";
-import { formatPrice, formatDate } from "@/lib/utils";
+import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
 import type { SellerProperty, VerificationStatus } from "@/types";
 
 const STATUS_CONFIG: Record<
@@ -187,12 +188,15 @@ export default function MyListingsPage() {
                 <CardContent className="p-0">
                   <div className="flex flex-col sm:flex-row">
                     {/* Image */}
-                    <div className="sm:w-48 h-40 sm:h-auto relative shrink-0">
-                      {prop.images[0] ? (
+                    <div className="sm:w-48 h-40 sm:h-auto relative shrink-0 overflow-hidden bg-muted/60">
+                      {prop.images && prop.images.length > 0 ? (
                         <img
-                          src={prop.images[0]}
+                          src={getImageUrl(prop.images[0])}
                           alt={prop.title}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = "/images/property-fallback.jpg";
+                          }}
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
@@ -237,6 +241,13 @@ export default function MyListingsPage() {
                           ID: {prop.propertyId} · Listed {formatDate(prop.createdAt)}
                         </p>
                         <div className="flex items-center gap-2">
+                          {prop.isAuction && (
+                            <Button variant="outline" size="sm" asChild className="rounded-lg text-amber-500 border-amber-500/30 hover:bg-amber-500/10">
+                              <Link href={`/dashboard/listings/${prop.id}/auction`}>
+                                <Gavel className="w-4 h-4 mr-1" /> Auction Monitor
+                              </Link>
+                            </Button>
+                          )}
                           <Button variant="ghost" size="sm" asChild className="rounded-lg">
                             <Link href={`/dashboard/listings/${prop.id}`}>
                               <Eye className="w-4 h-4 mr-1" /> View
