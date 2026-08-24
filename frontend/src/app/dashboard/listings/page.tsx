@@ -191,7 +191,7 @@ export default function MyListingsPage() {
                     <div className="sm:w-48 h-40 sm:h-auto relative shrink-0 overflow-hidden bg-muted/60">
                       {prop.images && prop.images.length > 0 ? (
                         <img
-                          src={getImageUrl(prop.images[0])}
+                          src={getImageUrl(prop.images[0]) || ""}
                           alt={prop.title}
                           className="w-full h-full object-cover"
                           onError={(e) => {

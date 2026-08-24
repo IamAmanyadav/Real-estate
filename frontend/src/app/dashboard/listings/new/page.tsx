@@ -617,39 +617,19 @@ export default function NewPropertyPage() {
                     </p>
                   )}
                 </div>
-
-                {/* Property Type */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="propertyType" className="font-semibold">
-                    Property Type <span className="text-red-500">*</span>
-                  </Label>
-                  <select
-                    id="propertyType"
-                    value={form.propertyType}
-                    onChange={(e) => updateField("propertyType", e.target.value)}
-                    className="w-full rounded-xl border border-border/80 bg-background px-3.5 h-11 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
-                  >
+                <div>
+                  <Label htmlFor="propertyType">Property Type *</Label>
+                  <select id="propertyType" value={form.propertyType} onChange={(e) => updateField("propertyType", e.target.value)} className="mt-1.5 w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm">
                     {PROPERTY_TYPES.map((t) => (
-                      <option key={t.value} value={t.value}>
-                        {t.label}
-                      </option>
+                      <option key={t.value} value={t.value} className="bg-background text-foreground">{t.label}</option>
                     ))}
                   </select>
                 </div>
-
-                {/* Listing Status */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="status" className="font-semibold">
-                    Listing Status <span className="text-red-500">*</span>
-                  </Label>
-                  <select
-                    id="status"
-                    value={form.status}
-                    onChange={(e) => updateField("status", e.target.value)}
-                    className="w-full rounded-xl border border-border/80 bg-background px-3.5 h-11 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
-                  >
-                    <option value="for_sale">For Sale</option>
-                    <option value="for_rent">For Rent</option>
+                <div>
+                  <Label htmlFor="status">Listing Status *</Label>
+                  <select id="status" value={form.status} onChange={(e) => updateField("status", e.target.value)} className="mt-1.5 w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm">
+                    <option value="for_sale" className="bg-background text-foreground">For Sale</option>
+                    <option value="for_rent" className="bg-background text-foreground">For Rent</option>
                   </select>
                 </div>
 
@@ -809,43 +789,15 @@ export default function NewPropertyPage() {
 
         {/* 3. Pricing & Specs */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card className="border-border/60 bg-card">
-            <CardContent className="p-6 space-y-5">
-              <div className="flex items-center justify-between border-b border-border/50 pb-3">
-                <h2 className="text-lg font-bold flex items-center gap-2">
-                  <IndianRupee className="w-5 h-5 text-green-500" /> Pricing & Specifications
-                </h2>
-                <span className="text-xs text-muted-foreground">Price and physical dimensions</span>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-                {/* Price */}
-                <div className="col-span-2 space-y-1.5">
-                  <Label htmlFor="price" className="font-semibold">
-                    Listing Price (INR / ₹) <span className="text-red-500">*</span>
-                  </Label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">₹</span>
-                    <Input
-                      id="price"
-                      type="number"
-                      value={form.price}
-                      onChange={(e) => updateField("price", e.target.value)}
-                      required
-                      min={1}
-                      className={`pl-8 rounded-xl h-11 font-mono ${
-                        hasAttemptedSubmit && getFieldError("price")
-                          ? "border-red-500 ring-1 ring-red-500/30"
-                          : "border-border/80 focus-visible:ring-emerald-500"
-                      }`}
-                    />
-                  </div>
-                  {hasAttemptedSubmit && getFieldError("price") && (
-                    <p className="text-xs text-red-500 flex items-center gap-1 font-medium mt-1">
-                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                      {getFieldError("price")}
-                    </p>
-                  )}
+          <Card className="border-border/50">
+            <CardContent className="p-6 space-y-4">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-green-500" /> Pricing & Specifications
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="col-span-2">
+                  <Label htmlFor="price">Price (₹) *</Label>
+                  <Input id="price" type="number" value={form.price} onChange={(e) => updateField("price", e.target.value)} placeholder="5000000" required min={1} className="mt-1.5 rounded-lg" />
                 </div>
 
                 {/* Bedrooms */}
@@ -1222,10 +1174,10 @@ export default function NewPropertyPage() {
                       <select
                         value={doc.documentType}
                         onChange={(e) => updateDocument(i, "documentType", e.target.value)}
-                        className="mt-1 w-full rounded-xl border border-border/80 bg-background px-3 h-10 text-xs"
+                        className="mt-1 w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm"
                       >
                         {DOCUMENT_TYPES.map((t) => (
-                          <option key={t.value} value={t.value}>{t.label}</option>
+                          <option key={t.value} value={t.value} className="bg-background text-foreground">{t.label}</option>
                         ))}
                       </select>
                     </div>
