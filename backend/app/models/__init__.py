@@ -10,3 +10,4 @@ from app.models.property_document import PropertyDocument  # noqa: F401
 from app.models.message import Conversation, Message  # noqa: F401
 from app.models.appointment import TimeSlot, Appointment  # noqa: F401
 from app.models.password_reset import PasswordResetToken  # noqa: F401
+from app.models.bid import Bid  # noqa: F401

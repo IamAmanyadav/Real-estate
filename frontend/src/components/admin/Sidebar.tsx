@@ -15,6 +15,7 @@ import {
   Shield,
   CalendarCog,
   Search,
+  Gavel,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
@@ -26,6 +27,7 @@ interface SidebarProps {
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Auctions & Bids", href: "/admin/auctions", icon: Gavel },
   { label: "Properties", href: "/admin/properties", icon: Building2 },
   { label: "Browse Properties", href: "/admin/browse", icon: Search },
   { label: "Users", href: "/admin/users", icon: Users },

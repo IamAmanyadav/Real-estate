@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import uuid
+from datetime import datetime
 
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     DateTime,
     Enum as SAEnum,
@@ -41,7 +43,7 @@ class Property(Base):
     city: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     state: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     zip_code: Mapped[str] = mapped_column(String(20), nullable=False)
-    country: Mapped[str] = mapped_column(String(100), default="United States")
+    country: Mapped[str] = mapped_column(String(100), default="India")
     latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     longitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     bedrooms: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
@@ -49,7 +51,7 @@ class Property(Base):
     area: Mapped[int] = mapped_column(Integer, nullable=False)
     property_type: Mapped[str] = mapped_column(
         SAEnum(
-            "house", "apartment", "condo", "townhouse", "villa", "flat", "plot",
+            "house", "apartment", "condo", "townhouse", "villa", "flat", "plot", "ground",
             name="property_type_enum",
         ),
         nullable=False,
@@ -88,6 +90,39 @@ class Property(Base):
         DateTime(timezone=True), nullable=True,
     )
 
+    # ── Bidding / Auction columns ───────────────────────────────────────
+    is_auction: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False, index=True,
+    )
+    reserve_price: Mapped[float | None] = mapped_column(
+        Numeric(12, 2), nullable=True,
+    )  # Lowest acceptable bid marked by seller
+    auction_start_date: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True,
+    )
+    auction_end_date: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True, index=True,
+    )
+    min_bid_increment: Mapped[float] = mapped_column(
+        Numeric(12, 2), default=1000.0, nullable=False,
+    )
+    current_highest_bid: Mapped[float | None] = mapped_column(
+        Numeric(12, 2), nullable=True, index=True,
+    )
+    highest_bidder_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True,
+    )
+    auction_status: Mapped[str | None] = mapped_column(
+        SAEnum(
+            "draft", "active", "ended", "accepted", "rejected",
+            "offline_completed", "cancelled",
+            name="auction_status_enum",
+        ),
+        nullable=True,
+        default=None,
+        index=True,
+    )
+
     # Relationships
     agent: Mapped["Agent"] = relationship("Agent", back_populates="properties", lazy="selectin")
     images: Mapped[list["PropertyImage"]] = relationship(
@@ -113,6 +148,13 @@ class Property(Base):
         "PropertyDocument", back_populates="property",
         cascade="all, delete-orphan", lazy="selectin",
         order_by="PropertyDocument.sort_order",
+    )
+    bids: Mapped[list["Bid"]] = relationship(
+        "Bid", back_populates="property", cascade="all, delete-orphan",
+        lazy="selectin", order_by="Bid.amount.desc()",
+    )
+    highest_bidder: Mapped["User | None"] = relationship(
+        "User", foreign_keys=[highest_bidder_id], lazy="selectin",
     )
 
 

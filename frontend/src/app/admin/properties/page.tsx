@@ -18,6 +18,7 @@ import {
 } from "@/lib/admin-api";
 import type { AdminProperty, PaginatedResponse } from "@/types/admin";
 import { useDebounce } from "@/hooks/useDebounce";
+import { formatPrice } from "@/lib/utils";
 
 const vColors: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",

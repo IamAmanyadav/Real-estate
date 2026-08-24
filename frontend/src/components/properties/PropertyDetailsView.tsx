@@ -26,12 +26,17 @@ import {
   Sparkles,
   MessageSquare,
   UserCheck,
+  Gavel,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ContactForm from "@/components/contact/ContactForm";
+import { LiveBiddingDialog } from "@/components/bidding/LiveBiddingDialog";
+import { AuctionTimerBadge } from "@/components/bidding/AuctionTimerBadge";
+import { getAuctionState } from "@/lib/bidding-api";
+import { useAuctionWebSocket } from "@/hooks/useAuctionWebSocket";
 import { getPropertyById } from "@/lib/api";
 import { getPropertyAvailability, createAppointment } from "@/lib/appointment-api";
 import { formatPrice } from "@/lib/utils";
@@ -98,6 +103,9 @@ export default function PropertyDetailsView({
   const [booking, setBooking] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingError, setBookingError] = useState("");
+  const [isBiddingModalOpen, setIsBiddingModalOpen] = useState(false);
+  const [liveHighestBid, setLiveHighestBid] = useState<number | null>(null);
+  const [liveReservePrice, setLiveReservePrice] = useState<number | null>(null);
 
   const defaultBackLink = isDashboard ? (backHref || "/dashboard/properties") : (backHref || "/properties");
 
@@ -116,6 +124,34 @@ export default function PropertyDetailsView({
     }
     fetchProperty();
   }, [propertyId]);
+
+  // Sync Live Auction State for real-time highest bid and reserve
+  useEffect(() => {
+    if (property?.isAuction) {
+      getAuctionState(propertyId)
+        .then((state) => {
+          if (state.currentHighestBid) {
+            setLiveHighestBid(state.currentHighestBid);
+          }
+          if (state.reservePrice) {
+            setLiveReservePrice(state.reservePrice);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [property?.isAuction, propertyId]);
+
+  useAuctionWebSocket({
+    propertyId: property?.isAuction ? propertyId : null,
+    onNewBid: (data) => {
+      if (data.currentHighestBid) {
+        setLiveHighestBid(data.currentHighestBid);
+      }
+    },
+    onReserveUpdated: (reserve) => {
+      setLiveReservePrice(reserve);
+    },
+  });
 
   useEffect(() => {
     async function fetchSlots() {
@@ -495,12 +531,18 @@ export default function PropertyDetailsView({
           className="space-y-8"
         >
           {/* Header Title & Price Bar */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border/60">
-            <div>
-              <div className="flex items-center gap-2.5 mb-2.5 flex-wrap">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-border/60">
+            <div className="space-y-1.5 flex-1">
+              <div className="flex items-center gap-2.5 mb-2 flex-wrap">
                 {property.propertyCode && (
                   <Badge className="bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-0 rounded-full font-mono text-xs">
                     {property.propertyCode}
+                  </Badge>
+                )}
+                {property.isAuction && (
+                  <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold border-0 rounded-full flex items-center gap-1 shadow-sm">
+                    <Gavel className="w-3 h-3" />
+                    LIVE AUCTION
                   </Badge>
                 )}
                 <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border-0 rounded-full font-semibold">
@@ -513,7 +555,7 @@ export default function PropertyDetailsView({
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
                 {property.title}
               </h1>
-              <div className="flex items-center gap-1.5 mt-2 text-muted-foreground text-sm">
+              <div className="flex items-center gap-1.5 text-muted-foreground text-sm">
                 <MapPin className="w-4 h-4 text-emerald-500 shrink-0" />
                 <span>
                   {property.address}, {property.city}, {property.state} {property.zipCode}
@@ -521,29 +563,76 @@ export default function PropertyDetailsView({
               </div>
             </div>
 
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="text-right">
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
-                  Listing Price
-                </p>
-                <span className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
-                  {formatPrice(property.price)}
-                </span>
+            <div className="flex items-center gap-6 shrink-0 flex-wrap lg:flex-nowrap justify-between lg:justify-end">
+              {/* Pricing Section */}
+              <div className="text-left lg:text-right space-y-1">
+                {property.isAuction ? (
+                  <div className="space-y-0.5">
+                    <div className="text-xs text-muted-foreground font-medium flex items-center lg:justify-end gap-1.5">
+                      <span>Starting:</span>
+                      <span className="font-semibold text-foreground font-mono">
+                        {formatPrice(liveReservePrice || property.reservePrice || property.price)}
+                      </span>
+                    </div>
+                    <div className="text-3xl sm:text-4xl font-extrabold text-amber-500 font-mono tracking-tight">
+                      {formatPrice(
+                        liveHighestBid ||
+                          property.currentHighestBid ||
+                          liveReservePrice ||
+                          property.reservePrice ||
+                          property.price
+                      )}
+                    </div>
+                    <div className="text-[11px] font-bold tracking-wider text-amber-500/90 uppercase flex items-center lg:justify-end gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                      {liveHighestBid || property.currentHighestBid ? "Current Highest Bid" : "Starting Offer"}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                      Listing Price
+                    </p>
+                    <span className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
+                      {formatPrice(property.price)}
+                    </span>
+                  </div>
+                )}
               </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className={`rounded-xl h-11 w-11 ${
-                    isFavorite ? "text-red-500 border-red-500/30 bg-red-500/10" : ""
-                  }`}
-                  onClick={() => toggleSave(property.id)}
-                >
-                  <Heart className={`w-5 h-5 ${isFavorite ? "fill-red-500" : ""}`} />
-                </Button>
-                <Button variant="outline" size="icon" className="rounded-xl h-11 w-11">
-                  <Share2 className="w-5 h-5" />
-                </Button>
+
+              {/* Vertical Separator for Desktop */}
+              <div className="hidden lg:block h-12 w-[1px] bg-border/60" />
+
+              {/* Action Buttons & Timer */}
+              <div className="flex items-center gap-3">
+                {property.isAuction && (
+                  <div className="flex flex-col items-center gap-1.5">
+                    <AuctionTimerBadge propertyId={property.id} />
+                    <Button
+                      onClick={() => setIsBiddingModalOpen(true)}
+                      className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-extrabold rounded-xl h-11 px-6 shadow-md shadow-amber-500/15 flex items-center gap-2 cursor-pointer transition-transform active:scale-95"
+                    >
+                      <Gavel className="w-4 h-4" />
+                      Place Bid
+                    </Button>
+                  </div>
+                )}
+
+                <div className={`flex gap-2 ${property.isAuction ? "self-end pb-0.5" : ""}`}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className={`rounded-xl h-11 w-11 transition-colors ${
+                      isFavorite ? "text-red-500 border-red-500/30 bg-red-500/10" : ""
+                    }`}
+                    onClick={() => toggleSave(property.id)}
+                  >
+                    <Heart className={`w-5 h-5 ${isFavorite ? "fill-red-500" : ""}`} />
+                  </Button>
+                  <Button variant="outline" size="icon" className="rounded-xl h-11 w-11">
+                    <Share2 className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -808,6 +897,19 @@ export default function PropertyDetailsView({
           </div>
         </motion.div>
       </div>
+
+      {/* Live Bidding Dialog Modal */}
+      {property.isAuction && (
+        <LiveBiddingDialog
+          open={isBiddingModalOpen}
+          onOpenChange={setIsBiddingModalOpen}
+          propertyId={property.id}
+          propertyTitle={property.title}
+          propertyCode={property.propertyCode}
+          initialPrice={property.reservePrice || property.price}
+          onBidPlaced={(newAmount) => setLiveHighestBid(newAmount)}
+        />
+      )}
     </div>
   );
 }

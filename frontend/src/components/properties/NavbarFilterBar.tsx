@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin,
   Building2,
-  DollarSign,
+  IndianRupee,
   BedDouble,
   Bath,
   ArrowUpDown,
@@ -263,7 +263,7 @@ export default function NavbarFilterBar({
                   {/* Price Range */}
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                      <DollarSign className="w-3.5 h-3.5 text-emerald-500" />
+                      <IndianRupee className="w-3.5 h-3.5 text-emerald-500" />
                       Price Range
                     </label>
                     <Select

@@ -13,6 +13,7 @@ class PropertyType(str, Enum):
     villa = "villa"
     flat = "flat"
     plot = "plot"
+    ground = "ground"
 
 
 class PropertyStatus(str, Enum):
@@ -59,18 +60,23 @@ class SellerPropertyCreate(BaseModel):
     city: str = Field(..., min_length=2)
     state: str = Field(..., min_length=2)
     zipCode: str = Field(..., min_length=3)
-    country: str = "United States"
+    country: str = "India"
     latitude: float | None = None
     longitude: float | None = None
-    bedrooms: int = Field(..., ge=0)
-    bathrooms: int = Field(..., ge=0)
+    bedrooms: int = 0
+    bathrooms: int = 0
     area: int = Field(..., gt=0, description="Area in sqft")
     propertyType: PropertyType
     status: PropertyStatus = PropertyStatus.for_sale
-    yearBuilt: int = Field(..., ge=1800, le=2030)
+    yearBuilt: int = Field(..., ge=1800, le=2035)
     images: list[str] = []
     features: list[str] = []
     documents: list[DocumentCreate] = []
+    isAuction: bool = False
+    reservePrice: float | None = None  # Lowest price seller wants to sell for
+    auctionStartDate: str | None = None
+    auctionEndDate: str | None = None
+    minBidIncrement: float | None = 1000.0
 
 
 class SellerPropertyUpdate(BaseModel):
@@ -93,6 +99,11 @@ class SellerPropertyUpdate(BaseModel):
     images: list[str] | None = None
     features: list[str] | None = None
     documents: list[DocumentCreate] | None = None
+    isAuction: bool | None = None
+    reservePrice: float | None = None
+    auctionStartDate: str | None = None
+    auctionEndDate: str | None = None
+    minBidIncrement: float | None = None
 
 
 class SellerPropertyResponse(BaseModel):
@@ -121,6 +132,13 @@ class SellerPropertyResponse(BaseModel):
     documents: list[DocumentResponse]
     verificationStatus: str
     rejectionReason: str | None = None
+    isAuction: bool = False
+    reservePrice: float | None = None
+    currentHighestBid: float | None = None
+    auctionStartDate: str | None = None
+    auctionEndDate: str | None = None
+    minBidIncrement: float | None = 1000.0
+    auctionStatus: str | None = None
     createdAt: str
     updatedAt: str
 
