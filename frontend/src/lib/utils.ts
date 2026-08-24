@@ -96,12 +96,3 @@ export async function attachAuthToken(config: any) {
   }
   return config;
 }
-
-export function getImageUrl(url: string | null | undefined): string | null {
-  if (!url) return null;
-  if (url.startsWith("/uploads")) {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL ? process.env.NEXT_PUBLIC_API_URL.replace('/api/v1', '') : 'http://localhost:8000';
-    return `${baseUrl}${url}`;
-  }
-  return url;
-}
