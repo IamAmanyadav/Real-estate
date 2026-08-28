@@ -58,46 +58,6 @@ async def get_dashboard(
     db: AsyncSession = Depends(get_db),
     _admin: User = Depends(get_current_admin),
 ):
-    # ── Overview stats ──
-    total_users = (await db.execute(select(func.count(User.id)))).scalar_one()
-    total_properties = (await db.execute(select(func.count(Property.id)))).scalar_one()
-    total_inquiries = (await db.execute(select(func.count(Inquiry.id)))).scalar_one()
-
-    revenue_result = (await db.execute(
-        select(func.coalesce(func.sum(Property.price), 0))
-        .where(Property.verification_status == "sold")
-    )).scalar_one()
-    total_revenue = float(revenue_result)
-
-    active_users = (await db.execute(
-        select(func.count(User.id)).where(User.status == "active")
-    )).scalar_one()
-
-    pending_verifications = (await db.execute(
-        select(func.count(Property.id))
-        .where(Property.verification_status.in_(["pending", "under_review"]))
-    )).scalar_one()
-
-    new_inquiries = (await db.execute(
-        select(func.count(Inquiry.id)).where(Inquiry.inquiry_status == "new")
-    )).scalar_one()
-
-    published_properties = (await db.execute(
-        select(func.count(Property.id))
-        .where(Property.verification_status == "published")
-    )).scalar_one()
-
-    overview = OverviewStats(
-        totalUsers=total_users,
-        totalProperties=total_properties,
-        totalInquiries=total_inquiries,
-        totalRevenue=total_revenue,
-        activeUsers=active_users,
-        pendingVerifications=pending_verifications,
-        newInquiries=new_inquiries,
-        publishedProperties=published_properties,
-    )
-
     # ── Property analytics ──
     by_type_result = await db.execute(
         select(Property.property_type, func.count()).group_by(Property.property_type)
@@ -130,27 +90,51 @@ async def get_dashboard(
     )
     by_user_status = {r[0]: r[1] for r in by_user_status_result.all()}
 
+    # ── Overview stats computed from dicts ──
+    total_users = sum(by_role.values())
+    total_properties = sum(by_verification.values())
+    active_users = by_user_status.get("active", 0)
+    pending_verifications = by_verification.get("pending", 0) + by_verification.get("under_review", 0)
+    published_properties = by_verification.get("published", 0)
+    
     user_analytics = UserAnalytics(
         byRole=by_role, byStatus=by_user_status, total=total_users,
     )
 
+    # Remaining overview queries
+    total_inquiries = (await db.execute(select(func.count(Inquiry.id)))).scalar_one()
+    new_inquiries = (await db.execute(
+        select(func.count(Inquiry.id)).where(Inquiry.inquiry_status == "new")
+    )).scalar_one()
+
+    revenue_result = (await db.execute(
+        select(func.coalesce(func.sum(Property.price), 0))
+        .where(Property.verification_status == "sold")
+    )).scalar_one()
+    total_revenue = float(revenue_result)
+
+    overview = OverviewStats(
+        totalUsers=total_users,
+        totalProperties=total_properties,
+        totalInquiries=total_inquiries,
+        totalRevenue=total_revenue,
+        activeUsers=active_users,
+        pendingVerifications=pending_verifications,
+        newInquiries=new_inquiries,
+        publishedProperties=published_properties,
+    )
+
     # ── Recent activity ──
     recent_history = await db.execute(
-        select(PropertyStatusHistory)
-        .options()
+        select(PropertyStatusHistory, Property.title)
+        .join(Property, Property.id == PropertyStatusHistory.property_id)
         .order_by(PropertyStatusHistory.created_at.desc())
         .limit(10)
     )
-    history_items = list(recent_history.scalars().all())
+    history_items = list(recent_history.all())
 
     recent_activity = []
-    for h in history_items:
-        # Fetch property title
-        prop_result = await db.execute(
-            select(Property.title).where(Property.id == h.property_id)
-        )
-        prop_title = prop_result.scalar() or "Unknown Property"
-
+    for h, prop_title in history_items:
         recent_activity.append(RecentActivityItem(
             id=str(h.id),
             type="verification",

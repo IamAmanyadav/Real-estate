@@ -40,12 +40,14 @@ router = APIRouter()
 
 @router.get("/conversations", response_model=list[ConversationListItem])
 async def list_conversations(
+    page: int = Query(1, ge=1),
+    limit: int = Query(50, ge=1, le=200),
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """List conversations. Admin sees all; users see their own."""
     if user.role == "admin":
-        return await repo.get_conversations_for_admin(db)
+        return await repo.get_conversations_for_admin(db, page, limit)
     else:
         conv = await repo.get_conversation_for_user(db, user.id)
         if not conv:

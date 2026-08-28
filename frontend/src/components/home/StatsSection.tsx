@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Building2, Award, ThumbsUp, Users2 } from "lucide-react";
+import Image from "next/image";
 
 const STATS_DATA = [
   { value: "5+", label: "Properties Sold", icon: Building2 },
@@ -15,11 +16,12 @@ export default function StatsSection() {
     <section className="relative h-[220px] sm:h-[260px] flex items-center justify-center overflow-hidden my-4 sm:my-8">
       {/* High-Clarity Panoramic Living Room Background Cropped from Top */}
       <div className="absolute inset-0 z-0">
-        <div
-          className="w-full h-full bg-cover bg-[center_30%] bg-no-repeat"
-          style={{
-            backgroundImage: `url('/images/stats-bg.jpg')`,
-          }}
+        <Image
+          src="/images/stats-bg.jpg"
+          alt="Stats Background"
+          fill
+          className="object-cover object-[center_30%]"
+          sizes="100vw"
         />
         {/* Subtle Overlay */}
         <div className="absolute inset-0 bg-black/25" />

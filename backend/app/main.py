@@ -8,6 +8,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+from valkey.asyncio import Valkey
+from app.cache_backend import ValkeyBackend
 
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -52,6 +56,15 @@ async def lifespan(app: FastAPI):
     )
     logger = logging.getLogger(__name__)
     logger.info("Starting up Luxe Estates API...")
+    
+    if settings.valkey_url:
+        valkey_client = Valkey.from_url(settings.valkey_url, encoding="utf8", decode_responses=True)
+        FastAPICache.init(ValkeyBackend(valkey_client), prefix="fastapi-cache")
+        logger.info("Initialized FastAPICache with ValkeyBackend.")
+    else:
+        FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+        logger.info("Initialized FastAPICache with InMemoryBackend (valkey_url not set).")
+        
     yield
     await engine.dispose()
     logger.info("Shutting down Luxe Estates API...")
