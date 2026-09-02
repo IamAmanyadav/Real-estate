@@ -93,7 +93,9 @@ export async function getBuyerAppointments(params?: {
 
 export async function createAppointment(appointmentData: {
   propertyId: string;
-  timeSlotId: string;
+  timeSlotId?: string | null;
+  requestedDate?: string | null;
+  requestedTime?: string | null;
 }): Promise<Appointment> {
   const { data } = await appointmentApi.post<Appointment>(
     "/buyer/appointments",
@@ -121,6 +123,7 @@ export async function updateAppointmentStatus(
   updateData: {
     status: string;
     adminNotes?: string;
+    sellerNotes?: string;
     newTimeSlotId?: string;
   }
 ): Promise<Appointment> {

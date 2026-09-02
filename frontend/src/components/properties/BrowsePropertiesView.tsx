@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import { Building2, Sparkles } from "lucide-react";
 import NavbarFilterBar, { type ViewMode } from "@/components/properties/NavbarFilterBar";
 import PropertyGrid from "@/components/properties/PropertyGrid";

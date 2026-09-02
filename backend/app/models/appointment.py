@@ -41,9 +41,11 @@ class Appointment(Base):
     seller_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True,
     )
-    time_slot_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("time_slots.id", ondelete="CASCADE"), nullable=False, index=True,
+    time_slot_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("time_slots.id", ondelete="CASCADE"), nullable=True, index=True,
     )
+    requested_date: Mapped[str | None] = mapped_column(Date, nullable=True)
+    requested_time: Mapped[str | None] = mapped_column(Time, nullable=True)
     status: Mapped[str] = mapped_column(
         SAEnum(
             "pending", "approved", "cancelled", "completed", "rescheduled",
@@ -54,6 +56,7 @@ class Appointment(Base):
         index=True,
     )
     admin_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    seller_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     cancellation_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Relationships

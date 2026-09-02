@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m as motion, AnimatePresence } from "framer-motion";
 import {
   Search, Building2, Trash2, CheckCircle, XCircle, Filter,
   MoreHorizontal, Tag, RotateCcw, Archive, Eye, Gavel,

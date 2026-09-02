@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m as motion, AnimatePresence } from "framer-motion";
 import PropertyCard from "./PropertyCard";
 import type { Property } from "@/types";
 import type { ViewMode } from "./NavbarFilterBar";

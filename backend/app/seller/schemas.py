@@ -162,3 +162,5 @@ class SellerDashboardStats(BaseModel):
     archivedListings: int
     rejectedListings: int
     totalInquiriesReceived: int
+    totalAppointments: int = 0
+    pendingAppointments: int = 0

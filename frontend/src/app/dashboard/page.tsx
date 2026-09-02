@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import {
   Building2,
@@ -17,6 +17,7 @@ import {
   XCircle,
   ShoppingCart,
   Loader2,
+  CalendarDays,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,13 @@ export default function UserDashboard() {
           color: "from-red-500 to-rose-500",
           change: "Needs revision",
         },
+        {
+          title: "Visit Requests",
+          value: sellerStats?.totalAppointments !== undefined ? sellerStats.totalAppointments.toString() : "—",
+          icon: CalendarDays,
+          color: "from-teal-500 to-emerald-500",
+          change: sellerStats?.pendingAppointments ? `${sellerStats.pendingAppointments} pending` : "All requests",
+        },
       ]
     : [
         {
@@ -120,6 +128,13 @@ export default function UserDashboard() {
           icon: CheckCircle2,
           color: "from-emerald-500 to-teal-500",
           change: "Received responses",
+        },
+        {
+          title: "Scheduled Visits",
+          value: buyerStats?.totalAppointments !== undefined ? buyerStats.totalAppointments.toString() : "—",
+          icon: CalendarDays,
+          color: "from-teal-500 to-emerald-500",
+          change: buyerStats?.pendingAppointments ? `${buyerStats.pendingAppointments} pending` : "All requests",
         },
       ];
 
@@ -153,8 +168,8 @@ export default function UserDashboard() {
         </div>
       </motion.div>
 
-      {/* Stats Grid - Compact 2x2 Square Cards on Mobile */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      {/* Stats Grid - Compact Square Cards on Mobile */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
         {stats.map((stat, i) => (
           <motion.div
             key={stat.title}
@@ -213,16 +228,28 @@ export default function UserDashboard() {
               )}
 
               {isBuyer && (
-                <Link href="/dashboard/inquiries" className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors group">
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                    <MessageSquare className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">My Inquiries</p>
-                    <p className="text-xs text-muted-foreground">Track your property inquiries</p>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                </Link>
+                <>
+                  <Link href="/dashboard/inquiries" className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors group">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                      <MessageSquare className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">My Inquiries</p>
+                      <p className="text-xs text-muted-foreground">Track your property inquiries</p>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  </Link>
+                  <Link href="/dashboard/appointments" className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors group">
+                    <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center">
+                      <CalendarDays className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">My Appointments</p>
+                      <p className="text-xs text-muted-foreground">Manage scheduled visits</p>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  </Link>
+                </>
               )}
 
               {isSeller && (
@@ -247,6 +274,17 @@ export default function UserDashboard() {
                       <p className="text-xs text-muted-foreground">List a new property</p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-emerald-500 group-hover:text-emerald-700 transition-colors" />
+                  </Link>
+
+                  <Link href="/dashboard/availability" className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors group">
+                    <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center">
+                      <CalendarDays className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Visit Requests</p>
+                      <p className="text-xs text-muted-foreground">Manage your availability</p>
+                    </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                   </Link>
                 </>
               )}

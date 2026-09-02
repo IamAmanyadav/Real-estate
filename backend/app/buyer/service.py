@@ -134,4 +134,6 @@ async def get_dashboard_stats(
         purchaseRequests=stats["purchase_requests"],
         pendingResponses=stats["pending"],
         respondedInquiries=stats["responded"],
+        totalAppointments=stats["total_appointments"],
+        pendingAppointments=stats["pending_appointments"],
     )
