@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import { MessageCircle, Loader2 } from "lucide-react";
 import ChatWindow from "@/components/chat/ChatWindow";
 import { getOrCreateConversation } from "@/lib/messages-api";

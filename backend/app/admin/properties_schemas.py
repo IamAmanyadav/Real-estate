@@ -96,8 +96,42 @@ class VerificationUpdate(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
 
+class AdminPropertyListResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    propertyCode: str | None = None
+    title: str
+    description: str
+    price: float
+    address: str
+    city: str
+    state: str
+    zipCode: str
+    country: str
+    latitude: float | None = None
+    longitude: float | None = None
+    bedrooms: int
+    bathrooms: int
+    area: int
+    propertyType: str
+    status: str
+    yearBuilt: int
+    images: list[str]
+    features: list[str]
+    agent: dict
+    verificationStatus: str
+    rejectionReason: str | None = None
+    verifiedBy: str | None = None
+    verifiedAt: str | None = None
+    sellerId: str | None = None
+    sellerName: str | None = None
+    createdAt: str
+    updatedAt: str
+
+
 class PaginatedAdminProperties(BaseModel):
-    items: list[AdminPropertyResponse]
+    items: list[AdminPropertyListResponse]
     total: int
     page: int
     limit: int

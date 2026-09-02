@@ -10,6 +10,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.inquiry import Inquiry
 from app.models.property import Property
+from app.models.appointment import Appointment
 
 
 async def create_buyer_inquiry(
@@ -101,9 +102,21 @@ async def get_buyer_stats(
 
     result = (await db.execute(query)).first()
 
+    # Appointments made by buyer
+    appointment_stats = await db.execute(
+        select(Appointment.status, func.count())
+        .where(Appointment.buyer_id == buyer_id)
+        .group_by(Appointment.status)
+    )
+    appt_counts = {row[0]: row[1] for row in appointment_stats.all()}
+    total_appts = sum(appt_counts.values())
+    pending_appts = appt_counts.get("pending", 0)
+
     return {
         "total": result.total if result else 0,
         "purchase_requests": result.purchase_requests if result else 0,
         "pending": result.pending if result else 0,
         "responded": result.responded if result else 0,
+        "total_appointments": total_appts,
+        "pending_appointments": pending_appts,
     }

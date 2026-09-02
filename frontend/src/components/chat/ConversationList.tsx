@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import { Search, MessageCircle, Users } from "lucide-react";
 import { useState, useMemo } from "react";
 import type { ConversationItem } from "@/lib/messages-api";

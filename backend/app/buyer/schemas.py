@@ -55,3 +55,5 @@ class BuyerDashboardStats(BaseModel):
     purchaseRequests: int
     pendingResponses: int
     respondedInquiries: int
+    totalAppointments: int = 0
+    pendingAppointments: int = 0

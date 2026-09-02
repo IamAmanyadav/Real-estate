@@ -77,12 +77,15 @@ def _appointment_to_response(appt) -> AppointmentResponse:
         sellerId=str(appt.seller_id),
         sellerName=seller.full_name if seller else "Unknown",
         sellerEmail=seller.email if seller else "",
-        timeSlotId=str(appt.time_slot_id),
-        slotDate=_format_date(slot.slot_date) if slot else "",
-        startTime=_format_time(slot.start_time) if slot else "",
-        endTime=_format_time(slot.end_time) if slot else "",
+        timeSlotId=str(appt.time_slot_id) if appt.time_slot_id else None,
+        slotDate=_format_date(slot.slot_date) if slot else None,
+        startTime=_format_time(slot.start_time) if slot else None,
+        endTime=_format_time(slot.end_time) if slot else None,
+        requestedDate=_format_date(appt.requested_date) if appt.requested_date else None,
+        requestedTime=_format_time(appt.requested_time) if appt.requested_time else None,
         status=appt.status,
         adminNotes=appt.admin_notes,
+        sellerNotes=appt.seller_notes,
         cancellationReason=appt.cancellation_reason,
         createdAt=appt.created_at.isoformat(),
         updatedAt=appt.updated_at.isoformat(),
@@ -174,44 +177,67 @@ async def get_property_availability(
 async def create_buyer_appointment(
     db: AsyncSession, data: AppointmentCreate, buyer_id: uuid.UUID,
 ) -> AppointmentResponse:
-    """Buyer books a visit for an available time slot."""
-    slot = await repo.get_time_slot_by_id(db, uuid.UUID(data.timeSlotId))
-    if not slot:
-        raise HTTPException(status_code=404, detail="Time slot not found.")
-    if slot.is_booked:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="This time slot is already booked.",
+    """Buyer books a visit for an available time slot or requests a custom time."""
+    if data.timeSlotId:
+        slot = await repo.get_time_slot_by_id(db, uuid.UUID(data.timeSlotId))
+        if not slot:
+            raise HTTPException(status_code=404, detail="Time slot not found.")
+        if slot.is_booked:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This time slot is already booked.",
+            )
+        if str(slot.property_id) != data.propertyId:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Time slot does not belong to this property.",
+            )
+        # Mark slot as booked
+        await repo.mark_slot_booked(db, slot.id, True)
+        
+        appt = await repo.create_appointment(
+            db,
+            property_id=slot.property_id,
+            buyer_id=buyer_id,
+            seller_id=slot.seller_id,
+            time_slot_id=slot.id,
         )
-    if str(slot.property_id) != data.propertyId:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Time slot does not belong to this property.",
+    else:
+        # Custom request without time slot
+        if not data.requestedDate or not data.requestedTime:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Must provide either timeSlotId or both requestedDate and requestedTime.",
+            )
+        # Fetch property to get seller_id
+        prop_id = uuid.UUID(data.propertyId)
+        result = await db.execute(select(Property).where(Property.id == prop_id))
+        prop = result.scalars().first()
+        if not prop:
+            raise HTTPException(status_code=404, detail="Property not found.")
+        
+        appt = await repo.create_appointment(
+            db,
+            property_id=prop_id,
+            buyer_id=buyer_id,
+            seller_id=prop.seller_id,
+            requested_date=data.requestedDate,
+            requested_time=_parse_time(data.requestedTime),
         )
 
-    # Mark slot as booked
-    await repo.mark_slot_booked(db, slot.id, True)
-
-    appt = await repo.create_appointment(
-        db,
-        property_id=slot.property_id,
-        buyer_id=buyer_id,
-        seller_id=slot.seller_id,
-        time_slot_id=slot.id,
-    )
     await db.refresh(appt)
     response = _appointment_to_response(appt)
 
     # SSE notification to seller
     await sse_manager.broadcast(
-        f"appointments:{slot.seller_id}",
+        f"appointments:{appt.seller_id}",
         {
             "type": "new_appointment",
             "appointmentId": response.id,
             "propertyTitle": response.propertyTitle,
             "buyerName": response.buyerName,
-            "slotDate": response.slotDate,
-            "startTime": response.startTime,
+            "slotDate": response.slotDate or response.requestedDate,
+            "startTime": response.startTime or response.requestedTime,
         },
     )
 
@@ -287,8 +313,9 @@ async def update_appointment(
         if not old_appt:
             raise HTTPException(status_code=404, detail="Appointment not found.")
 
-        # Free the old slot
-        await repo.mark_slot_booked(db, old_appt.time_slot_id, False)
+        # Free the old slot if it exists
+        if old_appt.time_slot_id:
+            await repo.mark_slot_booked(db, old_appt.time_slot_id, False)
 
         # Book new slot
         new_slot = await repo.get_time_slot_by_id(db, uuid.UUID(data.newTimeSlotId))
@@ -304,13 +331,14 @@ async def update_appointment(
     # If cancelling, free the slot
     if new_status == "cancelled":
         old_appt = await repo.get_appointment_by_id(db, appt_id)
-        if old_appt:
+        if old_appt and old_appt.time_slot_id:
             await repo.mark_slot_booked(db, old_appt.time_slot_id, False)
 
     appt = await repo.update_appointment_status(
         db, appt_id,
         status=new_status,
         admin_notes=data.adminNotes,
+        seller_notes=data.sellerNotes,
     )
     if not appt:
         raise HTTPException(status_code=404, detail="Appointment not found.")
@@ -323,8 +351,8 @@ async def update_appointment(
         "appointmentId": response.id,
         "propertyTitle": response.propertyTitle,
         "status": new_status,
-        "slotDate": response.slotDate,
-        "startTime": response.startTime,
+        "slotDate": response.slotDate or response.requestedDate,
+        "startTime": response.startTime or response.requestedTime,
     }
     await sse_manager.broadcast(f"appointments:{appt.buyer_id}", event_data)
     await sse_manager.broadcast(f"appointments:{appt.seller_id}", event_data)

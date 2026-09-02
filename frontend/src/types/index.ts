@@ -202,6 +202,8 @@ export interface SellerDashboardStats {
   archivedListings: number;
   rejectedListings: number;
   totalInquiriesReceived: number;
+  totalAppointments?: number;
+  pendingAppointments?: number;
 }
 
 // ── Buyer types ───────────────────────────────────────────────────────────────
@@ -234,6 +236,8 @@ export interface BuyerDashboardStats {
   purchaseRequests: number;
   pendingResponses: number;
   respondedInquiries: number;
+  totalAppointments?: number;
+  pendingAppointments?: number;
 }
 
 // ── Appointment types ─────────────────────────────────────────────────────────
@@ -269,12 +273,15 @@ export interface Appointment {
   sellerId: string;
   sellerName: string;
   sellerEmail: string;
-  timeSlotId: string;
-  slotDate: string;
-  startTime: string;
-  endTime: string;
+  timeSlotId?: string | null;
+  slotDate?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  requestedDate?: string | null;
+  requestedTime?: string | null;
   status: AppointmentStatus;
   adminNotes: string | null;
+  sellerNotes?: string | null;
   cancellationReason: string | null;
   createdAt: string;
   updatedAt: string;

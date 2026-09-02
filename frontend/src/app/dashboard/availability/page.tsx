@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m as motion, AnimatePresence } from "framer-motion";
 import {
   CalendarPlus,
   Clock,
@@ -21,6 +21,7 @@ import {
   createTimeSlot,
   deleteTimeSlot,
   getSellerAppointments,
+  updateAppointmentStatus,
 } from "@/lib/appointment-api";
 import { getSellerProperties } from "@/lib/seller-api";
 import { formatDate } from "@/lib/utils";
@@ -41,6 +42,10 @@ export default function SellerAvailabilityPage() {
   const [properties, setProperties] = useState<SellerProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"availability" | "appointments">("availability");
+  
+  // Status update state
+  const [respondingTo, setRespondingTo] = useState<string | null>(null);
+  const [sellerNotes, setSellerNotes] = useState("");
 
   // Create slot form
   const [showForm, setShowForm] = useState(false);
@@ -142,6 +147,17 @@ export default function SellerAvailabilityPage() {
       fetchSlots();
     } catch (err: any) {
       alert(err.response?.data?.detail || "Failed to delete slot.");
+    }
+  };
+
+  const handleUpdateStatus = async (apptId: string, status: string, notes?: string) => {
+    try {
+      await updateAppointmentStatus(apptId, { status, sellerNotes: notes });
+      fetchAppointments();
+      setRespondingTo(null);
+      setSellerNotes("");
+    } catch (err: any) {
+      alert(err.response?.data?.detail || "Failed to update appointment.");
     }
   };
 
@@ -384,10 +400,10 @@ export default function SellerAvailabilityPage() {
                         <div className="flex flex-col sm:flex-row gap-4">
                           <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 flex flex-col items-center justify-center shrink-0">
                             <span className="text-xs text-emerald-600 font-medium">
-                              {new Date(appt.slotDate + "T00:00:00").toLocaleDateString("en", { month: "short" })}
+                              {new Date((appt.slotDate || appt.requestedDate) + "T00:00:00").toLocaleDateString("en", { month: "short" })}
                             </span>
                             <span className="text-lg font-bold text-emerald-600">
-                              {new Date(appt.slotDate + "T00:00:00").getDate()}
+                              {new Date((appt.slotDate || appt.requestedDate) + "T00:00:00").getDate()}
                             </span>
                           </div>
                           <div className="flex-1 min-w-0">
@@ -405,7 +421,7 @@ export default function SellerAvailabilityPage() {
                             <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                               <span className="flex items-center gap-1">
                                 <Clock className="w-3.5 h-3.5" />
-                                {appt.startTime} – {appt.endTime}
+                                {appt.startTime || appt.requestedTime} {appt.endTime ? `– ${appt.endTime}` : ""}
                               </span>
                               <span>Requested {formatDate(appt.createdAt)}</span>
                             </div>
@@ -413,6 +429,39 @@ export default function SellerAvailabilityPage() {
                               <div className="mt-2 p-2 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-sm">
                                 <span className="text-emerald-600 font-medium text-xs">Admin: </span>
                                 {appt.adminNotes}
+                              </div>
+                            )}
+                            {appt.sellerNotes && (
+                              <div className="mt-2 p-2 rounded-lg bg-blue-500/5 border border-blue-500/20 text-sm">
+                                <span className="text-blue-600 font-medium text-xs">You wrote: </span>
+                                {appt.sellerNotes}
+                              </div>
+                            )}
+
+                            {appt.status === "pending" && (
+                              <div className="mt-4 flex gap-2">
+                                <Button size="sm" className="h-8 text-xs bg-emerald-500 hover:bg-emerald-600 text-white" onClick={() => handleUpdateStatus(appt.id, "approved")}>
+                                  Accept Request
+                                </Button>
+                                <Button size="sm" variant="outline" className="h-8 text-xs border-border" onClick={() => setRespondingTo(respondingTo === appt.id ? null : appt.id)}>
+                                  Propose Alternatives
+                                </Button>
+                              </div>
+                            )}
+
+                            {respondingTo === appt.id && (
+                              <div className="mt-3 p-3 bg-muted/40 rounded-lg space-y-2 border border-border/50 animate-in fade-in slide-in-from-top-2">
+                                <textarea
+                                  value={sellerNotes}
+                                  onChange={(e) => setSellerNotes(e.target.value)}
+                                  placeholder="Suggest another time or leave a note..."
+                                  className="w-full text-xs p-2 rounded-lg border border-border outline-none focus:border-emerald-500 bg-background"
+                                  rows={2}
+                                />
+                                <div className="flex justify-end gap-2">
+                                  <Button size="sm" variant="ghost" onClick={() => setRespondingTo(null)} className="h-7 text-xs">Cancel</Button>
+                                  <Button size="sm" onClick={() => handleUpdateStatus(appt.id, "rescheduled", sellerNotes)} className="h-7 text-xs bg-emerald-500 text-white">Send Note</Button>
+                                </div>
                               </div>
                             )}
                           </div>

@@ -40,5 +40,8 @@ class Settings(BaseSettings):
     # Frontend URL (for password reset links)
     frontend_url: str = "http://localhost:3000"
 
+    # Valkey Cache
+    valkey_url: str | None = None
+
 
 settings = Settings()

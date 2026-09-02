@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.admin import properties_repository as repo
 from app.admin.properties_schemas import (
     AdminDocumentResponse,
+    AdminPropertyListResponse,
     AdminPropertyResponse,
     AdminPropertyUpdate,
     PaginatedAdminProperties,
@@ -20,6 +21,47 @@ from app.admin.properties_schemas import (
 from app.models.property import Property
 from app.models.user import User
 from app.sse.manager import sse_manager
+
+
+def _to_list_response(prop: Property) -> AdminPropertyListResponse:
+    return AdminPropertyListResponse(
+        id=str(prop.id),
+        propertyCode=prop.property_code,
+        title=prop.title,
+        description=prop.description,
+        price=float(prop.price),
+        address=prop.address,
+        city=prop.city,
+        state=prop.state,
+        zipCode=prop.zip_code,
+        country=prop.country,
+        latitude=prop.latitude,
+        longitude=prop.longitude,
+        bedrooms=prop.bedrooms,
+        bathrooms=prop.bathrooms,
+        area=prop.area,
+        propertyType=prop.property_type,
+        status=prop.status,
+        yearBuilt=prop.year_built,
+        images=[img.url for img in prop.images],
+        features=[f.name for f in prop.features],
+        agent=dict(
+            id=str(prop.agent.id),
+            name=prop.agent.name,
+            email=prop.agent.email,
+            phone=prop.agent.phone,
+            avatar=prop.agent.avatar,
+            title=prop.agent.title,
+        ),
+        verificationStatus=prop.verification_status,
+        rejectionReason=prop.rejection_reason,
+        verifiedBy=str(prop.verified_by) if prop.verified_by else None,
+        verifiedAt=prop.verified_at.isoformat() if prop.verified_at else None,
+        sellerId=str(prop.seller_id) if prop.seller_id else None,
+        sellerName=prop.seller.full_name if prop.seller else None,
+        createdAt=prop.created_at.isoformat() if prop.created_at else "",
+        updatedAt=prop.updated_at.isoformat() if prop.updated_at else "",
+    )
 
 
 def _to_response(prop: Property) -> AdminPropertyResponse:
@@ -108,7 +150,7 @@ async def list_properties(
     )
     total_pages = max(1, (total + limit - 1) // limit)
     return PaginatedAdminProperties(
-        items=[_to_response(p) for p in items],
+        items=[_to_list_response(p) for p in items],
         total=total,
         page=page,
         limit=limit,

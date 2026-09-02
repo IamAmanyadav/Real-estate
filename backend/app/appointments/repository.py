@@ -108,13 +108,17 @@ async def create_appointment(
     property_id: uuid.UUID,
     buyer_id: uuid.UUID,
     seller_id: uuid.UUID,
-    time_slot_id: uuid.UUID,
+    time_slot_id: uuid.UUID | None = None,
+    requested_date: date | None = None,
+    requested_time: time | None = None,
 ) -> Appointment:
     appointment = Appointment(
         property_id=property_id,
         buyer_id=buyer_id,
         seller_id=seller_id,
         time_slot_id=time_slot_id,
+        requested_date=requested_date,
+        requested_time=requested_time,
         status="pending",
     )
     db.add(appointment)
@@ -177,6 +181,7 @@ async def update_appointment_status(
     *,
     status: str,
     admin_notes: str | None = None,
+    seller_notes: str | None = None,
     cancellation_reason: str | None = None,
 ) -> Appointment | None:
     appt = await get_appointment_by_id(db, appointment_id)
@@ -185,6 +190,8 @@ async def update_appointment_status(
     appt.status = status
     if admin_notes is not None:
         appt.admin_notes = admin_notes
+    if seller_notes is not None:
+        appt.seller_notes = seller_notes
     if cancellation_reason is not None:
         appt.cancellation_reason = cancellation_reason
     await db.flush()

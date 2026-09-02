@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi_cache.decorator import cache
 
 from app.db.deps import get_db
 from app.properties import service
@@ -18,6 +19,7 @@ router = APIRouter()
 
 
 @router.get("", response_model=PaginatedProperties)
+@cache(expire=60)
 async def list_properties(
     location: str | None = Query(None),
     min_price: float | None = Query(None, ge=0),
@@ -45,6 +47,7 @@ async def list_properties(
 
 
 @router.get("/{property_id}", response_model=PropertyResponse)
+@cache(expire=60)
 async def get_property(property_id: str, db: AsyncSession = Depends(get_db)):
     prop = await service.get_property(db, property_id)
     if not prop:

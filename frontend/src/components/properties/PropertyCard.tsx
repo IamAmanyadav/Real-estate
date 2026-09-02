@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { m as motion, AnimatePresence } from "framer-motion";
 import {
   BedDouble,
   Bath,
@@ -141,12 +142,13 @@ export default function PropertyCard({ property, index = 0, viewMode = "grid" }:
             <div className="flex flex-col sm:flex-row min-h-[170px]">
               {/* Image Section */}
               <div className="relative sm:w-60 md:w-72 lg:w-80 shrink-0 aspect-[16/10] sm:aspect-auto overflow-hidden bg-muted">
-                <img
+                <Image
                   src={imgSrc}
                   alt={property.title}
                   onError={handleImageError}
-                  loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 300px, 400px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent sm:hidden" />
 
@@ -276,12 +278,13 @@ export default function PropertyCard({ property, index = 0, viewMode = "grid" }:
         <Card className="group h-full flex flex-col justify-between overflow-hidden border-border/60 hover:border-emerald-500/40 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 py-0 gap-0 rounded-2xl bg-card">
           {/* Image Container */}
           <div className="relative aspect-[16/10] overflow-hidden bg-muted shrink-0">
-            <img
+            <Image
               src={imgSrc}
               alt={property.title}
               onError={handleImageError}
-              loading="lazy"
-              className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover group-hover:scale-108 transition-transform duration-500"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 

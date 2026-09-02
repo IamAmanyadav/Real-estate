@@ -57,13 +57,16 @@ class PaginatedTimeSlots(BaseModel):
 
 class AppointmentCreate(BaseModel):
     propertyId: str
-    timeSlotId: str
+    timeSlotId: str | None = None
+    requestedDate: date | None = None
+    requestedTime: str | None = Field(None, pattern=r"^\d{2}:\d{2}$", description="HH:MM format")
     message: str | None = None
 
 
 class AppointmentStatusUpdate(BaseModel):
     status: AppointmentStatus
     adminNotes: str | None = None
+    sellerNotes: str | None = None
     newTimeSlotId: str | None = None  # for rescheduling
 
 
@@ -81,12 +84,15 @@ class AppointmentResponse(BaseModel):
     sellerId: str
     sellerName: str
     sellerEmail: str
-    timeSlotId: str
-    slotDate: str
-    startTime: str
-    endTime: str
+    timeSlotId: str | None = None
+    slotDate: str | None = None
+    startTime: str | None = None
+    endTime: str | None = None
+    requestedDate: str | None = None
+    requestedTime: str | None = None
     status: str
     adminNotes: str | None = None
+    sellerNotes: str | None = None
     cancellationReason: str | None = None
     createdAt: str
     updatedAt: str

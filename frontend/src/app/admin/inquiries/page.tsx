@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m as motion, AnimatePresence } from "framer-motion";
 import {
   Search, MessageSquare, Trash2, Mail, Phone, Filter,
   CheckCircle, Eye, Reply, XCircle, Send, X, Loader2,

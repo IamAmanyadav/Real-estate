@@ -42,15 +42,19 @@ async def get_conversation_by_id(
 
 async def get_conversations_for_admin(
     db: AsyncSession,
+    page: int = 1,
+    limit: int = 50,
 ) -> list[dict]:
-    """Get all conversations with last message preview and unread counts for admin."""
+    """Get paginated conversations with last message preview and unread counts for admin."""
     from sqlalchemy.orm import selectinload
     
-    # 1. Get all conversations with their user data loaded (solves N+1 on conv.user)
+    # 1. Get paginated conversations with their user data loaded
     result = await db.execute(
         select(Conversation)
         .options(selectinload(Conversation.user))
         .order_by(desc(Conversation.last_message_at))
+        .offset((page - 1) * limit)
+        .limit(limit)
     )
     conversations = result.scalars().all()
     if not conversations:

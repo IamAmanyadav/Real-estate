@@ -6,6 +6,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
 import QueryProvider from "@/providers/QueryProvider";
+import AnimationProvider from "@/providers/AnimationProvider";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -48,7 +49,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
             >
-            <ConditionalLayout>{children}</ConditionalLayout>
+              <AnimationProvider>
+                <ConditionalLayout>{children}</ConditionalLayout>
+              </AnimationProvider>
             </ThemeProvider>
           </QueryProvider>
         </ClerkProvider>

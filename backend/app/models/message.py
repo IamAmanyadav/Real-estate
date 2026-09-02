@@ -54,7 +54,7 @@ class Message(Base):
         index=True,
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
-    is_read: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_read: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, index=True)
 
     # Relationships
     conversation: Mapped["Conversation"] = relationship(

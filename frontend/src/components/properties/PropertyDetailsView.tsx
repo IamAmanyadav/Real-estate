@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { m as motion, AnimatePresence } from "framer-motion";
 import {
   BedDouble,
   Bath,
@@ -59,7 +59,7 @@ function resolveImageUrl(url?: string | null): string {
       if (Array.isArray(parsed) && parsed.length > 0) {
         cleaned = parsed[0];
       }
-    } catch {}
+    } catch { }
   }
 
   if (cleaned.startsWith("http://") || cleaned.startsWith("https://")) {
@@ -100,6 +100,9 @@ export default function PropertyDetailsView({
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [isCustomRequest, setIsCustomRequest] = useState(false);
+  const [requestedDate, setRequestedDate] = useState("");
+  const [requestedTime, setRequestedTime] = useState("");
   const [booking, setBooking] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingError, setBookingError] = useState("");
@@ -182,13 +185,22 @@ export default function PropertyDetailsView({
   }, [isLightboxOpen, property?.images?.length]);
 
   const handleBookVisit = async () => {
-    if (!selectedSlot || !property) return;
+    if (!property) return;
+    if (!isCustomRequest && !selectedSlot) return;
+    if (isCustomRequest && (!requestedDate || !requestedTime)) return;
+
     setBooking(true);
     setBookingError("");
     try {
-      await createAppointment({ propertyId: property.id, timeSlotId: selectedSlot });
+      await createAppointment({ 
+        propertyId: property.id, 
+        timeSlotId: isCustomRequest ? undefined : selectedSlot,
+        requestedDate: isCustomRequest ? requestedDate : undefined,
+        requestedTime: isCustomRequest ? requestedTime : undefined,
+      });
       setBookingSuccess(true);
       setSelectedSlot(null);
+      setIsCustomRequest(false);
       const slots = await getPropertyAvailability(propertyId);
       setTimeSlots(slots);
     } catch (err: any) {
@@ -379,11 +391,10 @@ export default function PropertyDetailsView({
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  className={`relative flex-1 rounded-2xl overflow-hidden border-2 transition-all group bg-muted ${
-                    selectedImage === i
+                  className={`relative flex-1 rounded-2xl overflow-hidden border-2 transition-all group bg-muted ${selectedImage === i
                       ? "border-emerald-500 ring-4 ring-emerald-500/30 shadow-xl"
                       : "border-transparent opacity-70 hover:opacity-100"
-                  }`}
+                    }`}
                 >
                   <img
                     src={resolveImageUrl(img)}
@@ -410,11 +421,10 @@ export default function PropertyDetailsView({
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  className={`relative w-28 sm:w-36 h-20 sm:h-24 rounded-2xl overflow-hidden border-2 shrink-0 transition-all bg-muted ${
-                    selectedImage === i
+                  className={`relative w-28 sm:w-36 h-20 sm:h-24 rounded-2xl overflow-hidden border-2 shrink-0 transition-all bg-muted ${selectedImage === i
                       ? "border-emerald-500 ring-2 ring-emerald-500/30 scale-105 shadow-md"
                       : "border-transparent opacity-60 hover:opacity-100"
-                  }`}
+                    }`}
                 >
                   <img
                     src={resolveImageUrl(img)}
@@ -502,11 +512,10 @@ export default function PropertyDetailsView({
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`relative w-18 h-14 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
-                      selectedImage === i
+                    className={`relative w-18 h-14 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${selectedImage === i
                         ? "border-emerald-500 scale-110 ring-2 ring-emerald-500/60 shadow-lg"
                         : "border-transparent opacity-40 hover:opacity-100"
-                    }`}
+                      }`}
                   >
                     <img
                       src={resolveImageUrl(img)}
@@ -577,10 +586,10 @@ export default function PropertyDetailsView({
                     <div className="text-3xl sm:text-4xl font-extrabold text-amber-500 font-mono tracking-tight">
                       {formatPrice(
                         liveHighestBid ||
-                          property.currentHighestBid ||
-                          liveReservePrice ||
-                          property.reservePrice ||
-                          property.price
+                        property.currentHighestBid ||
+                        liveReservePrice ||
+                        property.reservePrice ||
+                        property.price
                       )}
                     </div>
                     <div className="text-[11px] font-bold tracking-wider text-amber-500/90 uppercase flex items-center lg:justify-end gap-1">
@@ -622,9 +631,8 @@ export default function PropertyDetailsView({
                   <Button
                     variant="outline"
                     size="icon"
-                    className={`rounded-xl h-11 w-11 transition-colors ${
-                      isFavorite ? "text-red-500 border-red-500/30 bg-red-500/10" : ""
-                    }`}
+                    className={`rounded-xl h-11 w-11 transition-colors ${isFavorite ? "text-red-500 border-red-500/30 bg-red-500/10" : ""
+                      }`}
                     onClick={() => toggleSave(property.id)}
                   >
                     <Heart className={`w-5 h-5 ${isFavorite ? "fill-red-500" : ""}`} />
@@ -779,9 +787,8 @@ export default function PropertyDetailsView({
                   asChild
                 >
                   <a
-                    href={`mailto:${
-                      property.agent?.email || "info@luxeestates.com"
-                    }?subject=Inquiry: ${encodeURIComponent(property.title)}`}
+                    href={`mailto:${property.agent?.email || "info@luxeestates.com"
+                      }?subject=Inquiry: ${encodeURIComponent(property.title)}`}
                   >
                     <Mail className="w-3.5 h-3.5 mr-2 text-emerald-500" />
                     Send Direct Email
@@ -808,12 +815,52 @@ export default function PropertyDetailsView({
                     <div className="flex items-center justify-center py-6">
                       <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
                     </div>
-                  ) : timeSlots.length === 0 ? (
+                  ) : timeSlots.length === 0 && !isCustomRequest ? (
                     <div className="p-3 rounded-xl bg-muted/40 text-center py-5">
                       <Clock className="w-5 h-5 text-muted-foreground mx-auto mb-1 opacity-50" />
-                      <p className="text-xs text-muted-foreground">
-                        No visit slots currently available. Send an inquiry below to request a private tour.
+                      <p className="text-xs text-muted-foreground mb-3">
+                        No visit slots currently available.
                       </p>
+                      <Button 
+                        onClick={() => setIsCustomRequest(true)}
+                        variant="outline" 
+                        size="sm" 
+                        className="text-xs h-8 rounded-lg border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
+                      >
+                        Request Custom Time
+                      </Button>
+                    </div>
+                  ) : isCustomRequest ? (
+                    <div className="space-y-3 animate-in fade-in zoom-in-95 duration-200">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-semibold">Request Custom Visit</p>
+                        {timeSlots.length > 0 && (
+                          <button onClick={() => setIsCustomRequest(false)} className="text-[10px] text-emerald-600 font-medium hover:underline">
+                            Back to slots
+                          </button>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <div>
+                          <label className="text-[10px] font-medium text-muted-foreground uppercase">Preferred Date</label>
+                          <input 
+                            type="date" 
+                            min={new Date().toISOString().split("T")[0]}
+                            value={requestedDate}
+                            onChange={(e) => setRequestedDate(e.target.value)}
+                            className="w-full text-xs h-9 px-3 rounded-lg border border-border bg-background focus:ring-1 focus:ring-emerald-500 outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-medium text-muted-foreground uppercase">Preferred Time</label>
+                          <input 
+                            type="time" 
+                            value={requestedTime}
+                            onChange={(e) => setRequestedTime(e.target.value)}
+                            className="w-full text-xs h-9 px-3 rounded-lg border border-border bg-background focus:ring-1 focus:ring-emerald-500 outline-none"
+                          />
+                        </div>
+                      </div>
                     </div>
                   ) : (
                     <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
@@ -838,11 +885,10 @@ export default function PropertyDetailsView({
                                 onClick={() =>
                                   setSelectedSlot(selectedSlot === slot.id ? null : slot.id)
                                 }
-                                className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border transition-all ${
-                                  selectedSlot === slot.id
+                                className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border transition-all ${selectedSlot === slot.id
                                     ? "bg-emerald-500 text-white border-emerald-500 shadow-sm"
                                     : "border-border bg-muted/30 hover:bg-emerald-500/10 text-foreground"
-                                }`}
+                                  }`}
                               >
                                 {slot.startTime} – {slot.endTime}
                               </button>
@@ -850,6 +896,19 @@ export default function PropertyDetailsView({
                           </div>
                         </div>
                       ))}
+                      
+                      <div className="pt-2 border-t mt-2">
+                        <Button 
+                          onClick={() => {
+                            setIsCustomRequest(true);
+                            setSelectedSlot(null);
+                          }}
+                          variant="ghost" 
+                          className="w-full h-8 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
+                        >
+                          None of these work? Request custom time
+                        </Button>
+                      </div>
                     </div>
                   )}
 
@@ -866,12 +925,12 @@ export default function PropertyDetailsView({
               <div className="p-4 pt-0">
                 <Button
                   onClick={handleBookVisit}
-                  disabled={!selectedSlot || booking || bookingSuccess}
+                  disabled={(isCustomRequest ? (!requestedDate || !requestedTime) : !selectedSlot) || booking || bookingSuccess}
                   size="sm"
                   className="w-full rounded-xl h-10 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-xs font-semibold shadow-sm"
                 >
                   {booking && <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />}
-                  {selectedSlot ? "Confirm Visit Booking" : "Select Slot Above"}
+                  {isCustomRequest ? "Send Request" : selectedSlot ? "Confirm Visit Booking" : "Select Slot Above"}
                 </Button>
               </div>
             </Card>

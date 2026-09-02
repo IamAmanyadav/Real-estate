@@ -12,6 +12,7 @@ from sqlalchemy.orm import selectinload
 from app.models.property import Property, PropertyImage, PropertyFeature
 from app.models.property_document import PropertyDocument
 from app.models.inquiry import Inquiry
+from app.models.appointment import Appointment
 
 
 def _property_query():
@@ -173,6 +174,16 @@ async def get_seller_stats(
         .where(Property.seller_id == seller_id)
     )).scalar_one()
 
+    # Appointments received on seller's properties
+    appointment_stats = await db.execute(
+        select(Appointment.status, func.count())
+        .where(Appointment.seller_id == seller_id)
+        .group_by(Appointment.status)
+    )
+    appt_counts = {row[0]: row[1] for row in appointment_stats.all()}
+    total_appts = sum(appt_counts.values())
+    pending_appts = appt_counts.get("pending", 0)
+
     total = sum(status_counts.values())
 
     return {
@@ -184,6 +195,8 @@ async def get_seller_stats(
         "archived": status_counts.get("archived", 0),
         "rejected": status_counts.get("rejected", 0),
         "inquiries": inquiry_count,
+        "total_appointments": total_appts,
+        "pending_appointments": pending_appts,
     }
 
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { m as motion } from "framer-motion";
 import {
   CalendarCheck,
   Clock,
@@ -128,10 +128,10 @@ export default function BuyerAppointmentsPage() {
                       {/* Date badge */}
                       <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 flex flex-col items-center justify-center shrink-0">
                         <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                          {new Date(appt.slotDate + "T00:00:00").toLocaleDateString("en", { month: "short" })}
+                          {new Date((appt.slotDate || appt.requestedDate) + "T00:00:00").toLocaleDateString("en", { month: "short" })}
                         </span>
                         <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                          {new Date(appt.slotDate + "T00:00:00").getDate()}
+                          {new Date((appt.slotDate || appt.requestedDate) + "T00:00:00").getDate()}
                         </span>
                       </div>
 
@@ -155,7 +155,7 @@ export default function BuyerAppointmentsPage() {
                         <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1.5">
                             <Clock className="w-3.5 h-3.5 text-emerald-500" />
-                            {appt.startTime} – {appt.endTime}
+                            {appt.startTime || appt.requestedTime} {appt.endTime ? `– ${appt.endTime}` : ""}
                           </span>
                           <span>
                             Seller: <span className="text-foreground font-medium">{appt.sellerName}</span>
@@ -171,6 +171,14 @@ export default function BuyerAppointmentsPage() {
                           <div className="mt-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
                             <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400 mb-1">Admin Note</p>
                             <p className="text-sm">{appt.adminNotes}</p>
+                          </div>
+                        )}
+
+                        {/* Seller notes */}
+                        {appt.sellerNotes && (
+                          <div className="mt-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/20">
+                            <p className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">Message from Seller</p>
+                            <p className="text-sm">{appt.sellerNotes}</p>
                           </div>
                         )}
 
