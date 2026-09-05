@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import HeroSection from "@/components/home/HeroSection";
 import dynamic from 'next/dynamic';
+import FeaturedProperties from "@/components/home/FeaturedProperties";
 
 const WhyChooseUs = dynamic(() => import("@/components/home/WhyChooseUs"), { ssr: true });
 const StatsSection = dynamic(() => import("@/components/home/StatsSection"), { ssr: true });

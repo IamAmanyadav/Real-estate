@@ -30,45 +30,42 @@ export default function HeroAuthPrompt() {
           <SearchBar variant="hero" />
         </div>
       ) : (
-        <div className="bg-transparent text-white max-w-xl mx-auto py-2">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/25 shadow-sm">
-              <Lock className="w-4 h-4 text-emerald-400" />
-            </div>
-          </div>
-          <h3 className="text-lg sm:text-xl font-medium tracking-wide text-white mb-1.5 drop-shadow-md">
-            Sign in to explore properties
+        <div className="flex flex-col items-center justify-center mt-4">
+          <h3 className="text-sm sm:text-base font-medium tracking-widest text-white/80 mb-6 drop-shadow-md uppercase">
+            Click to unlock the full portfolio
           </h3>
-          <p className="text-xs sm:text-sm text-white/80 max-w-md mx-auto mb-6 leading-relaxed font-light drop-shadow">
-            Create a free account or log in to search listings, schedule visits, and connect with sellers.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button
-              size="lg"
-              className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-white shadow-xl shadow-emerald-950/60 rounded-full px-8 h-11 text-xs font-semibold uppercase tracking-wider transition-all duration-200"
-              asChild
-            >
-              <Link href="/login">
-                <LogIn className="w-3.5 h-3.5 mr-2" />
-                Sign In
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="w-full sm:w-auto rounded-full px-8 h-11 text-xs font-semibold uppercase tracking-wider border-white/40 hover:border-white bg-white/10 hover:bg-white/20 text-white backdrop-blur-md transition-all duration-200 shadow-lg"
-              asChild
-            >
-              <Link href="/register">
-                <UserPlus className="w-3.5 h-3.5 mr-2" />
-                Create Account
-              </Link>
-            </Button>
-          </div>
-          <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-white/70 drop-shadow">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            Free to join · No credit card required
-          </div>
+          
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            whileHover={{ y: -8, scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 100, damping: 15 }}
+            className="group relative cursor-pointer rounded-3xl overflow-hidden aspect-[16/9] w-full max-w-lg shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:shadow-[0_20px_50px_rgba(16,185,129,0.3)] border border-white/20 transition-all duration-500"
+            onClick={() => window.location.href = "/login"}
+          >
+            {/* Background Image */}
+            <img
+              src="https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1200&auto=format&fit=crop&q=80"
+              alt="Premium Real Estate"
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+            />
+            
+            {/* Elegant Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300" />
+            
+            {/* Content Overlay */}
+            <div className="absolute inset-0 p-6 flex flex-col justify-end items-center text-center">
+              <div className="w-12 h-12 rounded-full bg-emerald-500/90 backdrop-blur-md flex items-center justify-center border border-emerald-400/50 shadow-lg mb-4 group-hover:scale-110 group-hover:bg-emerald-500 transition-all duration-300">
+                <Lock className="w-5 h-5 text-white" />
+              </div>
+              <h4 className="text-xl sm:text-2xl font-bold text-white mb-2 drop-shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                Explore Exclusive Properties
+              </h4>
+              <p className="text-emerald-400 text-xs sm:text-sm font-semibold tracking-wider uppercase opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-75">
+                Login to continue <span className="ml-1">→</span>
+              </p>
+            </div>
+          </motion.div>
         </div>
       )}
     </motion.div>
