@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react";
 import Image from "next/image";
-import HeroAuthPrompt from "./HeroAuthPrompt";
+import FeaturedProperties from "./FeaturedProperties";
 
 const PRESS_LOGOS = [
   { name: "Architectural Digest", label: "ARCHITECTURAL DIGEST" },
@@ -58,13 +58,10 @@ export default function HeroSection() {
             </span>
           </h1>
 
-          {/* Subtitle description */}
-          <p className="text-base sm:text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed font-light drop-shadow animate-fade-in-up [animation-delay:300ms] [animation-fill-mode:backwards]">
-            Explore thousands of premium properties curated just for you. From luxury villas to modern apartments, your perfect home awaits.
-          </p>
-
-          {/* Extracted Interactive Auth/Search Prompt */}
-          <HeroAuthPrompt />
+          {/* Picture Cards Grid in Hero */}
+          <div className="w-full mt-4 animate-fade-in-up [animation-delay:300ms] [animation-fill-mode:backwards]">
+            <FeaturedProperties />
+          </div>
         </div>
 
         {/* Stats Row Overlay at bottom */}

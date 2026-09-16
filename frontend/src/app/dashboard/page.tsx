@@ -64,79 +64,79 @@ export default function UserDashboard() {
 
   const stats = isSeller
     ? [
-        {
-          title: "My Listings",
-          value: sellerStats ? sellerStats.totalListings.toString() : "—",
-          icon: Building2,
-          color: "from-emerald-500 to-teal-500",
-          change: sellerStats ? `${sellerStats.pendingListings} pending` : "",
-        },
-        {
-          title: "Approved & Published",
-          value: sellerStats ? (sellerStats.approvedListings + sellerStats.publishedListings).toString() : "—",
-          icon: CheckCircle2,
-          color: "from-blue-500 to-indigo-500",
-          change: "Live on the platform",
-        },
-        {
-          title: "Inquiries Received",
-          value: sellerStats ? sellerStats.totalInquiriesReceived.toString() : "—",
-          icon: MessageSquare,
-          color: "from-amber-500 to-orange-500",
-          change: "From interested buyers",
-        },
-        {
-          title: "Rejected",
-          value: sellerStats ? sellerStats.rejectedListings.toString() : "—",
-          icon: XCircle,
-          color: "from-red-500 to-rose-500",
-          change: "Needs revision",
-        },
-        {
-          title: "Visit Requests",
-          value: sellerStats?.totalAppointments !== undefined ? sellerStats.totalAppointments.toString() : "—",
-          icon: CalendarDays,
-          color: "from-teal-500 to-emerald-500",
-          change: sellerStats?.pendingAppointments ? `${sellerStats.pendingAppointments} pending` : "All requests",
-        },
-      ]
+      {
+        title: "My Listings",
+        value: sellerStats ? sellerStats.totalListings.toString() : "—",
+        icon: Building2,
+        color: "from-emerald-500 to-teal-500",
+        change: sellerStats ? `${sellerStats.pendingListings} pending` : "",
+      },
+      {
+        title: "Approved & Published",
+        value: sellerStats ? (sellerStats.approvedListings + sellerStats.publishedListings).toString() : "—",
+        icon: CheckCircle2,
+        color: "from-blue-500 to-indigo-500",
+        change: "Live on the platform",
+      },
+      {
+        title: "Inquiries Received",
+        value: sellerStats ? sellerStats.totalInquiriesReceived.toString() : "—",
+        icon: MessageSquare,
+        color: "from-amber-500 to-orange-500",
+        change: "From interested buyers",
+      },
+      {
+        title: "Rejected",
+        value: sellerStats ? sellerStats.rejectedListings.toString() : "—",
+        icon: XCircle,
+        color: "from-red-500 to-rose-500",
+        change: "Needs revision",
+      },
+      {
+        title: "Visit Requests",
+        value: sellerStats?.totalAppointments !== undefined ? sellerStats.totalAppointments.toString() : "—",
+        icon: CalendarDays,
+        color: "from-teal-500 to-emerald-500",
+        change: sellerStats?.pendingAppointments ? `${sellerStats.pendingAppointments} pending` : "All requests",
+      },
+    ]
     : [
-        {
-          title: "Total Inquiries",
-          value: buyerStats ? buyerStats.totalInquiries.toString() : "—",
-          icon: MessageSquare,
-          color: "from-blue-500 to-indigo-500",
-          change: "All inquiries sent",
-        },
-        {
-          title: "Purchase Requests",
-          value: buyerStats ? buyerStats.purchaseRequests.toString() : "—",
-          icon: ShoppingCart,
-          color: "from-purple-500 to-pink-500",
-          change: "Serious offers",
-        },
-        {
-          title: "Pending Responses",
-          value: buyerStats ? buyerStats.pendingResponses.toString() : "—",
-          icon: Clock,
-          color: "from-amber-500 to-orange-500",
-          change: "Awaiting admin review",
-        },
-        {
-          title: "Responded",
-          value: buyerStats ? buyerStats.respondedInquiries.toString() : "—",
-          icon: CheckCircle2,
-          color: "from-emerald-500 to-teal-500",
-          change: "Received responses",
-        },
-        {
-          title: "Scheduled Visits",
-          value: buyerStats?.totalAppointments !== undefined ? buyerStats.totalAppointments.toString() : "—",
-          icon: CalendarDays,
-          color: "from-teal-500 to-emerald-500",
-          change: buyerStats?.pendingAppointments ? `${buyerStats.pendingAppointments} pending` : "All requests",
-        },
-      ];
+      {
+        title: "Total Inquiries",
+        value: buyerStats ? buyerStats.totalInquiries.toString() : "—",
+        icon: MessageSquare,
+        color: "from-blue-500 to-indigo-500",
+        change: "All inquiries sent",
+      },
+      {
+        title: "Purchase Requests",
+        value: buyerStats ? buyerStats.purchaseRequests.toString() : "—",
+        icon: ShoppingCart,
+        color: "from-purple-500 to-pink-500",
+        change: "Serious offers",
+      },
+      {
+        title: "Pending Responses",
+        value: buyerStats ? buyerStats.pendingResponses.toString() : "—",
+        icon: Clock,
+        color: "from-amber-500 to-orange-500",
+        change: "Awaiting admin review",
+      },
+      {
+        title: "Responded",
+        value: buyerStats ? buyerStats.respondedInquiries.toString() : "—",
+        icon: CheckCircle2,
+        color: "from-emerald-500 to-teal-500",
+        change: "Received responses",
+      },
+      {
+        title: "Scheduled Visits",
+        value: buyerStats?.totalAppointments !== undefined ? buyerStats.totalAppointments.toString() : "—",
+        icon: CalendarDays,
+        color: "from-teal-500 to-emerald-500",
+        change: buyerStats?.pendingAppointments ? `${buyerStats.pendingAppointments} pending` : "All requests",
+      },
+    ];
 
   return (
     <div className="space-y-6">
@@ -318,15 +318,15 @@ export default function UserDashboard() {
             <CardContent className="space-y-3">
               {(isSeller
                 ? [
-                    { icon: Building2, title: "Add detailed descriptions", desc: "Properties with complete details get approved faster" },
-                    { icon: Eye, title: "Upload quality images", desc: "Listings with 5+ images get 3x more inquiries" },
-                    { icon: Star, title: "Include all documents", desc: "Upload ownership docs to speed up verification" },
-                  ]
+                  { icon: Building2, title: "Add detailed descriptions", desc: "Properties with complete details get approved faster" },
+                  { icon: Eye, title: "Upload quality images", desc: "Listings with 5+ images get 3x more inquiries" },
+                  { icon: Star, title: "Include all documents", desc: "Upload ownership docs to speed up verification" },
+                ]
                 : [
-                    { icon: Building2, title: "Browse approved listings", desc: "All listed properties are admin-verified" },
-                    { icon: MessageSquare, title: "Submit inquiries", desc: "Ask questions or make purchase requests" },
-                    { icon: Clock, title: "Track your requests", desc: "Monitor the status of all your inquiries" },
-                  ]
+                  { icon: Building2, title: "Browse approved listings", desc: "All listed properties are admin-verified" },
+                  { icon: MessageSquare, title: "Submit inquiries", desc: "Ask questions or make purchase requests" },
+                  { icon: Clock, title: "Track your requests", desc: "Monitor the status of all your inquiries" },
+                ]
               ).map((tip, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-muted/50">
                   <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
