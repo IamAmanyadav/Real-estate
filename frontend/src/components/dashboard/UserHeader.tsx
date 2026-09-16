@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { Sun, Moon, LogOut, Bell, MessageSquare } from "lucide-react";
+import { Sun, Moon, LogOut, Bell, MessageSquare, Building2, Home, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,6 +16,8 @@ import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { useQuery } from "@tanstack/react-query";
 import { getProfile } from "@/lib/buyer-api";
 import { getImageUrl } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface UserHeaderProps {
   user: { id: string; full_name: string; email: string; role: string; avatar: string | null } | null;
@@ -23,6 +25,7 @@ interface UserHeaderProps {
 }
 
 export default function UserHeader({ user, onLogout }: UserHeaderProps) {
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const { data: unreadCount = 0 } = useUnreadMessages();
@@ -38,19 +41,30 @@ export default function UserHeader({ user, onLogout }: UserHeaderProps) {
   }, []);
 
   const displayAvatar = profile?.avatar || user?.avatar;
-
-  const roleLabel = user?.role === "seller" ? "Seller" : "Buyer";
+  const isSeller = user?.role === "seller";
+  const roleLabel = isSeller ? "Seller" : "Buyer";
 
   return (
-    <header className="h-16 border-b border-border bg-card/60 backdrop-blur-xl flex items-center justify-between px-6 sticky top-0 z-30">
-      <div>
-        <h2 className="text-sm font-semibold text-foreground">
-          Welcome back, {user?.full_name?.split(" ")[0] || "User"}!
-        </h2>
-        <p className="text-xs text-muted-foreground">{roleLabel} Dashboard</p>
+    <header className="h-16 border-b border-border bg-card/60 backdrop-blur-xl flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30">
+      <div className="flex items-center gap-3">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground leading-tight">
+            Welcome back, {user?.full_name?.split(" ")[0] || "User"}!
+          </h2>
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+              isSeller 
+                ? "bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20" 
+                : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+            }`}>
+              {isSeller ? <Building2 className="w-3 h-3" /> : <Home className="w-3 h-3" />}
+              {roleLabel} Mode
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -69,7 +83,7 @@ export default function UserHeader({ user, onLogout }: UserHeaderProps) {
             <div className="px-3 py-2 text-sm font-semibold text-foreground">Notifications</div>
             <DropdownMenuSeparator />
             {unreadCount > 0 ? (
-              <DropdownMenuItem onClick={() => window.location.href = '/dashboard/messages'} className="cursor-pointer gap-3 p-3">
+              <DropdownMenuItem onClick={() => router.push('/dashboard/messages')} className="cursor-pointer gap-3 p-3">
                 <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
                   <MessageSquare className="w-4 h-4 text-emerald-600" />
                 </div>
@@ -84,7 +98,7 @@ export default function UserHeader({ user, onLogout }: UserHeaderProps) {
               </div>
             )}
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => window.location.href = '/dashboard/messages'} className="cursor-pointer justify-center text-emerald-600 font-medium">
+            <DropdownMenuItem onClick={() => router.push('/dashboard/messages')} className="cursor-pointer justify-center text-emerald-600 font-medium">
               View all messages
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -103,26 +117,52 @@ export default function UserHeader({ user, onLogout }: UserHeaderProps) {
           </Button>
         )}
 
-        {/* User Info */}
+        {/* User Info & Dropdown */}
         {user && (
-          <div className="flex items-center gap-3 pl-3 border-l border-border">
-            {displayAvatar ? (
-              <img src={getImageUrl(displayAvatar) || ""} alt={user.full_name} className="w-8 h-8 rounded-full object-cover shadow-sm" />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold">
-                {user.full_name?.charAt(0) || "U"}
-              </div>
-            )}
-            <div className="hidden sm:block">
-              <p className="text-sm font-medium text-foreground leading-tight">{user.full_name}</p>
-              <p className="text-xs text-muted-foreground">{user.email}</p>
-            </div>
-            <Button variant="ghost" size="icon" onClick={onLogout} className="rounded-full text-muted-foreground hover:text-destructive">
-              <LogOut className="w-4 h-4" />
-            </Button>
+          <div className="flex items-center gap-2 pl-2 sm:pl-3 border-l border-border">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <button className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-accent/60 transition-colors text-left cursor-pointer outline-none">
+                    {displayAvatar ? (
+                      <img src={getImageUrl(displayAvatar) || ""} alt={user.full_name} className="w-8 h-8 rounded-full object-cover shadow-sm ring-1 ring-border" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                        {user.full_name?.charAt(0) || "U"}
+                      </div>
+                    )}
+                    <div className="hidden md:block">
+                      <p className="text-sm font-medium text-foreground leading-tight">{user.full_name}</p>
+                      <p className="text-[11px] text-muted-foreground">{user.email}</p>
+                    </div>
+                  </button>
+                }
+              />
+              <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-xl">
+                <div className="px-3 py-2">
+                  <p className="text-sm font-bold text-foreground">{user.full_name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push("/select-role")} className="cursor-pointer gap-2.5 rounded-xl py-2.5 text-xs font-medium focus:bg-teal-500/10 focus:text-teal-600">
+                  <Building2 className="w-4 h-4 text-teal-500" />
+                  <span>Switch Account / Role</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/dashboard/profile")} className="cursor-pointer gap-2.5 rounded-xl py-2.5 text-xs font-medium">
+                  <UserIcon className="w-4 h-4 text-muted-foreground" />
+                  <span>My Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onLogout} className="cursor-pointer gap-2.5 rounded-xl py-2.5 text-xs font-medium text-destructive focus:text-destructive">
+                  <LogOut className="w-4 h-4" />
+                  <span>Log Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
       </div>
     </header>
   );
 }
+

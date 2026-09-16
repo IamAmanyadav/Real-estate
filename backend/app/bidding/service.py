@@ -113,9 +113,15 @@ class BiddingService:
             min_next_bid = reserve
             min_increment = 1.0
 
-        is_seller = bool(current_user and prop.seller_id == current_user.id)
+        is_seller = False
+        if current_user:
+            if prop.seller_id and (prop.seller_id == current_user.id or str(prop.seller_id) == str(current_user.id)):
+                is_seller = True
+            elif prop.agent and prop.agent.email and current_user.email and prop.agent.email.lower() == current_user.email.lower():
+                is_seller = True
+
         is_highest_bidder = bool(
-            current_user and prop.highest_bidder_id == current_user.id
+            current_user and prop.highest_bidder_id and (prop.highest_bidder_id == current_user.id or str(prop.highest_bidder_id) == str(current_user.id))
         )
 
         computed_status = "waiting_for_bids" if is_first_bid_pending else (prop.auction_status or ("active" if time_remaining_seconds > 0 else "ended"))
@@ -211,11 +217,17 @@ class BiddingService:
                 detail="Bidding is not enabled for this property.",
             )
 
-        # Seller cannot bid on own property
-        if prop.seller_id and prop.seller_id == bidder.id:
+        # Seller/owner cannot bid on own property (Anti-fraud / Anti-shill bidding protection)
+        is_owner = False
+        if prop.seller_id and (prop.seller_id == bidder.id or str(prop.seller_id) == str(bidder.id)):
+            is_owner = True
+        elif prop.agent and prop.agent.email and bidder.email and prop.agent.email.lower() == bidder.email.lower():
+            is_owner = True
+
+        if is_owner:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Sellers cannot place bids on their own properties.",
+                detail="Anti-fraud policy: You cannot place bids on your own listed property.",
             )
 
         now = datetime.now(timezone.utc)

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { m as motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
+import { useUser } from "@clerk/nextjs";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,17 +11,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Phone, Shield, Calendar, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { User, Mail, Phone, Shield, Calendar, CheckCircle2, AlertCircle, Loader2, KeyRound, ShieldCheck, Lock } from "lucide-react";
 import { getProfile, updateProfile } from "@/lib/buyer-api";
 import type { UserProfile } from "@/lib/buyer-api";
 import ProfileAvatarUpload from "@/components/dashboard/ProfileAvatarUpload";
+import { SetPasswordModal } from "@/components/auth/SetPasswordModal";
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const { user: clerkUser } = useUser();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [showSetPasswordModal, setShowSetPasswordModal] = useState(false);
 
   // Editable fields
   const [fullName, setFullName] = useState("");
@@ -270,30 +274,70 @@ export default function ProfilePage() {
         </Card>
       </motion.div>
 
-      {/* Security */}
+      {/* Security & Authentication */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Security</CardTitle>
+        <Card className="border border-border/80 shadow-sm rounded-2xl overflow-hidden">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Shield className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <span>Login & Security</span>
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                  <AlertCircle className="w-4 h-4 text-amber-600" />
+          <CardContent className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl bg-muted/40 border border-border/60 gap-4">
+              <div className="flex items-start sm:items-center gap-3.5">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                  clerkUser?.passwordEnabled 
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" 
+                    : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                }`}>
+                  {clerkUser?.passwordEnabled ? <ShieldCheck className="w-5 h-5" /> : <KeyRound className="w-5 h-5" />}
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Password</p>
-                  <p className="text-xs text-muted-foreground">Contact admin to reset your password</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold text-foreground">
+                      {clerkUser?.passwordEnabled ? "Account Password" : "Password Not Set"}
+                    </p>
+                    <Badge variant="outline" className={`text-[10px] py-0 px-2 font-medium ${
+                      clerkUser?.passwordEnabled
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                        : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                    }`}>
+                      {clerkUser?.passwordEnabled ? "Active" : "Google SSO Only"}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5 max-w-lg leading-relaxed">
+                    {clerkUser?.passwordEnabled
+                      ? "Your account has a password enabled. You can log in using either Google or your email and password on any device."
+                      : "You signed in with Google. Set a password so you can also log in from other devices using your email and password."}
+                  </p>
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="rounded-full" disabled>
-                Change Password
+
+              <Button
+                variant={clerkUser?.passwordEnabled ? "outline" : "default"}
+                size="sm"
+                onClick={() => setShowSetPasswordModal(true)}
+                className={`rounded-xl shrink-0 font-semibold text-xs px-4 py-2 cursor-pointer shadow-sm ${
+                  !clerkUser?.passwordEnabled 
+                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white" 
+                    : "hover:bg-accent"
+                }`}
+              >
+                <KeyRound className="w-3.5 h-3.5 mr-1.5" />
+                <span>{clerkUser?.passwordEnabled ? "Change Password" : "Set Password"}</span>
               </Button>
             </div>
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* Set Password Modal */}
+      <SetPasswordModal
+        open={showSetPasswordModal}
+        onOpenChange={setShowSetPasswordModal}
+        canSkip={false}
+      />
     </div>
   );
 }

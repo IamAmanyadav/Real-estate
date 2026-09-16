@@ -12,6 +12,7 @@ import {
   Lock,
   ArrowUpRight,
   ShieldCheck,
+  ShieldAlert,
   Zap,
   Info,
   Layers,
@@ -27,18 +28,24 @@ import {
 } from "@/lib/bidding-api";
 import { formatPrice } from "@/lib/utils";
 import { useAuctionWebSocket } from "@/hooks/useAuctionWebSocket";
+import { useAuth } from "@/hooks/useAuth";
 import type { AuctionState, BidItem } from "@/types";
 import Link from "next/link";
 
 interface LiveBiddingWidgetProps {
   propertyId: string;
   initialPrice: number;
+  propertySellerId?: string | null;
+  propertyAgentEmail?: string | null;
 }
 
 export function LiveBiddingWidget({
   propertyId,
   initialPrice,
+  propertySellerId,
+  propertyAgentEmail,
 }: LiveBiddingWidgetProps) {
+  const { user } = useAuth();
   const [auctionState, setAuctionState] = useState<AuctionState | null>(null);
   const [bids, setBids] = useState<BidItem[]>([]);
   const [customBid, setCustomBid] = useState<string>("");
@@ -132,6 +139,14 @@ export function LiveBiddingWidget({
     const seconds = Math.floor(timeRemaining % 60);
     return { days, hours, minutes, seconds };
   }, [timeRemaining]);
+
+  // Check if current user is owner
+  const isOwner = useMemo(() => {
+    if (auctionState?.isSeller) return true;
+    if (user?.id && propertySellerId && String(user.id) === String(propertySellerId)) return true;
+    if (user?.email && propertyAgentEmail && user.email.toLowerCase() === propertyAgentEmail.toLowerCase()) return true;
+    return false;
+  }, [auctionState?.isSeller, user?.id, user?.email, propertySellerId, propertyAgentEmail]);
 
   const isWaitingForFirstBid =
     auctionState?.auctionStatus === "waiting_for_bids" ||
@@ -392,7 +407,7 @@ export function LiveBiddingWidget({
         )}
 
         {/* Active Bidding Action Panel */}
-        {!isAuctionEnded && !auctionState?.isSeller && (
+        {!isAuctionEnded && !isOwner && (
           <div className="space-y-3 pt-2">
             {/* Custom Bid Input & Always Clickable Button */}
             <div className="space-y-2">
@@ -463,15 +478,19 @@ export function LiveBiddingWidget({
           </div>
         )}
 
-        {/* Seller Info Note (if viewing own property) */}
-        {auctionState?.isSeller && (
-          <div className="p-3.5 rounded-xl bg-slate-800/70 border border-slate-700 text-xs text-slate-300 space-y-1">
-            <div className="font-semibold text-amber-400 flex items-center gap-1">
-              <Info className="w-3.5 h-3.5" /> Seller Auction Monitor
+        {/* Owner / Seller Anti-Fraud Protection Notice */}
+        {isOwner && (
+          <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200/90 space-y-2">
+            <div className="font-semibold text-amber-400 flex items-center gap-1.5">
+              <ShieldAlert className="w-4 h-4 text-amber-400" />
+              <span>Anti-Fraud Protection: Self-Bidding Disabled</span>
             </div>
-            <p className="text-[11px] text-slate-400">
-              You are the seller of this listing. Bidders are anonymized for privacy. You will receive final winning bid details for offline agreement and handover.
+            <p className="text-[11px] leading-relaxed text-slate-300">
+              You are the registered owner/seller of this property. To uphold fair bidding regulations and marketplace integrity, owners cannot place bids on their own listings.
             </p>
+            <div className="pt-1 text-[10px] text-amber-400/80 flex items-center gap-1 font-medium">
+              <Info className="w-3 h-3" /> Live bids from verified buyers are streamed in real time below.
+            </div>
           </div>
         )}
 

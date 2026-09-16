@@ -7,13 +7,15 @@ import Footer from "@/components/layout/Footer";
 export default function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Hide Navbar/Footer for admin, login, and dashboard routes
+  // Hide Navbar/Footer for admin, login, register, role-selection, and dashboard routes
   const hideChrome =
     pathname.startsWith("/admin") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/sign-up") ||
     pathname.startsWith("/forgot-password") ||
+    pathname.startsWith("/select-role") ||
+    pathname.startsWith("/sso-callback") ||
     pathname.startsWith("/dashboard");
 
   if (hideChrome) {

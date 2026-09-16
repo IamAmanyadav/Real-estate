@@ -117,6 +117,7 @@ class PropertyResponse(BaseModel):
     images: list[str]
     features: list[str]
     agent: AgentResponse
+    sellerId: str | None = None
     isAuction: bool = False
     reservePrice: float | None = None
     currentHighestBid: float | None = None
