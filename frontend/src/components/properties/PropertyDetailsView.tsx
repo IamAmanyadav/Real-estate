@@ -27,6 +27,8 @@ import {
   MessageSquare,
   UserCheck,
   Gavel,
+  ShieldAlert,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -42,6 +44,7 @@ import { getPropertyAvailability, createAppointment } from "@/lib/appointment-ap
 import { formatPrice } from "@/lib/utils";
 import { API_BASE_URL } from "@/lib/constants";
 import { useSavedProperties } from "@/hooks/useSavedProperties";
+import { useAuth } from "@/hooks/useAuth";
 import type { Property, TimeSlot } from "@/types";
 
 const BACKEND_BASE = API_BASE_URL.replace("/api/v1", "").replace(/\/$/, "");
@@ -94,7 +97,15 @@ export default function PropertyDetailsView({
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
   const { isSaved, toggleSave } = useSavedProperties();
+  const { user } = useAuth();
   const isFavorite = property ? isSaved(property.id) : false;
+
+  const isOwner = Boolean(
+    user && property && (
+      (property.sellerId && user.id === property.sellerId) ||
+      (property.agent?.email && user.email?.toLowerCase() === property.agent.email?.toLowerCase())
+    )
+  );
 
   // Schedule visit state
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
@@ -554,6 +565,12 @@ export default function PropertyDetailsView({
                     LIVE AUCTION
                   </Badge>
                 )}
+                {isOwner && (
+                  <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 rounded-full font-semibold flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3" />
+                    Your Listed Property
+                  </Badge>
+                )}
                 <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border-0 rounded-full font-semibold">
                   {statusLabels[property.status]}
                 </Badge>
@@ -615,15 +632,28 @@ export default function PropertyDetailsView({
               {/* Action Buttons & Timer */}
               <div className="flex items-center gap-3">
                 {property.isAuction && (
-                  <div className="flex flex-col items-center gap-1.5">
+                  <div className="flex flex-col items-center gap-1">
                     <AuctionTimerBadge propertyId={property.id} />
-                    <Button
-                      onClick={() => setIsBiddingModalOpen(true)}
-                      className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-extrabold rounded-xl h-11 px-6 shadow-md shadow-amber-500/15 flex items-center gap-2 cursor-pointer transition-transform active:scale-95"
-                    >
-                      <Gavel className="w-4 h-4" />
-                      Place Bid
-                    </Button>
+                    {isOwner ? (
+                      <div className="flex flex-col items-center gap-0.5">
+                        <Button
+                          onClick={() => setIsBiddingModalOpen(true)}
+                          className="bg-slate-900 border border-amber-500/40 text-amber-400 hover:bg-slate-800 font-bold rounded-xl h-11 px-5 shadow-sm flex items-center gap-2 cursor-pointer transition-transform active:scale-95"
+                        >
+                          <Gavel className="w-4 h-4" />
+                          Auction Monitor
+                        </Button>
+                        <span className="text-[10px] text-amber-500 font-semibold">Owner View (Self-bid disabled)</span>
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={() => setIsBiddingModalOpen(true)}
+                        className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-slate-950 font-extrabold rounded-xl h-11 px-6 shadow-md shadow-amber-500/15 flex items-center gap-2 cursor-pointer transition-transform active:scale-95"
+                      >
+                        <Gavel className="w-4 h-4" />
+                        Place Bid
+                      </Button>
+                    )}
                   </div>
                 )}
 
@@ -965,6 +995,8 @@ export default function PropertyDetailsView({
           propertyId={property.id}
           propertyTitle={property.title}
           propertyCode={property.propertyCode}
+          propertySellerId={property.sellerId}
+          propertyAgentEmail={property.agent?.email}
           initialPrice={property.reservePrice || property.price}
           onBidPlaced={(newAmount) => setLiveHighestBid(newAmount)}
         />

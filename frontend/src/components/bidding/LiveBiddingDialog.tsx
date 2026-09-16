@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Lock,
   ShieldCheck,
+  ShieldAlert,
   Zap,
   Info,
   ChevronDown,
@@ -32,6 +33,7 @@ import {
 } from "@/lib/bidding-api";
 import { formatPrice } from "@/lib/utils";
 import { useAuctionWebSocket } from "@/hooks/useAuctionWebSocket";
+import { useAuth } from "@/hooks/useAuth";
 import type { AuctionState, BidItem } from "@/types";
 
 interface LiveBiddingDialogProps {
@@ -40,6 +42,8 @@ interface LiveBiddingDialogProps {
   propertyId: string;
   propertyTitle?: string;
   propertyCode?: string | null;
+  propertySellerId?: string | null;
+  propertyAgentEmail?: string | null;
   initialPrice: number;
   onBidPlaced?: (newAmount: number) => void;
 }
@@ -50,9 +54,12 @@ export function LiveBiddingDialog({
   propertyId,
   propertyTitle,
   propertyCode,
+  propertySellerId,
+  propertyAgentEmail,
   initialPrice,
   onBidPlaced,
 }: LiveBiddingDialogProps) {
+  const { user } = useAuth();
   const [auctionState, setAuctionState] = useState<AuctionState | null>(null);
   const [bids, setBids] = useState<BidItem[]>([]);
   const [customBid, setCustomBid] = useState<string>("");
@@ -147,6 +154,14 @@ export function LiveBiddingDialog({
     const seconds = Math.floor(timeRemaining % 60);
     return { days, hours, minutes, seconds };
   }, [timeRemaining]);
+
+  // Check if current user is the owner/seller of this property
+  const isOwner = useMemo(() => {
+    if (auctionState?.isSeller) return true;
+    if (user?.id && propertySellerId && String(user.id) === String(propertySellerId)) return true;
+    if (user?.email && propertyAgentEmail && user.email.toLowerCase() === propertyAgentEmail.toLowerCase()) return true;
+    return false;
+  }, [auctionState?.isSeller, user?.id, user?.email, propertySellerId, propertyAgentEmail]);
 
   const isWaitingForFirstBid =
     auctionState?.auctionStatus === "waiting_for_bids" ||
@@ -319,7 +334,7 @@ export function LiveBiddingDialog({
             )}
           </AnimatePresence>
 
-          {/* Simple Clean Price Overview Card */}
+          {/* Price Overview Card */}
           <div className="p-4 rounded-xl bg-slate-900/90 border border-amber-500/25 space-y-3">
             <div className="flex items-center justify-between">
               <div>
@@ -340,17 +355,33 @@ export function LiveBiddingDialog({
               </div>
             </div>
 
-            <div className="text-[11px] text-slate-400 pt-2 border-t border-slate-800/80 flex items-center justify-between">
-              <span>You can bid any amount:</span>
+            <div className="text-[11px] text-slate-400 pt-2 border-t border-slate-800 flex items-center justify-between">
+              <span>Allowed Bid Range:</span>
               <span className="text-emerald-400 font-mono font-medium">
                 {formatPrice(minNextBid)} – {formatPrice(maxAllowedBid)}
               </span>
             </div>
+
+            {/* Countdown Display */}
+            {!isAuctionEnded && timeRemaining > 0 && (
+              <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+                <div className="flex items-center gap-1.5 text-xs text-slate-300">
+                  <Clock className="w-4 h-4 text-amber-400" />
+                  <span>Time Remaining:</span>
+                </div>
+                <div className="flex items-center gap-1 font-mono font-bold text-amber-400 text-sm">
+                  <span>{timerComponents.days}d</span>
+                  <span>{timerComponents.hours}h</span>
+                  <span>{timerComponents.minutes}m</span>
+                  <span>{timerComponents.seconds}s</span>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Highest Bidder Notice */}
+          {/* Highest Bidder Indicator */}
           {auctionState?.isHighestBidder && (
-            <div className="p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 flex items-center gap-2 text-xs text-emerald-300">
+            <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40 flex items-center gap-2 text-xs text-emerald-300">
               <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
               <span>You currently hold the highest bid on this property!</span>
             </div>
@@ -370,8 +401,8 @@ export function LiveBiddingDialog({
             </div>
           )}
 
-          {/* Action Area for Buyers */}
-          {!isAuctionEnded && !auctionState?.isSeller && (
+          {/* Active Bidding Action Panel for Non-Owners */}
+          {!isAuctionEnded && !isOwner && (
             <div className="space-y-3 pt-1">
               {/* Custom Bid Input & Always Clickable Button */}
               <div className="space-y-2">
@@ -442,15 +473,19 @@ export function LiveBiddingDialog({
             </div>
           )}
 
-          {/* Seller Notice */}
-          {auctionState?.isSeller && (
-            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-1">
-              <div className="font-semibold text-amber-400 flex items-center gap-1">
-                <Info className="w-3.5 h-3.5" /> Seller Monitor
+          {/* Owner Anti-Fraud Protection Notice */}
+          {isOwner && (
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 space-y-2">
+              <div className="flex items-center gap-2 font-bold text-amber-400 text-sm">
+                <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Anti-Fraud Policy: Self-Bidding Disabled</span>
               </div>
-              <p className="text-[11px] text-slate-400">
-                You are the listing seller. Bidders remain anonymized. You will receive the winner's details upon conclusion.
+              <p className="text-xs text-slate-300 leading-relaxed">
+                You are the registered owner of this listing. To prevent artificial price inflation and protect marketplace trust, property owners cannot place bids on their own properties.
               </p>
+              <div className="text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">
+                You can monitor live bidder activity below. Winning offer details will be shared upon auction completion.
+              </div>
             </div>
           )}
 

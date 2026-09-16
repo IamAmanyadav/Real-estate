@@ -136,12 +136,7 @@ async def get_current_seller(
 async def get_current_buyer(
     user: User = Depends(get_current_user),
 ) -> User:
-    """Ensure the current user has buyer role."""
-    if user.role != "buyer":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Buyer access required",
-        )
+    """Ensure the current user has buyer capabilities (all authenticated users have buyer access)."""
     return user
 
 

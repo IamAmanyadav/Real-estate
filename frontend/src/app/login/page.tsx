@@ -40,7 +40,7 @@ export default function LoginPage() {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        router.push("/dashboard");
+        router.push("/select-role");
       } else if (result.status === "needs_first_factor" || result.status === "needs_second_factor" || result.status === "needs_client_trust") {
         const isSecond = result.status === "needs_second_factor" || result.status === "needs_client_trust";
         setIsSecondFactor(isSecond);
@@ -99,7 +99,7 @@ export default function LoginPage() {
       await client.signIn.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
-        redirectUrlComplete: "/dashboard",
+        redirectUrlComplete: "/select-role",
       });
     } catch (err: any) {
       console.error("Google sign in error:", err);
@@ -130,7 +130,7 @@ export default function LoginPage() {
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
-        router.push("/dashboard");
+        router.push("/select-role");
       } else {
         console.log(result);
         setError(`Unexpected status after verification: ${result.status}`);

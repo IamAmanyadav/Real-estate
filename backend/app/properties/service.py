@@ -51,6 +51,7 @@ def _to_response(prop: Property) -> PropertyResponse:
             avatar=prop.agent.avatar,
             title=prop.agent.title,
         ),
+        sellerId=str(prop.seller_id) if prop.seller_id else None,
         isAuction=bool(prop.is_auction),
         reservePrice=float(prop.reserve_price) if prop.reserve_price is not None else float(prop.price),
         currentHighestBid=float(prop.current_highest_bid) if prop.current_highest_bid is not None else None,

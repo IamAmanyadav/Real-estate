@@ -24,6 +24,7 @@ export interface Property {
   images: string[];
   features: string[];
   agent: Agent;
+  sellerId?: string | null;
   isAuction?: boolean;
   reservePrice?: number | null;
   currentHighestBid?: number | null;
