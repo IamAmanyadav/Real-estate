@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 import { m as motion, AnimatePresence } from "framer-motion";
 import {
   BedDouble,
@@ -35,9 +37,16 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ContactForm from "@/components/contact/ContactForm";
-import MapboxPropertyMap from "@/components/properties/MapboxPropertyMap";
-import { LiveBiddingDialog } from "@/components/bidding/LiveBiddingDialog";
 import { AuctionTimerBadge } from "@/components/bidding/AuctionTimerBadge";
+
+const MapboxPropertyMap = dynamic(() => import("@/components/properties/MapboxPropertyMap"), {
+  ssr: false,
+  loading: () => <div className="w-full h-[350px] sm:h-[450px] rounded-2xl bg-muted animate-pulse" />
+});
+
+const LiveBiddingDialog = dynamic(() => import("@/components/bidding/LiveBiddingDialog").then(mod => mod.LiveBiddingDialog), {
+  ssr: false,
+});
 import { getAuctionState } from "@/lib/bidding-api";
 import { useAuctionWebSocket } from "@/hooks/useAuctionWebSocket";
 import { getPropertyById } from "@/lib/api";
@@ -67,6 +76,10 @@ function resolveImageUrl(url?: string | null): string {
   }
 
   if (cleaned.startsWith("http://") || cleaned.startsWith("https://")) {
+    // Cloudinary Edge Optimization: Compress and format correctly
+    if (cleaned.includes("res.cloudinary.com") && !cleaned.includes("/upload/f_auto,q_auto")) {
+      return cleaned.replace("/upload/", "/upload/f_auto,q_auto/");
+    }
     return cleaned;
   }
   if (cleaned.startsWith("/uploads")) {
@@ -332,13 +345,17 @@ export default function PropertyDetailsView({
               onClick={() => setIsLightboxOpen(true)}
               className="lg:col-span-9 relative h-[360px] sm:h-[480px] lg:h-[580px] xl:h-[640px] rounded-3xl overflow-hidden shadow-2xl group cursor-pointer border border-border/60 bg-muted"
             >
-              <img
+              <Image
                 src={resolveImageUrl(imagesList[selectedImage])}
                 alt={property.title}
+                fill
+                priority={true}
+                sizes="(max-width: 1024px) 100vw, 75vw"
                 onError={(e) => {
+                  (e.target as HTMLImageElement).srcset = "";
                   (e.target as HTMLImageElement).src = DEFAULT_FALLBACK_IMAGE;
                 }}
-                className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-700 ease-out"
+                className="object-cover group-hover:scale-103 transition-transform duration-700 ease-out"
               />
 
               {/* Ambient Overlays */}
@@ -408,13 +425,16 @@ export default function PropertyDetailsView({
                     : "border-transparent opacity-70 hover:opacity-100"
                     }`}
                 >
-                  <img
+                  <Image
                     src={resolveImageUrl(img)}
                     alt={`View ${i + 1}`}
+                    fill
+                    sizes="(max-width: 1024px) 0vw, 25vw"
                     onError={(e) => {
+                      (e.target as HTMLImageElement).srcset = "";
                       (e.target as HTMLImageElement).src = DEFAULT_FALLBACK_IMAGE;
                     }}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   {i === 3 && imagesList.length > 4 && (
                     <div className="absolute inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center text-white font-bold text-base">
@@ -438,13 +458,16 @@ export default function PropertyDetailsView({
                     : "border-transparent opacity-60 hover:opacity-100"
                     }`}
                 >
-                  <img
+                  <Image
                     src={resolveImageUrl(img)}
                     alt={`View ${i + 1}`}
+                    fill
+                    sizes="(max-width: 640px) 112px, 144px"
                     onError={(e) => {
+                      (e.target as HTMLImageElement).srcset = "";
                       (e.target as HTMLImageElement).src = DEFAULT_FALLBACK_IMAGE;
                     }}
-                    className="w-full h-full object-cover"
+                    className="object-cover"
                   />
                 </button>
               ))}
@@ -529,13 +552,16 @@ export default function PropertyDetailsView({
                       : "border-transparent opacity-40 hover:opacity-100"
                       }`}
                   >
-                    <img
+                    <Image
                       src={resolveImageUrl(img)}
                       alt=""
+                      fill
+                      sizes="(max-width: 640px) 72px, 72px"
                       onError={(e) => {
+                        (e.target as HTMLImageElement).srcset = "";
                         (e.target as HTMLImageElement).src = DEFAULT_FALLBACK_IMAGE;
                       }}
-                      className="w-full h-full object-cover"
+                      className="object-cover"
                     />
                   </button>
                 ))}
@@ -829,7 +855,7 @@ export default function PropertyDetailsView({
                   asChild
                 >
                   <a
-                    href={`mailto:${property.agent?.email || "info@luxeestates.com"
+                    href={`mailto:${property.agent?.email || "ay279754@gmail.com"
                       }?subject=Inquiry: ${encodeURIComponent(property.title)}`}
                   >
                     <Mail className="w-3.5 h-3.5 mr-2 text-emerald-500" />
