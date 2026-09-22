@@ -54,7 +54,7 @@ class DocumentResponse(BaseModel):
 
 class SellerPropertyCreate(BaseModel):
     title: str = Field(..., min_length=3, max_length=200)
-    description: str = Field(..., min_length=10)
+    description: str = Field(...)
     price: float = Field(..., gt=0)
     address: str = Field(..., min_length=3)
     city: str = Field(..., min_length=2)

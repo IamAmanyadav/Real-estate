@@ -166,14 +166,6 @@ export default function NewPropertyPage() {
 
     if (!form.description.trim()) {
       issues.push({ field: "description", label: "Description", message: "Description is required", section: "Basic Details", elementId: "description" });
-    } else if (form.description.trim().length < 30) {
-      issues.push({
-        field: "description",
-        label: "Description",
-        message: `Your description is too short (currently ${form.description.trim().length}/30 characters minimum). Please add more details about property features, rooms, and location.`,
-        section: "Basic Details",
-        elementId: "description",
-      });
     }
 
     if (!form.yearBuilt) {
