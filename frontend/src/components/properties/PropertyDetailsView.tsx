@@ -35,6 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import ContactForm from "@/components/contact/ContactForm";
+import MapboxPropertyMap from "@/components/properties/MapboxPropertyMap";
 import { LiveBiddingDialog } from "@/components/bidding/LiveBiddingDialog";
 import { AuctionTimerBadge } from "@/components/bidding/AuctionTimerBadge";
 import { getAuctionState } from "@/lib/bidding-api";
@@ -203,8 +204,8 @@ export default function PropertyDetailsView({
     setBooking(true);
     setBookingError("");
     try {
-      await createAppointment({ 
-        propertyId: property.id, 
+      await createAppointment({
+        propertyId: property.id,
         timeSlotId: isCustomRequest ? undefined : selectedSlot,
         requestedDate: isCustomRequest ? requestedDate : undefined,
         requestedTime: isCustomRequest ? requestedTime : undefined,
@@ -403,8 +404,8 @@ export default function PropertyDetailsView({
                   key={i}
                   onClick={() => setSelectedImage(i)}
                   className={`relative flex-1 rounded-2xl overflow-hidden border-2 transition-all group bg-muted ${selectedImage === i
-                      ? "border-emerald-500 ring-4 ring-emerald-500/30 shadow-xl"
-                      : "border-transparent opacity-70 hover:opacity-100"
+                    ? "border-emerald-500 ring-4 ring-emerald-500/30 shadow-xl"
+                    : "border-transparent opacity-70 hover:opacity-100"
                     }`}
                 >
                   <img
@@ -433,8 +434,8 @@ export default function PropertyDetailsView({
                   key={i}
                   onClick={() => setSelectedImage(i)}
                   className={`relative w-28 sm:w-36 h-20 sm:h-24 rounded-2xl overflow-hidden border-2 shrink-0 transition-all bg-muted ${selectedImage === i
-                      ? "border-emerald-500 ring-2 ring-emerald-500/30 scale-105 shadow-md"
-                      : "border-transparent opacity-60 hover:opacity-100"
+                    ? "border-emerald-500 ring-2 ring-emerald-500/30 scale-105 shadow-md"
+                    : "border-transparent opacity-60 hover:opacity-100"
                     }`}
                 >
                   <img
@@ -524,8 +525,8 @@ export default function PropertyDetailsView({
                     key={i}
                     onClick={() => setSelectedImage(i)}
                     className={`relative w-18 h-14 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${selectedImage === i
-                        ? "border-emerald-500 scale-110 ring-2 ring-emerald-500/60 shadow-lg"
-                        : "border-transparent opacity-40 hover:opacity-100"
+                      ? "border-emerald-500 scale-110 ring-2 ring-emerald-500/60 shadow-lg"
+                      : "border-transparent opacity-40 hover:opacity-100"
                       }`}
                   >
                     <img
@@ -743,6 +744,17 @@ export default function PropertyDetailsView({
               </div>
             </div>
           )}
+
+          {/* Map Location */}
+          {property.latitude && property.longitude && (
+            <div className="space-y-3 pt-4">
+              <h2 className="text-base sm:text-lg font-bold flex items-center gap-2">
+                <MapPin className="w-4.5 h-4.5 text-emerald-500" />
+                Map Location
+              </h2>
+              <MapboxPropertyMap latitude={property.latitude} longitude={property.longitude} />
+            </div>
+          )}
         </motion.div>
 
         <Separator className="my-8" />
@@ -851,10 +863,10 @@ export default function PropertyDetailsView({
                       <p className="text-xs text-muted-foreground mb-3">
                         No visit slots currently available.
                       </p>
-                      <Button 
+                      <Button
                         onClick={() => setIsCustomRequest(true)}
-                        variant="outline" 
-                        size="sm" 
+                        variant="outline"
+                        size="sm"
                         className="text-xs h-8 rounded-lg border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
                       >
                         Request Custom Time
@@ -873,8 +885,8 @@ export default function PropertyDetailsView({
                       <div className="space-y-2">
                         <div>
                           <label className="text-[10px] font-medium text-muted-foreground uppercase">Preferred Date</label>
-                          <input 
-                            type="date" 
+                          <input
+                            type="date"
                             min={new Date().toISOString().split("T")[0]}
                             value={requestedDate}
                             onChange={(e) => setRequestedDate(e.target.value)}
@@ -883,8 +895,8 @@ export default function PropertyDetailsView({
                         </div>
                         <div>
                           <label className="text-[10px] font-medium text-muted-foreground uppercase">Preferred Time</label>
-                          <input 
-                            type="time" 
+                          <input
+                            type="time"
                             value={requestedTime}
                             onChange={(e) => setRequestedTime(e.target.value)}
                             className="w-full text-xs h-9 px-3 rounded-lg border border-border bg-background focus:ring-1 focus:ring-emerald-500 outline-none"
@@ -916,8 +928,8 @@ export default function PropertyDetailsView({
                                   setSelectedSlot(selectedSlot === slot.id ? null : slot.id)
                                 }
                                 className={`px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border transition-all ${selectedSlot === slot.id
-                                    ? "bg-emerald-500 text-white border-emerald-500 shadow-sm"
-                                    : "border-border bg-muted/30 hover:bg-emerald-500/10 text-foreground"
+                                  ? "bg-emerald-500 text-white border-emerald-500 shadow-sm"
+                                  : "border-border bg-muted/30 hover:bg-emerald-500/10 text-foreground"
                                   }`}
                               >
                                 {slot.startTime} – {slot.endTime}
@@ -926,14 +938,14 @@ export default function PropertyDetailsView({
                           </div>
                         </div>
                       ))}
-                      
+
                       <div className="pt-2 border-t mt-2">
-                        <Button 
+                        <Button
                           onClick={() => {
                             setIsCustomRequest(true);
                             setSelectedSlot(null);
                           }}
-                          variant="ghost" 
+                          variant="ghost"
                           className="w-full h-8 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
                         >
                           None of these work? Request custom time

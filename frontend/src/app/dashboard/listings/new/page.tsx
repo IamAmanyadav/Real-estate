@@ -34,6 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { createSellerProperty, uploadPropertyImages } from "@/lib/seller-api";
 import Link from "next/link";
+import MapboxLocationPicker from "@/components/properties/MapboxLocationPicker";
 
 const PROPERTY_TYPES = [
   { label: "House", value: "house" },
@@ -71,6 +72,8 @@ interface FormData {
   state: string;
   zipCode: string;
   country: string;
+  latitude: number | null;
+  longitude: number | null;
   bedrooms: string;
   bathrooms: string;
   area: string;
@@ -113,6 +116,8 @@ export default function NewPropertyPage() {
     state: "",
     zipCode: "",
     country: "India",
+    latitude: null,
+    longitude: null,
     bedrooms: "",
     bathrooms: "",
     area: "",
@@ -362,6 +367,8 @@ export default function NewPropertyPage() {
         state: form.state.trim(),
         zipCode: form.zipCode.trim(),
         country: form.country.trim() || "India",
+        latitude: form.latitude,
+        longitude: form.longitude,
         bedrooms: isPlotOrGround ? 0 : (parseInt(form.bedrooms) || 0),
         bathrooms: isPlotOrGround ? 0 : (parseInt(form.bathrooms) || 0),
         area: parseInt(form.area) || 0,
@@ -546,11 +553,10 @@ export default function NewPropertyPage() {
                     value={form.title}
                     onChange={(e) => updateField("title", e.target.value)}
                     required
-                    className={`rounded-xl h-11 transition-all ${
-                      hasAttemptedSubmit && getFieldError("title")
+                    className={`rounded-xl h-11 transition-all ${hasAttemptedSubmit && getFieldError("title")
                         ? "border-red-500 ring-1 ring-red-500/30"
                         : "border-border/80 focus-visible:ring-emerald-500"
-                    }`}
+                      }`}
                   />
                   {hasAttemptedSubmit && getFieldError("title") && (
                     <p className="text-xs text-red-500 flex items-center gap-1 font-medium mt-1">
@@ -566,13 +572,12 @@ export default function NewPropertyPage() {
                     <Label htmlFor="description" className="font-semibold">
                       Property Description <span className="text-red-500">*</span>
                     </Label>
-                    <span className={`text-xs font-mono font-medium ${
-                      form.description.trim().length >= 30
+                    <span className={`text-xs font-mono font-medium ${form.description.trim().length >= 30
                         ? "text-emerald-500"
                         : form.description.trim().length > 0
-                        ? "text-amber-500"
-                        : "text-muted-foreground"
-                    }`}>
+                          ? "text-amber-500"
+                          : "text-muted-foreground"
+                      }`}>
                       {form.description.trim().length} / 30 min chars
                     </span>
                   </div>
@@ -583,14 +588,13 @@ export default function NewPropertyPage() {
                     onChange={(e) => updateField("description", e.target.value)}
                     rows={4}
                     required
-                    className={`rounded-xl transition-all ${
-                      (hasAttemptedSubmit && getFieldError("description")) ||
-                      (form.description.length > 0 && form.description.trim().length < 30)
+                    className={`rounded-xl transition-all ${(hasAttemptedSubmit && getFieldError("description")) ||
+                        (form.description.length > 0 && form.description.trim().length < 30)
                         ? "border-amber-500 ring-1 ring-amber-500/30"
                         : form.description.trim().length >= 30
-                        ? "border-emerald-500/60"
-                        : "border-border/80 focus-visible:ring-emerald-500"
-                    }`}
+                          ? "border-emerald-500/60"
+                          : "border-border/80 focus-visible:ring-emerald-500"
+                      }`}
                   />
 
                   {/* Real-time Short Description Warning */}
@@ -646,11 +650,10 @@ export default function NewPropertyPage() {
                     required
                     min={1800}
                     max={2035}
-                    className={`rounded-xl h-11 ${
-                      hasAttemptedSubmit && getFieldError("yearBuilt")
+                    className={`rounded-xl h-11 ${hasAttemptedSubmit && getFieldError("yearBuilt")
                         ? "border-red-500 ring-1 ring-red-500/30"
                         : "border-border/80 focus-visible:ring-emerald-500"
-                    }`}
+                      }`}
                   />
                   {hasAttemptedSubmit && getFieldError("yearBuilt") && (
                     <p className="text-xs text-red-500 flex items-center gap-1 font-medium mt-1">
@@ -686,11 +689,10 @@ export default function NewPropertyPage() {
                     value={form.address}
                     onChange={(e) => updateField("address", e.target.value)}
                     required
-                    className={`rounded-xl h-11 ${
-                      hasAttemptedSubmit && getFieldError("address")
+                    className={`rounded-xl h-11 ${hasAttemptedSubmit && getFieldError("address")
                         ? "border-red-500 ring-1 ring-red-500/30"
                         : "border-border/80 focus-visible:ring-emerald-500"
-                    }`}
+                      }`}
                   />
                   {hasAttemptedSubmit && getFieldError("address") && (
                     <p className="text-xs text-red-500 flex items-center gap-1 font-medium mt-1">
@@ -710,11 +712,10 @@ export default function NewPropertyPage() {
                     value={form.city}
                     onChange={(e) => updateField("city", e.target.value)}
                     required
-                    className={`rounded-xl h-11 ${
-                      hasAttemptedSubmit && getFieldError("city")
+                    className={`rounded-xl h-11 ${hasAttemptedSubmit && getFieldError("city")
                         ? "border-red-500 ring-1 ring-red-500/30"
                         : "border-border/80 focus-visible:ring-emerald-500"
-                    }`}
+                      }`}
                   />
                   {hasAttemptedSubmit && getFieldError("city") && (
                     <p className="text-xs text-red-500 flex items-center gap-1 font-medium mt-1">
@@ -734,11 +735,10 @@ export default function NewPropertyPage() {
                     value={form.state}
                     onChange={(e) => updateField("state", e.target.value)}
                     required
-                    className={`rounded-xl h-11 ${
-                      hasAttemptedSubmit && getFieldError("state")
+                    className={`rounded-xl h-11 ${hasAttemptedSubmit && getFieldError("state")
                         ? "border-red-500 ring-1 ring-red-500/30"
                         : "border-border/80 focus-visible:ring-emerald-500"
-                    }`}
+                      }`}
                   />
                   {hasAttemptedSubmit && getFieldError("state") && (
                     <p className="text-xs text-red-500 flex items-center gap-1 font-medium mt-1">
@@ -758,11 +758,10 @@ export default function NewPropertyPage() {
                     value={form.zipCode}
                     onChange={(e) => updateField("zipCode", e.target.value)}
                     required
-                    className={`rounded-xl h-11 ${
-                      hasAttemptedSubmit && getFieldError("zipCode")
+                    className={`rounded-xl h-11 ${hasAttemptedSubmit && getFieldError("zipCode")
                         ? "border-red-500 ring-1 ring-red-500/30"
                         : "border-border/80 focus-visible:ring-emerald-500"
-                    }`}
+                      }`}
                   />
                   {hasAttemptedSubmit && getFieldError("zipCode") && (
                     <p className="text-xs text-red-500 flex items-center gap-1 font-medium mt-1">
@@ -782,6 +781,16 @@ export default function NewPropertyPage() {
                     className="rounded-xl h-11 border-border/80 focus-visible:ring-emerald-500"
                   />
                 </div>
+              </div>
+              <div className="pt-4 border-t border-border/50">
+                <MapboxLocationPicker
+                  initialLatitude={form.latitude}
+                  initialLongitude={form.longitude}
+                  onChange={(lat, lng) => {
+                    updateField("latitude", lat);
+                    updateField("longitude", lng);
+                  }}
+                />
               </div>
             </CardContent>
           </Card>
@@ -812,11 +821,10 @@ export default function NewPropertyPage() {
                     onChange={(e) => updateField("bedrooms", e.target.value)}
                     required
                     min={0}
-                    className={`rounded-xl h-11 ${
-                      hasAttemptedSubmit && getFieldError("bedrooms")
+                    className={`rounded-xl h-11 ${hasAttemptedSubmit && getFieldError("bedrooms")
                         ? "border-red-500 ring-1 ring-red-500/30"
                         : "border-border/80 focus-visible:ring-emerald-500"
-                    }`}
+                      }`}
                   />
                   {hasAttemptedSubmit && getFieldError("bedrooms") && (
                     <p className="text-xs text-red-500 flex items-center gap-1 font-medium mt-1">
@@ -839,11 +847,10 @@ export default function NewPropertyPage() {
                     onChange={(e) => updateField("bathrooms", e.target.value)}
                     required
                     min={0}
-                    className={`rounded-xl h-11 ${
-                      hasAttemptedSubmit && getFieldError("bathrooms")
+                    className={`rounded-xl h-11 ${hasAttemptedSubmit && getFieldError("bathrooms")
                         ? "border-red-500 ring-1 ring-red-500/30"
                         : "border-border/80 focus-visible:ring-emerald-500"
-                    }`}
+                      }`}
                   />
                   {hasAttemptedSubmit && getFieldError("bathrooms") && (
                     <p className="text-xs text-red-500 flex items-center gap-1 font-medium mt-1">
@@ -865,11 +872,10 @@ export default function NewPropertyPage() {
                     onChange={(e) => updateField("area", e.target.value)}
                     required
                     min={1}
-                    className={`rounded-xl h-11 ${
-                      hasAttemptedSubmit && getFieldError("area")
+                    className={`rounded-xl h-11 ${hasAttemptedSubmit && getFieldError("area")
                         ? "border-red-500 ring-1 ring-red-500/30"
                         : "border-border/80 focus-visible:ring-emerald-500"
-                    }`}
+                      }`}
                   />
                   {hasAttemptedSubmit && getFieldError("area") && (
                     <p className="text-xs text-red-500 flex items-center gap-1 font-medium mt-1">
@@ -904,117 +910,116 @@ export default function NewPropertyPage() {
               </div>
 
               <div className="space-y-4 pt-3 border-t border-border/50">
-                  {/* Informational Callout for First Bid Timer Trigger */}
-                  <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2.5">
-                    <Zap className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                    <div className="space-y-1">
-                      <p className="font-bold text-foreground">
-                        ⏱️ Auction Countdown Starts Automatically on 1st Bid
-                      </p>
-                      <p className="text-muted-foreground leading-relaxed">
-                        The countdown timer will stay pending and will begin ticking the instant the first buyer places a bid. If any bid is submitted within the final 1 hour of the auction, anti-sniping protection automatically increases the countdown by 1 more day.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Reserve Price */}
-                    <div className="space-y-1.5">
-                      <Label htmlFor="reservePrice" className="font-semibold text-foreground">
-                        Lowest Acceptable Bid (Reserve Price) <span className="text-red-500">*</span>
-                      </Label>
-                      <p className="text-[11px] text-muted-foreground">
-                        Minimum price at which you agree to sell. Bidding starts from here.
-                      </p>
-                      <div className="relative">
-                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">₹</span>
-                        <Input
-                          id="reservePrice"
-                          type="number"
-                          value={form.reservePrice}
-                          onChange={(e) => updateField("reservePrice", e.target.value)}
-                          required
-                          min={1}
-                          className={`pl-8 rounded-xl h-11 font-mono ${
-                            hasAttemptedSubmit && getFieldError("reservePrice")
-                              ? "border-red-500 ring-1 ring-red-500/30"
-                              : "border-border/80 focus-visible:ring-amber-500"
-                          }`}
-                        />
-                      </div>
-                      {hasAttemptedSubmit && getFieldError("reservePrice") && (
-                        <p className="text-xs text-red-500 flex items-center gap-1 font-medium mt-1">
-                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                          {getFieldError("reservePrice")}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Auction Duration & End Date */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="auctionEndDate" className="font-semibold text-foreground">
-                          Auction Duration (Starts upon 1st Bid)
-                        </Label>
-                        <span className="text-[10px] text-amber-500 font-medium">Auto-triggers on 1st bid</span>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground">
-                        Quick duration presets or pick a custom date & time:
-                      </p>
-                      <div className="flex items-center gap-1.5 flex-wrap pb-1">
-                        {[
-                          { label: "24 Hours", hours: 24 },
-                          { label: "48 Hours", hours: 48 },
-                          { label: "3 Days", hours: 72 },
-                          { label: "7 Days", hours: 168 },
-                        ].map((preset) => (
-                          <button
-                            key={preset.hours}
-                            type="button"
-                            onClick={() => {
-                              const d = new Date();
-                              d.setHours(d.getHours() + preset.hours);
-                              const pad = (n: number) => String(n).padStart(2, "0");
-                              const formatted = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-                              updateField("auctionEndDate", formatted);
-                            }}
-                            className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-300 transition-colors"
-                          >
-                            {preset.label}
-                          </button>
-                        ))}
-                      </div>
-                      <Input
-                        id="auctionEndDate"
-                        type="datetime-local"
-                        value={form.auctionEndDate}
-                        onChange={(e) => updateField("auctionEndDate", e.target.value)}
-                        className="rounded-xl h-11 border-border/80 focus-visible:ring-amber-500"
-                      />
-                    </div>
-
-                    {/* Minimum Bid Jump Increment */}
-                    <div className="md:col-span-2 space-y-1.5">
-                      <Label className="font-semibold text-foreground flex items-center justify-between">
-                        <span>Minimum Bid Jump Increment</span>
-                        <span className="text-xs text-amber-500 font-bold">10% Dynamic Rule Active</span>
-                      </Label>
-                      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-muted-foreground flex items-center gap-2">
-                        <Zap className="w-4 h-4 text-amber-500 shrink-0" />
-                        <span>
-                          Every subsequent bid is strictly required to be at least <strong>10% higher than the current price</strong> (automatically computed and updated in real time).
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-muted/40 border border-border/50 text-xs text-muted-foreground flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span>
-                      <strong>Blind Privacy Protocol:</strong> Bidders are anonymized. When the auction concludes, final contact details are made available to the seller for closing and documentation.
-                    </span>
+                {/* Informational Callout for First Bid Timer Trigger */}
+                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2.5">
+                  <Zap className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-bold text-foreground">
+                      ⏱️ Auction Countdown Starts Automatically on 1st Bid
+                    </p>
+                    <p className="text-muted-foreground leading-relaxed">
+                      The countdown timer will stay pending and will begin ticking the instant the first buyer places a bid. If any bid is submitted within the final 1 hour of the auction, anti-sniping protection automatically increases the countdown by 1 more day.
+                    </p>
                   </div>
                 </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Reserve Price */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="reservePrice" className="font-semibold text-foreground">
+                      Lowest Acceptable Bid (Reserve Price) <span className="text-red-500">*</span>
+                    </Label>
+                    <p className="text-[11px] text-muted-foreground">
+                      Minimum price at which you agree to sell. Bidding starts from here.
+                    </p>
+                    <div className="relative">
+                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground font-mono text-sm">₹</span>
+                      <Input
+                        id="reservePrice"
+                        type="number"
+                        value={form.reservePrice}
+                        onChange={(e) => updateField("reservePrice", e.target.value)}
+                        required
+                        min={1}
+                        className={`pl-8 rounded-xl h-11 font-mono ${hasAttemptedSubmit && getFieldError("reservePrice")
+                            ? "border-red-500 ring-1 ring-red-500/30"
+                            : "border-border/80 focus-visible:ring-amber-500"
+                          }`}
+                      />
+                    </div>
+                    {hasAttemptedSubmit && getFieldError("reservePrice") && (
+                      <p className="text-xs text-red-500 flex items-center gap-1 font-medium mt-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        {getFieldError("reservePrice")}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Auction Duration & End Date */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="auctionEndDate" className="font-semibold text-foreground">
+                        Auction Duration (Starts upon 1st Bid)
+                      </Label>
+                      <span className="text-[10px] text-amber-500 font-medium">Auto-triggers on 1st bid</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Quick duration presets or pick a custom date & time:
+                    </p>
+                    <div className="flex items-center gap-1.5 flex-wrap pb-1">
+                      {[
+                        { label: "24 Hours", hours: 24 },
+                        { label: "48 Hours", hours: 48 },
+                        { label: "3 Days", hours: 72 },
+                        { label: "7 Days", hours: 168 },
+                      ].map((preset) => (
+                        <button
+                          key={preset.hours}
+                          type="button"
+                          onClick={() => {
+                            const d = new Date();
+                            d.setHours(d.getHours() + preset.hours);
+                            const pad = (n: number) => String(n).padStart(2, "0");
+                            const formatted = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+                            updateField("auctionEndDate", formatted);
+                          }}
+                          className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-300 transition-colors"
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                    <Input
+                      id="auctionEndDate"
+                      type="datetime-local"
+                      value={form.auctionEndDate}
+                      onChange={(e) => updateField("auctionEndDate", e.target.value)}
+                      className="rounded-xl h-11 border-border/80 focus-visible:ring-amber-500"
+                    />
+                  </div>
+
+                  {/* Minimum Bid Jump Increment */}
+                  <div className="md:col-span-2 space-y-1.5">
+                    <Label className="font-semibold text-foreground flex items-center justify-between">
+                      <span>Minimum Bid Jump Increment</span>
+                      <span className="text-xs text-amber-500 font-bold">10% Dynamic Rule Active</span>
+                    </Label>
+                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-muted-foreground flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>
+                        Every subsequent bid is strictly required to be at least <strong>10% higher than the current price</strong> (automatically computed and updated in real time).
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-muted/40 border border-border/50 text-xs text-muted-foreground flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>
+                    <strong>Blind Privacy Protocol:</strong> Bidders are anonymized. When the auction concludes, final contact details are made available to the seller for closing and documentation.
+                  </span>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </motion.div>
@@ -1032,11 +1037,10 @@ export default function NewPropertyPage() {
 
               {/* Drop zone */}
               <div
-                className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 cursor-pointer ${
-                  isDragging
+                className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-200 cursor-pointer ${isDragging
                     ? "border-emerald-500 bg-emerald-500/5"
                     : "border-border/80 hover:border-emerald-500/50 hover:bg-emerald-500/5"
-                }`}
+                  }`}
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
@@ -1072,9 +1076,8 @@ export default function NewPropertyPage() {
                       <img
                         src={preview.previewUrl}
                         alt={`Property ${i + 1}`}
-                        className={`w-full h-full object-cover transition-opacity ${
-                          preview.uploading ? "opacity-50" : ""
-                        }`}
+                        className={`w-full h-full object-cover transition-opacity ${preview.uploading ? "opacity-50" : ""
+                          }`}
                       />
                       {preview.uploading && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black/30">
@@ -1123,11 +1126,10 @@ export default function NewPropertyPage() {
                     key={feature}
                     type="button"
                     onClick={() => toggleFeature(feature)}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 border cursor-pointer ${
-                      form.features.includes(feature)
+                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all duration-200 border cursor-pointer ${form.features.includes(feature)
                         ? "bg-emerald-500 text-white border-emerald-500 shadow-xs"
                         : "bg-background border-border/80 hover:bg-muted text-muted-foreground hover:text-foreground"
-                    }`}
+                      }`}
                   >
                     {feature}
                   </button>

@@ -125,11 +125,10 @@ export default function NavbarFilterBar({
 
   return (
     <div
-      className={`sticky ${
-        isDashboard
+      className={`sticky ${isDashboard
           ? "top-16 z-20 rounded-2xl border bg-card/80 backdrop-blur-xl border-border/60 shadow-sm"
           : "top-16 lg:top-20 z-40 border-y bg-background/90 backdrop-blur-xl border-border/60 shadow-sm"
-      } w-full transition-all duration-300 py-3 mb-6`}
+        } w-full transition-all duration-300 py-3 mb-6`}
     >
       <div className={isDashboard ? "px-3 sm:px-4 space-y-2.5" : "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2.5"}>
         {/* Main Clean Universal Bar (All Screen Sizes) */}
@@ -160,24 +159,21 @@ export default function NavbarFilterBar({
               <Button
                 variant="outline"
                 onClick={onToggleSavedOnly}
-                className={`h-10.5 px-3 sm:px-3.5 rounded-xl border font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm ${
-                  showSavedOnly
+                className={`h-10.5 px-3 sm:px-3.5 rounded-xl border font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-sm ${showSavedOnly
                     ? "border-rose-500 bg-rose-500/10 text-rose-600 dark:text-rose-400"
                     : "border-border/80 bg-card hover:bg-accent text-foreground"
-                }`}
+                  }`}
                 title={showSavedOnly ? "Showing Saved Properties" : "Filter by Saved Properties"}
               >
                 <Heart
-                  className={`w-4 h-4 transition-transform ${
-                    showSavedOnly ? "fill-rose-500 text-rose-500 scale-110" : "text-rose-500"
-                  }`}
+                  className={`w-4 h-4 transition-transform ${showSavedOnly ? "fill-rose-500 text-rose-500 scale-110" : "text-rose-500"
+                    }`}
                 />
                 <span className="hidden sm:inline">Saved</span>
                 {savedCount > 0 && (
                   <span
-                    className={`w-5 h-5 rounded-full text-white text-[11px] font-bold flex items-center justify-center shadow-sm ${
-                      showSavedOnly ? "bg-rose-500" : "bg-muted-foreground/60"
-                    }`}
+                    className={`w-5 h-5 rounded-full text-white text-[11px] font-bold flex items-center justify-center shadow-sm ${showSavedOnly ? "bg-rose-500" : "bg-muted-foreground/60"
+                      }`}
                   >
                     {savedCount}
                   </span>
@@ -191,11 +187,10 @@ export default function NavbarFilterBar({
                 render={
                   <Button
                     variant="outline"
-                    className={`h-10.5 px-3 sm:px-3.5 rounded-xl border font-semibold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all shadow-sm ${
-                      activeFiltersCount > (showSavedOnly ? 1 : 0)
+                    className={`h-10.5 px-3 sm:px-3.5 rounded-xl border font-semibold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 transition-all shadow-sm ${activeFiltersCount > (showSavedOnly ? 1 : 0)
                         ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                         : "border-border/80 bg-card hover:bg-accent text-foreground"
-                    }`}
+                      }`}
                   >
                     <SlidersHorizontal className="w-4 h-4 text-emerald-500" />
                     <span>All Filters</span>
@@ -247,11 +242,10 @@ export default function NavbarFilterBar({
                             key={t.value}
                             type="button"
                             onClick={() => updateFilter("propertyType", t.value)}
-                            className={`px-3 py-2.5 rounded-xl text-xs font-medium border transition-all text-center ${
-                              isSelected
+                            className={`px-3 py-2.5 rounded-xl text-xs font-medium border transition-all text-center ${isSelected
                                 ? "bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20 font-semibold"
                                 : "bg-muted/40 border-border hover:bg-accent text-foreground"
-                            }`}
+                              }`}
                           >
                             {t.label}
                           </button>
@@ -297,11 +291,10 @@ export default function NavbarFilterBar({
                             key={b.value}
                             type="button"
                             onClick={() => updateFilter("bedrooms", b.value)}
-                            className={`py-2 rounded-xl text-xs font-medium border transition-all text-center ${
-                              isSelected
+                            className={`py-2 rounded-xl text-xs font-medium border transition-all text-center ${isSelected
                                 ? "bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20 font-semibold"
                                 : "bg-muted/40 border-border hover:bg-accent text-foreground"
-                            }`}
+                              }`}
                           >
                             {b.label}
                           </button>
@@ -324,11 +317,10 @@ export default function NavbarFilterBar({
                             key={b.value}
                             type="button"
                             onClick={() => updateFilter("bathrooms", b.value)}
-                            className={`py-2 rounded-xl text-xs font-medium border transition-all text-center ${
-                              isSelected
+                            className={`py-2 rounded-xl text-xs font-medium border transition-all text-center ${isSelected
                                 ? "bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20 font-semibold"
                                 : "bg-muted/40 border-border hover:bg-accent text-foreground"
-                            }`}
+                              }`}
                           >
                             {b.label}
                           </button>
@@ -387,9 +379,8 @@ export default function NavbarFilterBar({
                 variant="ghost"
                 size="sm"
                 onClick={() => onViewModeChange("grid")}
-                className={`h-8.5 px-2.5 rounded-lg text-xs font-semibold ${
-                  viewMode === "grid" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-                }`}
+                className={`h-8.5 px-2.5 rounded-lg text-xs font-semibold ${viewMode === "grid" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                  }`}
                 title="Grid View"
               >
                 <LayoutGrid className="w-4 h-4" />
@@ -398,9 +389,8 @@ export default function NavbarFilterBar({
                 variant="ghost"
                 size="sm"
                 onClick={() => onViewModeChange("list")}
-                className={`h-8.5 px-2.5 rounded-lg text-xs font-semibold ${
-                  viewMode === "list" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-                }`}
+                className={`h-8.5 px-2.5 rounded-lg text-xs font-semibold ${viewMode === "list" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                  }`}
                 title="List View"
               >
                 <List className="w-4 h-4" />
