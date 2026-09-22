@@ -2,12 +2,15 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
+import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { MapPin, Info } from "lucide-react";
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
+import { MapPin, Info, Search } from "lucide-react";
 
 interface MapboxLocationPickerProps {
   initialLatitude: number | null;
   initialLongitude: number | null;
+  searchQuery?: string;
   onChange: (lat: number, lng: number) => void;
 }
 
@@ -16,6 +19,7 @@ const DEFAULT_CENTER: [number, number] = [78.9629, 20.5937]; // Center of India
 export default function MapboxLocationPicker({
   initialLatitude,
   initialLongitude,
+  searchQuery,
   onChange,
 }: MapboxLocationPickerProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -49,28 +53,10 @@ export default function MapboxLocationPicker({
 
     map.current.addControl(new mapboxgl.NavigationControl(), "top-right");
 
-    // Add initial marker if coordinates are provided
-    if (initialLatitude && initialLongitude) {
-      marker.current = new mapboxgl.Marker({ draggable: true, color: "#10b981" })
-        .setLngLat([initialLongitude, initialLatitude])
-        .addTo(map.current);
-
-      marker.current.on("dragend", () => {
-        if (!marker.current) return;
-        const lngLat = marker.current.getLngLat();
-        setCurrentLat(lngLat.lat);
-        setCurrentLng(lngLat.lng);
-        onChange(lngLat.lat, lngLat.lng);
-      });
-    }
-
-    // Map click handling
-    map.current.on("click", (e) => {
-      const coords = e.lngLat;
-      
+    const updateMarkerAndState = (lng: number, lat: number) => {
       if (!marker.current) {
         marker.current = new mapboxgl.Marker({ draggable: true, color: "#10b981" })
-          .setLngLat(coords)
+          .setLngLat([lng, lat])
           .addTo(map.current!);
 
         marker.current.on("dragend", () => {
@@ -81,21 +67,69 @@ export default function MapboxLocationPicker({
           onChange(lngLat.lat, lngLat.lng);
         });
       } else {
-        marker.current.setLngLat(coords);
+        marker.current.setLngLat([lng, lat]);
       }
+      setCurrentLat(lat);
+      setCurrentLng(lng);
+      onChange(lat, lng);
+    };
 
-      setCurrentLat(coords.lat);
-      setCurrentLng(coords.lng);
-      onChange(coords.lat, coords.lng);
+    // Add initial marker if coordinates are provided
+    if (initialLatitude && initialLongitude) {
+      updateMarkerAndState(initialLongitude, initialLatitude);
+    }
+
+    // Map click handling
+    map.current.on("click", (e) => {
+      const coords = e.lngLat;
+      updateMarkerAndState(coords.lng, coords.lat);
     });
 
+    // Add Geolocate Control
+    const geolocate = new mapboxgl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: false,
+      showUserHeading: true,
+    });
+    map.current.addControl(geolocate, "top-right");
+
+    // Handle geolocate result
+    geolocate.on("geolocate", (e: any) => {
+      updateMarkerAndState(e.coords.longitude, e.coords.latitude);
+    });
+
+    // Add Geocoder Control
+    const geocoder = new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      mapboxgl: mapboxgl as any,
+      marker: false, // We manage our own marker
+      placeholder: "Search for an address",
+    });
+    map.current.addControl(geocoder, "top-left");
+
+    // Handle geocoder result
+    geocoder.on("result", (e) => {
+      const coords = e.result.center;
+      updateMarkerAndState(coords[0], coords[1]);
+    });
+
+    // Expose geocoder to window for programmatic search from prop (dirty hack to bypass complex state refs)
+    (window as any).__mapboxGeocoder = geocoder;
+
     return () => {
+      if ((window as any).__mapboxGeocoder) delete (window as any).__mapboxGeocoder;
       if (map.current) {
         map.current.remove();
         map.current = null;
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (searchQuery && (window as any).__mapboxGeocoder) {
+      (window as any).__mapboxGeocoder.query(searchQuery);
+    }
+  }, [searchQuery]);
 
   if (tokenMissing) {
     return (

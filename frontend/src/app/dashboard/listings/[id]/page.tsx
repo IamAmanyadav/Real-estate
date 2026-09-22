@@ -68,6 +68,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
   const [bedrooms, setBedrooms] = useState("");
   const [bathrooms, setBathrooms] = useState("");
   const [area, setArea] = useState("");
+  const [mapQuery, setMapQuery] = useState("");
 
   const fetchProperty = useCallback(async () => {
     setLoading(true);
@@ -249,10 +250,26 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                     <Input value={zipCode} onChange={(e) => setZipCode(e.target.value)} className="mt-1.5 rounded-lg" />
                   </div>
                   <div className="md:col-span-2 pt-2 border-t border-border/50">
-                    <Label className="mb-2 block font-semibold">Map Location</Label>
+                    <div className="flex items-center justify-between mb-3">
+                      <Label className="font-semibold block">Map Location</Label>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        className="h-8 text-xs rounded-lg border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
+                        onClick={() => {
+                          const fullAddress = [address, city, state, zipCode, "India"].filter(Boolean).join(", ");
+                          if (fullAddress) setMapQuery(fullAddress);
+                        }}
+                      >
+                        <MapPin className="w-3.5 h-3.5 mr-1.5" />
+                        Locate Address on Map
+                      </Button>
+                    </div>
                     <MapboxLocationPicker
                       initialLatitude={latitude}
                       initialLongitude={longitude}
+                      searchQuery={mapQuery}
                       onChange={(lat, lng) => {
                         setLatitude(lat);
                         setLongitude(lng);

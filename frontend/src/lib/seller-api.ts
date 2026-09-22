@@ -86,15 +86,34 @@ export async function uploadPropertyImages(
   const formData = new FormData();
   files.forEach((file) => formData.append("files", file));
 
-  const { data } = await sellerApi.post<{ urls: string[]; count: number }>(
-    "/uploads/images",
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-      timeout: 60000, // 60s for large uploads
+  let token = null;
+  if (typeof window !== "undefined") {
+    try {
+      const clerk = (window as any).Clerk;
+      if (clerk && clerk.session) {
+        token = await clerk.session.getToken();
+      }
+    } catch (e) {
+      console.error("Failed to get token for upload", e);
     }
-  );
-  return data;
+  }
+
+  const response = await fetch(`${API_BASE_URL}/uploads/images`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+
+  if (!response.ok) {
+    let errDetail = "Image upload failed";
+    try {
+      const err = await response.json();
+      errDetail = typeof err.detail === "string" ? err.detail : JSON.stringify(err.detail);
+    } catch (e) {}
+    throw new Error(errDetail);
+  }
+
+  return response.json();
 }
 
 export default sellerApi;

@@ -106,6 +106,7 @@ export default function NewPropertyPage() {
   const [newFeature, setNewFeature] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  const [mapQuery, setMapQuery] = useState("");
 
   const [form, setForm] = useState<FormData>({
     title: "",
@@ -783,9 +784,26 @@ export default function NewPropertyPage() {
                 </div>
               </div>
               <div className="pt-4 border-t border-border/50">
+                <div className="flex items-center justify-between mb-3">
+                  <Label className="font-semibold block">Map Location</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    className="h-8 text-xs rounded-lg border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
+                    onClick={() => {
+                      const fullAddress = [form.address, form.city, form.state, form.zipCode, form.country].filter(Boolean).join(", ");
+                      if (fullAddress) setMapQuery(fullAddress);
+                    }}
+                  >
+                    <MapPin className="w-3.5 h-3.5 mr-1.5" />
+                    Locate Address on Map
+                  </Button>
+                </div>
                 <MapboxLocationPicker
                   initialLatitude={form.latitude}
                   initialLongitude={form.longitude}
+                  searchQuery={mapQuery}
                   onChange={(lat, lng) => {
                     updateField("latitude", lat);
                     updateField("longitude", lng);
