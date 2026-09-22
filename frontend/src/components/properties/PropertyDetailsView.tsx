@@ -817,9 +817,9 @@ export default function PropertyDetailsView({
                   className="w-full justify-center rounded-xl h-10 text-xs font-semibold border-border hover:border-emerald-500/40"
                   asChild
                 >
-                  <a href={`tel:${property.agent?.phone || "+1 (555) 000-0000"}`}>
+                  <a href={`tel:${property.agent?.phone || "9336694250"}`}>
                     <Phone className="w-3.5 h-3.5 mr-2 text-emerald-500" />
-                    Call {property.agent?.phone || "+1 (555) 000-0000"}
+                    Call {property.agent?.phone || "9336694250"}
                   </a>
                 </Button>
                 <Button

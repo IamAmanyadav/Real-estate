@@ -33,10 +33,9 @@ USERS = [
 # ── Agent seed data ──────────────────────────────────────────────────────────
 
 AGENTS = [
-    {"name": "Alexandra Wright", "email": "alex@luxeestates.com", "phone": "+1 (555) 101-2001", "title": "Senior Agent", "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face"},
-    {"name": "Marcus Chen", "email": "marcus@luxeestates.com", "phone": "+1 (555) 101-2002", "title": "Head of Sales", "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"},
-    {"name": "Sophie Anderson", "email": "sophie@luxeestates.com", "phone": "+1 (555) 101-2003", "title": "Lead Agent", "avatar": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face"},
-    {"name": "David Okafor", "email": "david@luxeestates.com", "phone": "+1 (555) 101-2004", "title": "Property Analyst", "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face"},
+    {"name": "Jaswant", "email": "ay279754@gmail.com", "phone": "+91 8299514092", "title": "Senior Agent", "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face"},
+    {"name": "Aman Yadav", "email": "ay279754@gmail.com", "phone": "+91 9336694250", "title": "Head of Sales", "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face"},
+    {"name": "Pradeep Yadav", "email": "pradeepydv014@gmail.com", "phone": "+91 9026652103", "title": "Lead Agent", "avatar": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face"},
 ]
 
 
