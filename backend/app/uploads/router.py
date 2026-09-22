@@ -19,11 +19,13 @@ from app.models.user import User
 import cloudinary
 import cloudinary.uploader
 
+from app.config import settings
+
 # Configure Cloudinary using environment variables
 cloudinary.config(
-    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.getenv("CLOUDINARY_API_KEY"),
-    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    cloud_name=settings.cloudinary_cloud_name,
+    api_key=settings.cloudinary_api_key,
+    api_secret=settings.cloudinary_api_secret,
 )
 
 router = APIRouter()

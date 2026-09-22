@@ -43,7 +43,7 @@ export function getImageUrl(url: any): string {
       } else if (typeof parsed === "object" && parsed !== null) {
         cleaned = parsed.url || "";
       }
-    } catch {}
+    } catch { }
   }
   if (typeof cleaned === "object" && cleaned !== null) {
     cleaned = cleaned.url || "";

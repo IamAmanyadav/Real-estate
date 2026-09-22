@@ -32,6 +32,8 @@ import { getSellerProperty, updateSellerProperty } from "@/lib/seller-api";
 import { formatPrice, formatDate, getImageUrl } from "@/lib/utils";
 import type { SellerProperty, VerificationStatus } from "@/types";
 import Link from "next/link";
+import MapboxLocationPicker from "@/components/properties/MapboxLocationPicker";
+import MapboxPropertyMap from "@/components/properties/MapboxPropertyMap";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   pending: { label: "Pending Review", color: "text-amber-500", icon: Clock },
@@ -61,9 +63,12 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [zipCode, setZipCode] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
   const [bedrooms, setBedrooms] = useState("");
   const [bathrooms, setBathrooms] = useState("");
   const [area, setArea] = useState("");
+  const [mapQuery, setMapQuery] = useState("");
 
   const fetchProperty = useCallback(async () => {
     setLoading(true);
@@ -77,6 +82,8 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
       setCity(data.city);
       setState(data.state);
       setZipCode(data.zipCode);
+      setLatitude(data.latitude ?? null);
+      setLongitude(data.longitude ?? null);
       setBedrooms(data.bedrooms.toString());
       setBathrooms(data.bathrooms.toString());
       setArea(data.area.toString());
@@ -104,6 +111,8 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
         city,
         state,
         zipCode,
+        latitude,
+        longitude,
         bedrooms: parseInt(bedrooms),
         bathrooms: parseInt(bathrooms),
         area: parseInt(area),
@@ -240,6 +249,33 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                     <Label>ZIP Code</Label>
                     <Input value={zipCode} onChange={(e) => setZipCode(e.target.value)} className="mt-1.5 rounded-lg" />
                   </div>
+                  <div className="md:col-span-2 pt-2 border-t border-border/50">
+                    <div className="flex items-center justify-between mb-3">
+                      <Label className="font-semibold block">Map Location</Label>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm"
+                        className="h-8 text-xs rounded-lg border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
+                        onClick={() => {
+                          const fullAddress = [address, city, state, zipCode, "India"].filter(Boolean).join(", ");
+                          if (fullAddress) setMapQuery(fullAddress);
+                        }}
+                      >
+                        <MapPin className="w-3.5 h-3.5 mr-1.5" />
+                        Locate Address on Map
+                      </Button>
+                    </div>
+                    <MapboxLocationPicker
+                      initialLatitude={latitude}
+                      initialLongitude={longitude}
+                      searchQuery={mapQuery}
+                      onChange={(lat, lng) => {
+                        setLatitude(lat);
+                        setLongitude(lng);
+                      }}
+                    />
+                  </div>
                   <div>
                     <Label>Bedrooms</Label>
                     <Input type="number" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)} className="mt-1.5 rounded-lg" />
@@ -293,10 +329,15 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Location</h3>
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-start gap-2 mb-4">
                       <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
                       <p>{property.address}, {property.city}, {property.state} {property.zipCode}</p>
                     </div>
+                    {property.latitude && property.longitude && (
+                      <div className="mt-2">
+                        <MapboxPropertyMap latitude={property.latitude} longitude={property.longitude} />
+                      </div>
+                    )}
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Price</h3>
@@ -334,13 +375,12 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                              doc.status === "verified"
+                            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${doc.status === "verified"
                                 ? "bg-emerald-500/10 text-emerald-600"
                                 : doc.status === "rejected"
-                                ? "bg-red-500/10 text-red-600"
-                                : "bg-amber-500/10 text-amber-600"
-                            }`}>
+                                  ? "bg-red-500/10 text-red-600"
+                                  : "bg-amber-500/10 text-amber-600"
+                              }`}>
                               {doc.status}
                             </span>
                             <a href={doc.documentUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground">
